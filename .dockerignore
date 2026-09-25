@@ -15,3 +15,4 @@
 **/.wrangler
 **/.env
 **/.DS_Store
+!hosting/*.inc

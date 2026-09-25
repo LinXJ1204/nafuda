@@ -13,7 +13,7 @@ import { Addr, AddressLink, Card, ExtLink, GraderBadge, Pill, Section, Skeleton,
 import { resolveTitle } from '@nafuda/ui/ens.ts'
 import { formatTime, jpy, scan } from '@nafuda/ui/format.ts'
 import { SlabArt } from '@nafuda/ui/SlabArt.tsx'
-import { PriceChart } from '../components/Charts.tsx'
+import { PriceChart } from '@nafuda/ui/Charts.tsx'
 import { ProvenanceFlow } from '../components/ProvenanceFlow.tsx'
 import { QrCode } from '../components/QrCode.tsx'
 import { ResolutionPath } from '../components/ResolutionPath.tsx'

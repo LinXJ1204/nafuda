@@ -3,7 +3,7 @@ import { GRADERS } from '@nafuda/core/deployment.ts'
 import { useActivity, useStats } from '@nafuda/ui/api.ts'
 import { ActivityFeed } from '@nafuda/ui/ActivityFeed.tsx'
 import { Button } from '@nafuda/ui/components.tsx'
-import { ActivityChart } from '../components/Charts.tsx'
+import { ActivityChart } from '@nafuda/ui/Charts.tsx'
 
 export function ActivityPage() {
   const [grader, setGrader] = useState('')

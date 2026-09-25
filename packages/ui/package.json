@@ -2,15 +2,25 @@
   "name": "@nafuda/ui",
   "private": true,
   "type": "module",
-  "exports": { "./*": "./src/*" },
-  "scripts": { "typecheck": "tsc --noEmit" },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@nafuda/core": "*",
     "@tanstack/react-query": "^5.80.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.9.0",
-    "viem": "2.56.8"
+    "viem": "2.56.8",
+    "recharts": "^3.2.0",
+    "@xyflow/react": "^12.8.0"
   },
-  "devDependencies": { "@types/react": "^19.1.0", "@types/react-dom": "^19.1.0", "typescript": "^5.9.0" }
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^5.9.0"
+  }
 }

@@ -6,7 +6,7 @@ import { AddressLink, Card, Section, Skeleton, Stat } from '@nafuda/ui/component
 import { TitleGrid } from '@nafuda/ui/TitleCard.tsx'
 import { useGraderTrust } from '@nafuda/ui/trust.ts'
 import { TrustList } from '@nafuda/ui/TrustList.tsx'
-import { GradeChart } from '../components/Charts.tsx'
+import { GradeChart } from '@nafuda/ui/Charts.tsx'
 import { NotFound } from './NotFound.tsx'
 
 export function GraderPage() {

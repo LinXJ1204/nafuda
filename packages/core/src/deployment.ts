@@ -26,6 +26,7 @@ export type Grader = {
   modeledAfter: string
   color: string
   certDigits: number
+  seedCertStart: number
   scale: string[]
   subgrades: string[]
   grader: Address

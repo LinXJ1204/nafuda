@@ -124,4 +124,4 @@ W1 → W2 → W3 → W4（第一層驗收：A1–A6）→ W5 → W6、W7 → W8�
 | A4 | 在 fork 上通過（發 `12345680`、`12345681` → 清單和卡片牆都看得到 → 另一個沒有錢包的瀏覽器碰晶片，結果 ✓）。**Sepolia 上的 A4 留給作者**，可以直接在影片裡示範 |
 | A5 | 通過：非 grader 錢包、已經發過的證書號，都在送出前就被擋下並顯示原因 |
 | A6 | 通過：`/`、`/grader/` 回 200，`/grader` 用相對網址轉址；CSP 生效時 S1–S5 仍然通過；映像檔裡找不到 `.env` 的 11 個值 |
-| A7 | 通過（22:45）：作者為既有的 tunnel 加上 `nafuda.sololin.xyz` → `http://localhost:8088`。用全新的 headless Chrome profile（等同無痕視窗）打開公開網址：S1–S5 通過，Explore、B 端清單、信任面板、發行頁都能載入；`/.env` 回 404；Cloudflare 沒有注入任何 script，所以 CSP 不受影響 |
+| A7 | 通過（22:41）：作者為既有的 tunnel 加上 `nafuda.sololin.xyz` → `http://localhost:8088`。用全新的 headless Chrome profile（等同無痕視窗）打開公開網址：S1–S5 通過，Explore、B 端清單、信任面板、發行頁都能載入；`/.env` 回 404；Cloudflare 沒有注入任何 script，所以 CSP 不受影響 |

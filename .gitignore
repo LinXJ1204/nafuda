@@ -11,3 +11,7 @@ node_modules/
 dist/
 
 .DS_Store
+
+# deployment state: fork runs and commit-reveal secrets stay local
+deployments/fork.json
+deployments/.secret-*

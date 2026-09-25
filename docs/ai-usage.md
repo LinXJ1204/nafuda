@@ -34,3 +34,10 @@ A new entry is appended at the end of each work session.
 **Found during implementation**: revoking only `UNEMANCIPATED_ROLE_BITMAP` from the grader is not enough. The grader would keep `ROLE_REGISTRAR` and could register titles directly, bypassing the controller, even with `SET_RESOLVER` for the holder. The setup now leaves the grader only `REGISTRAR_ADMIN`, `SET_PARENT`, and `CAN_NAME`, and a test pins this.
 
 **What the author does**: line-by-line review of the contract and tests. The review outcome will be recorded here.
+
+## P2 deploy scripts and fork rehearsal (from 2026-09-25 ~21:30 JST)
+
+**What the AI did**: wrote `scripts/src/{lib,deploy,issue,verify,transfer}.ts`. The deploy is idempotent, and the commit-reveal commitment is computed locally with a CSPRNG secret. The AI ran the full rehearsal on an anvil fork of Sepolia: deploy from scratch, issue the demo titles, run V1–V8, then re-run everything to confirm no transactions are sent.
+
+**What the author does**: reviews the scripts; approves going to Sepolia (P3).
+

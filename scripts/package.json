@@ -8,7 +8,11 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "preflight": "node --env-file-if-exists=../.env src/preflight.ts",
-    "fund": "node --env-file-if-exists=../.env src/fund.ts"
+    "fund": "node --env-file-if-exists=../.env src/fund.ts",
+    "deploy": "node --env-file-if-exists=../.env src/deploy.ts",
+    "issue": "node --env-file-if-exists=../.env src/issue.ts",
+    "verify": "node --env-file-if-exists=../.env src/verify.ts",
+    "transfer": "node --env-file-if-exists=../.env src/transfer.ts"
   },
   "dependencies": {
     "viem": "2.56.8"

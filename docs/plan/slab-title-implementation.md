@@ -120,11 +120,11 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 
 ### P2　部署腳本與 fork 彩排（H7–H10）
 
-- [ ] P2-1 `deploy.ts`：產品計劃 §4 的第 1–9 步。**可以重跑**：每一步先檢查鏈上狀態，已經做過的就跳過。狀態寫進 `docs/deployments.md`
-- [ ] P2-2 `issue.ts`：從 `demo/slabs.json` 發兩張權狀給 alice（`12345678`、`12345679`）
-- [ ] P2-3 `verify.ts`：下表 V1–V8，任何一項失敗就 exit 1
-- [ ] P2-4 `transfer.ts`：`--from alice --to bob --cert 12345678`
-- [ ] P2-5 在 anvil fork 上從零跑一次，再重跑一次
+- [x] P2-1 `deploy.ts`：產品計劃 §4 的第 1–9 步。**可以重跑**：每一步先檢查鏈上狀態，已經做過的就跳過。狀態寫進 `docs/deployments.md`
+- [x] P2-2 `issue.ts`：從 `demo/slabs.json` 發兩張權狀給 alice（`12345678`、`12345679`）
+- [x] P2-3 `verify.ts`：下表 V1–V8，任何一項失敗就 exit 1
+- [x] P2-4 `transfer.ts`：`--from alice --to bob --cert 12345678`
+- [x] P2-5 在 anvil fork 上從零跑一次，再重跑一次
 
 | # | 檢查項目 |
 |---|---|
@@ -138,6 +138,8 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 | V8 | 只在 fork 上跑：alice → bob 轉手後 V5 變成 bob，再轉回 alice |
 
 **驗收**：在 fork 上 `deploy` 從零跑完；第二次跑沒有送出任何交易；`verify` V1–V8 全部 ✓。
+
+實際結果（2026-09-25 21:40 前後）：fork 上從零部署共 12 筆交易；第二次跑區塊高度不變（沒有送出任何交易）；V1–V8 全部 ✓，其中 V5–V7 走的是 viem 加上 Beta 的 UR proxy `0xeEeE…`。跟產品計劃 §4 的差異：`nafuda.eth` 的 subregistry 直接在 `ETHRegistrar.register` 時帶入，省掉一筆 `setSubregistry`。
 
 ### P3　上 Sepolia（H10–H12）
 

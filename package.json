@@ -1,0 +1,12 @@
+{
+  "name": "nafuda",
+  "private": true,
+  "type": "module",
+  "workspaces": ["packages/*", "apps/*", "server"],
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "engines": { "node": ">=24" }
+}

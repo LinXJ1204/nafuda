@@ -1,0 +1,12 @@
+{
+  "name": "@nafuda/core",
+  "private": true,
+  "type": "module",
+  "exports": { "./*": "./src/*.ts" },
+  "scripts": {
+    "test": "node --test \"src/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": { "viem": "2.56.8" },
+  "devDependencies": { "@types/node": "^24.0.0", "typescript": "^5.9.0" }
+}

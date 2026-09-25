@@ -5,7 +5,7 @@
 //   sepolia  real Sepolia via SEPOLIA_RPC_URL
 //   fork     an `anvil --fork-url $SEPOLIA_RPC_URL` node at FORK_RPC_URL (default http://127.0.0.1:8545)
 
-import { createPublicClient, createWalletClient, http, parseEther, type Hex, type PrivateKeyAccount } from 'viem'
+import { createPublicClient, createWalletClient, fallback, http, parseEther, type Hex, type PrivateKeyAccount } from 'viem'
 import { mnemonicToAccount, privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 
@@ -40,8 +40,12 @@ function required(key: string): string {
 
 export function loadConfig(network: Network) {
   const rpcUrl = network === 'fork' ? (process.env.FORK_RPC_URL ?? 'http://127.0.0.1:8545') : required('SEPOLIA_RPC_URL')
-  const transport = http(rpcUrl)
-  const publicClient = createPublicClient({ chain: sepolia, transport })
+  // Retries with backoff, and on Sepolia a public RPC as fallback: a 429 from the main RPC must
+  // not kill a long-running seed or market run.
+  const retry = { retryCount: 6, retryDelay: 1500 }
+  const transport =
+    network === 'fork' ? http(rpcUrl, retry) : fallback([http(rpcUrl, retry), http('https://ethereum-sepolia-rpc.publicnode.com', retry)])
+  const publicClient = createPublicClient({ chain: sepolia, transport, batch: { multicall: true } })
 
   const accounts = Object.fromEntries(
     ROLES.map((role) => [role, privateKeyToAccount(required(`${role.toUpperCase()}_PK`) as Hex)]),

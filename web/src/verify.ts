@@ -22,6 +22,13 @@ export function makeChallenge(grader: string, cert: string, nowMs = Date.now()):
   return { grader, cert, nonce, issuedAt, message: `ENS-SLAB|${grader}|${cert}|${nonce}|${issuedAt}` }
 }
 
+/// The seller's wallet signs a differently-prefixed message, so a seller signature can never
+/// be confused with (or replayed as) a chip signature.
+export function makeSellerChallenge(grader: string, cert: string, nowMs = Date.now()): Challenge {
+  const c = makeChallenge(grader, cert, nowMs)
+  return { ...c, message: c.message.replace(/^ENS-SLAB\|/, 'NAFUDA-SELLER|') }
+}
+
 export type ChipCheck =
   | { ok: true; signer: Address }
   | { ok: false; reason: 'expired' | 'wrong-chip' | 'bad-signature'; signer?: Address }

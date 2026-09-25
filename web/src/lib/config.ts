@@ -21,7 +21,7 @@ export const UNIVERSAL_RESOLVER: Address = '0xeEeEEEeE14D718C2B47D9923Deab1335E1
 
 /// Public RPC by default so no API key ends up in the bundle. Override with VITE_SEPOLIA_RPC_URL.
 export const SEPOLIA_RPC_URL: string =
-  (import.meta.env?.VITE_SEPOLIA_RPC_URL as string | undefined) ?? 'https://ethereum-sepolia-rpc.publicnode.com'
+  (import.meta.env?.VITE_SEPOLIA_RPC_URL as string | undefined) || 'https://ethereum-sepolia-rpc.publicnode.com'
 
 export type DemoChip = { privateKey: Hex; address: Address }
 export type DemoSlab = { card: string; grade: string; genuine: DemoChip; clone: DemoChip }

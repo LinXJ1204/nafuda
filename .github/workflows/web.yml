@@ -1,11 +1,11 @@
-# Test and build the buyer-check web app. Hosting is Cloudflare Pages (Git integration),
-# which builds and deploys from this repo on every push.
+# Test and build the web app (consumer / and grader console /grader/), and check that the
+# self-hosting image builds and serves both pages. Hosting: see docs/hosting.md.
 name: web
 
 on:
   push:
     branches: [main]
-    paths: ['web/**', 'deployments/sepolia.json', 'demo/**', '.github/workflows/web.yml']
+    paths: ['web/**', 'deployments/sepolia.json', 'demo/**', 'hosting/**', '.dockerignore', '.github/workflows/web.yml']
   pull_request:
   workflow_dispatch:
 
@@ -25,3 +25,16 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f hosting/Dockerfile -t nafuda-web .
+      - name: Serve both pages
+        run: |
+          docker run -d -p 8080:80 --name web nafuda-web
+          sleep 2
+          curl -fsS -o /dev/null http://localhost:8080/
+          curl -fsS -o /dev/null http://localhost:8080/grader/
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/.env)" = 404

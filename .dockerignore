@@ -1,0 +1,12 @@
+# Whitelist: the web image is built from these paths only. Everything else stays out of the
+# build context: .env and its keys, contracts/ (a 215 MB submodule), deployment secrets.
+*
+!web/
+!demo/
+!deployments/sepolia.json
+!hosting/nginx.conf
+web/node_modules
+web/dist
+web/.wrangler
+**/.env
+**/.DS_Store

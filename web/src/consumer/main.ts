@@ -5,6 +5,9 @@ import '../style.css'
 import { el, muted } from '../lib/dom.ts'
 import { graderHref, mountShell } from '../lib/layout.ts'
 import { consumerRoute } from '../lib/routes.ts'
+import { viewRunner } from '../lib/view.ts'
+import { certSearch } from './search.ts'
+import { titlePage } from './title.ts'
 
 const shell = mountShell({
   side: 'consumer',
@@ -16,20 +19,23 @@ const shell = mountShell({
   ],
   cross: { label: 'Grader console →', href: graderHref() },
 })
+const nextView = viewRunner(shell.main)
 
 function render() {
   const route = consumerRoute(location.hash)
+  const view = nextView()
   shell.setActive(route.view === 'explore' || route.view === 'me' ? route.view : null)
-  window.scrollTo(0, 0)
   switch (route.view) {
-    case 'explore':
     case 'title':
+      void titlePage(view, route.cert, render)
+      return
+    case 'explore':
     case 'holder':
     case 'me':
-      shell.main.replaceChildren(el('h1', { textContent: route.view }), muted('Coming next.'))
+      view.main.append(el('h1', { textContent: 'Look up a slab' }), certSearch(), muted('The gallery is coming next.'))
       return
     case 'not-found':
-      shell.main.replaceChildren(el('h1', { textContent: 'Page not found' }), el('p', {}, el('a', { href: '#/', textContent: 'Back to Explore' })))
+      view.main.append(el('h1', { textContent: 'Page not found' }), el('p', {}, el('a', { href: '#/', textContent: 'Back to Explore' })))
   }
 }
 

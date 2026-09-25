@@ -71,5 +71,5 @@ export const errorText = (text: string) => el('p', { className: 'error', textCon
 export const firstLine = (e: unknown) => (e instanceof Error ? e.message : String(e)).split('\n')[0]
 
 export function formatTime(d: Date | null): string {
-  return d ? d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : '—'
+  return d ? d.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : '—'
 }

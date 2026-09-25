@@ -152,3 +152,50 @@ button.wallet.connected { font-family: ui-monospace, SFMono-Regular, Menlo, mono
   .topbar { position: static; }
   .topbar-end { margin-left: 0; width: 100%; justify-content: space-between; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Title page                                                          */
+/* ------------------------------------------------------------------ */
+
+.crumbs { margin: 16px 0 8px; font-size: 14px; }
+.crumbs a { color: var(--muted); text-decoration: none; }
+.crumbs a:hover { color: var(--ink); }
+
+.title-hero { display: grid; grid-template-columns: minmax(220px, 340px) 1fr; gap: 32px; align-items: start; margin-bottom: 24px; }
+.title-hero .art { position: sticky; top: 88px; }
+.title-hero h1 { font-size: 30px; margin: 4px 0; }
+.title-hero .lede { margin: 0 0 8px; color: var(--muted); font-size: 16px; }
+.facts dl.kv { font-size: 15px; }
+.badges { display: flex; gap: 8px; align-items: center; margin: 0 0 6px; }
+.badge { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+.ens-name { margin: 0; color: var(--muted); overflow-wrap: anywhere; }
+.small { font-size: 12px; color: var(--muted); }
+
+.slab-art { display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.18)); }
+.slab-empty {
+  aspect-ratio: 300 / 480; border: 2px dashed var(--line); border-radius: 16px;
+  display: grid; place-items: center; color: var(--muted); font-size: 14px;
+}
+
+.transfer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.transfer h3 { margin: 0 0 4px; font-size: 16px; }
+.transfer .muted { margin: 4px 0 8px; }
+
+.page > main > .card { margin-bottom: 16px; }
+.card > h2 { font-size: 18px; }
+.verifier .grid { margin: 12px 0 0; }
+.verifier h3 { font-size: 15px; margin: 0 0 8px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.verifier input[type="text"] { margin-bottom: 4px; }
+.search { max-width: 520px; margin: 12px 0; }
+
+.table-wrap { overflow-x: auto; }
+table.history { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.history th { text-align: left; font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+table.history th, table.history td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.event { font-weight: 600; }
+.event.issued { color: var(--accent); }
+
+@media (max-width: 720px) {
+  .title-hero { grid-template-columns: 1fr; }
+  .title-hero .art { position: static; max-width: 280px; margin: 0 auto; }
+}

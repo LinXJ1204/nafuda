@@ -11,6 +11,9 @@ export const GRADER_NAME = `${GRADER_LABEL}.${ROOT_NAME}`
 
 export const PSA_REGISTRY = deployment.psaRegistry as Address
 export const TITLE_CONTROLLER = deployment.titleController as Address
+export const NAFUDA_REGISTRY = deployment.nafudaRegistry as Address
+/// First block of the deployment: event reads (getLogs) start here.
+export const START_BLOCK: number = deployment.startBlock
 
 /// ENSv2 Beta Universal Resolver proxy. viem's built-in Sepolia default is the ENSv1 UR,
 /// so every ENS call passes this explicitly.

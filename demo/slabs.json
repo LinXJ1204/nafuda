@@ -1,0 +1,30 @@
+{
+  "_note": "SIMULATED chips for the hackathon demo. These private keys are public test keys derived as keccak256('nafuda-demo-chip:<variant>:<cert>'). A real chip keeps its key inside the slab and never exposes it.",
+  "grader": "psa-sim",
+  "slabs": {
+    "12345678": {
+      "card": "Nafuda Dragon - Holo #001 (demo card)",
+      "grade": "GEM MT 10",
+      "genuine": {
+        "privateKey": "0xc143106b6016a445be8b313d9a94640939bca095759694d26200467575363d72",
+        "address": "0x3ef4724aB3750dDfAA0f98078D6F281d57864f59"
+      },
+      "clone": {
+        "privateKey": "0x96321fc8b2c9fc2e072033e13e1388572c0443eeef4770bf4e634deee536119f",
+        "address": "0x0990f0F27200e80f28F6D16bc523c97A8Bd695F4"
+      }
+    },
+    "12345679": {
+      "card": "Kitsune Lantern - Promo #042 (demo card)",
+      "grade": "MINT 9",
+      "genuine": {
+        "privateKey": "0xc57d0d5a88631cad85dc786dfebf7d2d0beda1df9d2a103a585f80ced342b64b",
+        "address": "0xc7Ff8eDA9AD0017fAe365a4dBE3484a66e431F72"
+      },
+      "clone": {
+        "privateKey": "0x6183244e5bc494d88da86856bb778092b9e7315ca6b29fdfd1d9b30b34ae766b",
+        "address": "0x25211667A8c5e2F883e0401cF46841056771321E"
+      }
+    }
+  }
+}

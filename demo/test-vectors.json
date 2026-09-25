@@ -1,0 +1,13 @@
+{
+  "_note": "EIP-191 personal_sign test vectors for the chip challenge. Shared by the Solidity tests and the web app.",
+  "cert": "12345678",
+  "message": "ENS-SLAB|psa-sim|12345678|0x69c26bdf44f3cb6b3214f5e7156da420ee180b8d5bbe9e20c4cb50cae74a4932|1790000000",
+  "genuine": {
+    "address": "0x3ef4724aB3750dDfAA0f98078D6F281d57864f59",
+    "signature": "0x8683798a7f85584a93c85777e3eb27945361610076e057e3470d3b2bcb5691877c46edbaed9b2deebb788760785222e8c3eb1a7083eb7c7bbc8be0dc53d7776a1b"
+  },
+  "clone": {
+    "address": "0x0990f0F27200e80f28F6D16bc523c97A8Bd695F4",
+    "signature": "0xdbfc60c2a5ddb30ffcdddc4e6752a47c63ebf423a980b013edf133dbeaa8cbc84ca7c4fb9d2e4fa4261ab7aeeba1d6ad2e7696d12df8e071b4058c60552a0b891b"
+  }
+}

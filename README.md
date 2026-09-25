@@ -9,7 +9,7 @@ Nafuda gives every graded trading-card slab an **ENSv2 name that works as its ti
 [![contracts](https://github.com/LinXJ1204/nafuda/actions/workflows/contracts.yml/badge.svg)](https://github.com/LinXJ1204/nafuda/actions/workflows/contracts.yml)
 [![web](https://github.com/LinXJ1204/nafuda/actions/workflows/web.yml/badge.svg)](https://github.com/LinXJ1204/nafuda/actions/workflows/web.yml)
 
-- **Live demo:** <!-- TODO: Cloudflare Pages URL --> (Sepolia)
+- **Live demo:** <!-- TODO: public URL --> (Sepolia): the collector app at `/`, the PSA-Sim grader console at `/grader/`
 - **Try a name:** `12345678.psa-sim.nafuda.eth` with any ENS client pointed at the ENSv2 Beta Universal Resolver
 - **Contracts and transactions:** [docs/deployments.md](docs/deployments.md)
 
@@ -74,6 +74,16 @@ flowchart TD
 
 The one-liner: **a cert number can be copied, a chip can't; a card can be stolen, a title can't.**
 
+### The web app
+
+Two pages, one static build, no backend. Titles are resolved through ENS; lists and history come from on-chain events (`getLogs`), with no indexer or database.
+
+| Collector app (`/`) | Grader console (`/grader/`) |
+|---|---|
+| **Explore**: every issued title, like a marketplace gallery | **Issue**: pick a sealed slab, name the submitter, issue the title. The console checks everything the contract would reject before asking the wallet to sign |
+| **Title page**: the slab, its title resolved via ENS, the buyer check (tap the slab, compare seller and holder), the transfer history, and a transfer form that only the holder sees | **Issued titles**: current holder and number of transfers for each title |
+| **My titles**: what a wallet holds now and held before | **Trust**: reads the registries live to show what PSA-Sim cannot do (emancipated, only the controller issues, holders can only transfer) and whether the final lock is applied |
+
 ## Why ENS, and which ENSv2 features carry the weight
 
 1. **Wildcard resolution off the parent's resolver.** Title names have no resolver of their own. The Universal Resolver walks the registry tree down to `psa-sim.nafuda.eth` and asks its resolver, [`TitleController`](contracts/src/TitleController.sol), an ENSIP-10 extended resolver. [`resolve()`](contracts/src/TitleController.sol#L199) computes the records from on-chain state, so they can never go stale:
@@ -116,10 +126,11 @@ The design principle: **a chip signature is proof, never authorization.** Nothin
 ```
 contracts/   Foundry. TitleController + 25 tests on the official ENSv2 fixture (contracts-v2 submodule @ 71a3b733)
 scripts/     Node 24 + viem 2.56.8. preflight, deploy, issue, verify, transfer, lock, report
-web/         Vite + TypeScript. Buyer check, simulated slab, wallet transfer; node tests for the verification logic
+web/         Vite + TypeScript. Collector app (/) and grader console (/grader/); node tests for the pure logic
+hosting/     Docker image (nginx, strict CSP) and compose file with a Cloudflare Tunnel; see docs/hosting.md
 demo/        Simulated chip keys (public test keys) and signature test vectors shared by all of the above
 deployments/ Sepolia deployment state; docs/deployments.md is generated from it
-docs/        Planning artifacts (docs/plan), AI usage log, deployment report
+docs/        Planning artifacts (docs/plan), AI usage log, deployment report, hosting
 ```
 
 ## Run it
@@ -130,8 +141,11 @@ git clone --recursive https://github.com/LinXJ1204/nafuda && cd nafuda
 # contracts: T1–T8 (issue, title rules, emancipation, resolve, chip verification, Universal Resolver end-to-end)
 cd contracts && forge test -vv && cd ..
 
-# web: scenario tests S1–S5, then the app
-cd web && npm ci && npm test && npm run dev   # http://localhost:5173/
+# web: scenario tests S1–S5 and the rest of the pure logic, then the app
+cd web && npm ci && npm test && npm run dev   # http://localhost:5173/ and /grader/
+
+# or the production image
+cd hosting && docker compose up -d --build     # http://localhost:8088/
 ```
 
 To deploy your own copy (Sepolia or an anvil fork), copy `.env.example` to `.env`, fund the operator, then run:

@@ -65,3 +65,17 @@ A new entry is appended at the end of each work session.
 
 **Still with the author**: team intro in the README, enabling GitHub Pages, checking the Explorer and ENS App display, review, and the final-lock decision.
 
+
+## P5b web v2: collector app, grader console, self-hosting (2026-09-25 22:03–22:35 JST)
+
+**Decisions made by the author**: split the web app into a consumer side (OpenSea-style browsing plus verification) and a grader side (PSA-Sim console); host it on the author's Mac mini with Docker and a Cloudflare Tunnel; read lists and history from on-chain events instead of running an indexer; plan first, then build all three tiers of [docs/plan/web-v2-plan.md](plan/web-v2-plan.md); use TypeScript on both sides.
+
+**What the AI did**:
+- Wrote the plan, then built W1–W8 one commit each: a two-page Vite build with hash routes, the title page (generated slab art, ENS-resolved facts, buyer check, event history, holder-only transfer), the grader console (issue from a simulated chip pool with pre-send checks, issued list, trust panel read live from the registries), Explore, and My titles.
+- Added `scripts/src/chips.ts`, which regenerates `demo/slabs.json` deterministically and adds a pool of 10 sealed-but-untitled simulated slabs for the console.
+- Moved the pure logic into tested modules (routes, role decoding, issue pre-checks, trust scoring): 31 node tests.
+- Checked the pages in headless Chrome: S1–S5 against live Sepolia, and A4 (issue a new title and tap it from another browser), A5 (non-grader wallet and duplicate cert are blocked before sending), S6 (transfer), and the post-lock trust panel on an anvil fork with a mock wallet, so the live demo state was not touched.
+- Wrote the Docker image (tests run in the build; nginx with a strict CSP; a whitelist `.dockerignore`), the compose file, and `docs/hosting.md`, and checked that no `.env` value is in the image.
+- Deployed the web container to the author's Mac mini over SSH at the author's request. Before deploying, the AI checked the ports already in use there and moved off 8080, which another service was using.
+
+**Still with the author**: add a public hostname for `localhost:8088` to the Mac mini's existing Cloudflare Tunnel, issue a pool slab from the console on Sepolia (A4 on the live network), and review.

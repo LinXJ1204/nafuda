@@ -21,10 +21,21 @@ visitor ──https──▶ Cloudflare ──tunnel──▶ cloudflared ──
 
 ```bash
 cd hosting
-docker compose up -d --build     # http://localhost:8080/ and http://localhost:8080/grader/
+docker compose up -d --build     # http://localhost:8088/ and http://localhost:8088/grader/
 ```
 
+The port is bound to loopback only and can be changed with `WEB_PORT` in `hosting/.env`. The compose project is named `nafuda`, so it does not collide with other projects on the same machine.
+
 ## Put it on the internet with a Cloudflare Tunnel
+
+### If the host already runs cloudflared (the author's Mac mini does)
+
+Run only the `web` container, and add a route to the existing tunnel:
+
+1. `cd hosting && docker compose up -d --build`
+2. In **Zero Trust → Networks → Tunnels**, open the tunnel the host runs, then **Public hostname → Add**: subdomain `nafuda`, your domain, service type **HTTP**, URL **`localhost:8088`**.
+
+### Otherwise: a tunnel of its own
 
 1. In the Cloudflare dashboard, go to **Zero Trust → Networks → Tunnels → Create a tunnel**, pick **Cloudflared**, and name it `nafuda`.
 2. On the install screen, copy the token (the long value after `--token`). You do not need to install anything: the `tunnel` container runs cloudflared.

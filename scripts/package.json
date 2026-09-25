@@ -18,6 +18,8 @@
     "reset": "node --env-file-if-exists=../.env src/reset.ts",
     "deploy-grader": "node --env-file-if-exists=../.env src/deploy-grader.ts",
     "collectors": "node --env-file-if-exists=../.env src/collectors.ts",
+    "seed": "node --env-file-if-exists=../.env src/seed.ts",
+    "market": "node --env-file-if-exists=../.env src/market.ts",
     "chips": "node src/chips.ts"
   },
   "dependencies": {

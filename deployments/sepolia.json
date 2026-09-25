@@ -15,10 +15,53 @@
     "grant REGISTRAR to controller": "0x0dfafb263d19196d210181020a16fc060c9146e8ee986d5b4b39f8c3c746163c",
     "grader revokes all but final roles": "0x39d46e0d914f487feec642ee336f51e4745512c0bedd8e8d14dfffbcdfb3ddc0",
     "issue 12345678": "0x7265ae6e26d3b8668ec677d3765b3ef08f82d40e1a7373ee63a0bedca9fad1ed",
-    "issue 12345679": "0x22ada741368c1a1686ca702568a4b6b69134c57da379d5997f6249125f5a989e"
+    "issue 12345679": "0x22ada741368c1a1686ca702568a4b6b69134c57da379d5997f6249125f5a989e",
+    "cgc-sim: fund grader": "0x84510fd9c07b344fde7e979557a395280bba24b8f9efc6daa6d8395708edb690",
+    "cgc-sim: deploy registry": "0x887b89f43d5afd8a7b3d9a482e4bc7f74ec3ea9cf2f9a7e597ed801e83766eb6",
+    "cgc-sim: deploy controller v1": "0x1a969188afe744445b05f7a4f00f7b566b5d505f191a0877a6c53d0fb0884c0b",
+    "cgc-sim: register name": "0x96a183c8ed3091f37b77a11f3e7c6dfda8bb32b55d76c954bc9e65b65b85cb68",
+    "cgc-sim: setParent": "0x9db40ee80d1b83c0adb4a9ded9f0d9ae2189d60c37b81a15803c47378a98ed7c",
+    "cgc-sim: grant REGISTRAR to controller": "0x4478b162ace10bcac0d5ca79a10126b21ba693f5abd495d56d5b2dabafae4204",
+    "cgc-sim: grader revokes all but final roles": "0x33490f6d7691a76729be32256e3fe682bb7d9783208e7fbf6df3508795e069d6",
+    "bgs-sim: fund grader": "0x2952f6be3dcaf2eb19a60512deb1841127394360e7ccd2ab171a39a8f84bbdff",
+    "bgs-sim: deploy registry": "0x784b945b762953c689d7d9bba9fbca5c07fb82db31c29ef5a1b88e7d80d6ee5d",
+    "bgs-sim: deploy controller v2": "0xeee3deb715b902688aa293f592c73b58b6da791d8b717ef9862be837673cb486",
+    "bgs-sim: register name": "0x17f294e6dfec3856558cd5b3c0428eefb04b49a8bfe8d294ec74b5fc654df940",
+    "bgs-sim: setParent": "0xc38f0ba6b1d60be392d307ece284d5c9ed01cc8e00e80a6404a91736912325a0",
+    "bgs-sim: grant REGISTRAR to controller": "0x1d5ccb37be3d6ec8d0ee86523f8b8a8670b420b157daa789766c045cd5dbe83c",
+    "bgs-sim: grader revokes all but final roles": "0x3509889184ca2971bd421e2c6ae44f0e7421768eca1e19f10eb4c30c8801bac0"
   },
   "nafudaRegistry": "0xE82fa5f595C2EF9f5bf8BF779EC1f58E39Db4B43",
   "psaRegistry": "0x7c4De791AcF68E4fd9305770524f7F25a8cA646A",
   "titleController": "0xf0f17d40df37257b3433acc273373f16d8d06c50",
-  "startBlock": 11779241
+  "startBlock": 11779241,
+  "graders": {
+    "psa-sim": {
+      "label": "psa-sim",
+      "name": "PSA-Sim (simulated grader modeled after PSA; not affiliated with PSA)",
+      "grader": "0x028D5E215E8435946534B3B487EA2d1192778050",
+      "registry": "0x7c4De791AcF68E4fd9305770524f7F25a8cA646A",
+      "controller": "0xf0f17d40df37257b3433acc273373f16d8d06c50",
+      "controllerVersion": 1,
+      "startBlock": 11779241
+    },
+    "cgc-sim": {
+      "label": "cgc-sim",
+      "name": "CGC-Sim (simulated grader modeled after CGC Cards; not affiliated with CGC)",
+      "grader": "0x28a477255cc4430bB5b494990eFBF6849f5D8c35",
+      "controllerVersion": 1,
+      "registry": "0xdBcc170ba945efF237Bff407440c9D7b6Ae8d4A8",
+      "startBlock": 11779805,
+      "controller": "0xcd08297490dcf75bc3d56932af50f0c35955f784"
+    },
+    "bgs-sim": {
+      "label": "bgs-sim",
+      "name": "BGS-Sim (simulated grader modeled after Beckett Grading Services; not affiliated with Beckett)",
+      "grader": "0xa307d3BB107b5439961F0c1cCE504EeC3C25A7b9",
+      "controllerVersion": 2,
+      "registry": "0xadde6AF488476b24D1fB282519e50DDf2a46CC0C",
+      "startBlock": 11779814,
+      "controller": "0xa652a0281487c2ddb877ed19428e25d47ae9826a"
+    }
+  }
 }

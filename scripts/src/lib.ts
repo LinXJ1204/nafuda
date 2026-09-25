@@ -92,7 +92,20 @@ export type DeploymentState = {
   startBlock?: number
   /// Set by lock.ts once the P7-4 final lock has been executed.
   locked?: boolean
+  /// Every grader under <name>.eth, including psa-sim (v3). Written by deploy-grader.ts.
+  graders?: Record<string, GraderDeployment>
   txs: Record<string, Hash>
+}
+
+export type GraderDeployment = {
+  label: string
+  name: string
+  grader: Address
+  registry: Address
+  controller: Address
+  /// 1 = TitleController, 2 = TitleControllerV2 (extra attributes such as subgrades)
+  controllerVersion: 1 | 2
+  startBlock: number
 }
 
 const DEPLOYMENTS = new URL('deployments/', REPO)

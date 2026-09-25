@@ -1,0 +1,36 @@
+{
+  "_note": "Simulated graders. Each is modeled after a real grading company's format and flow, is clearly labeled as a simulation, and is not affiliated with or endorsed by that company.",
+  "graders": {
+    "psa-sim": {
+      "short": "PSA-Sim",
+      "name": "PSA-Sim (simulated grader modeled after PSA; not affiliated with PSA)",
+      "modeledAfter": "PSA",
+      "color": "#c8352b",
+      "certDigits": 8,
+      "seedCertStart": 81234501,
+      "scale": ["GEM MT 10", "MINT 9", "NM-MT 8", "NM 7", "EX-MT 6", "EX 5", "VG-EX 4", "VG 3", "GOOD 2", "PR 1"],
+      "controller": 1
+    },
+    "bgs-sim": {
+      "short": "BGS-Sim",
+      "name": "BGS-Sim (simulated grader modeled after Beckett Grading Services; not affiliated with Beckett)",
+      "modeledAfter": "Beckett (BGS)",
+      "color": "#8d96a3",
+      "certDigits": 10,
+      "seedCertStart": 1004827301,
+      "scale": ["PRISTINE 10", "GEM MINT 9.5", "MINT 9", "NM-MT+ 8.5", "NM-MT 8", "NM+ 7.5", "NM 7"],
+      "subgrades": ["centering", "corners", "edges", "surface"],
+      "controller": 2
+    },
+    "cgc-sim": {
+      "short": "CGC-Sim",
+      "name": "CGC-Sim (simulated grader modeled after CGC Cards; not affiliated with CGC)",
+      "modeledAfter": "CGC Cards",
+      "color": "#1f5fa8",
+      "certDigits": 10,
+      "seedCertStart": 4000317201,
+      "scale": ["PRISTINE 10", "GEM MINT 10", "MINT+ 9.5", "MINT 9", "NM/MINT+ 8.5", "NM/MINT 8", "NEAR MINT+ 7.5", "NEAR MINT 7"],
+      "controller": 1
+    }
+  }
+}

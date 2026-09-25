@@ -6,7 +6,7 @@
 //   fork     an `anvil --fork-url $SEPOLIA_RPC_URL` node at FORK_RPC_URL (default http://127.0.0.1:8545)
 
 import { createPublicClient, createWalletClient, http, parseEther, type Hex, type PrivateKeyAccount } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { mnemonicToAccount, privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 
 export type Network = 'sepolia' | 'fork'
@@ -49,12 +49,19 @@ export function loadConfig(network: Network) {
 
   const wallet = (role: Role) => createWalletClient({ account: accounts[role], chain: sepolia, transport })
 
+  /// A grader's signing key: psa-sim uses GRADER_PK, others GRADER_<LABEL>_PK (e.g. GRADER_BGS_SIM_PK).
+  const graderAccount = (label: string) =>
+    label === 'psa-sim' ? accounts.grader : privateKeyToAccount(required(`GRADER_${label.toUpperCase().replace(/-/g, '_')}_PK`) as Hex)
+  const walletFor = (account: PrivateKeyAccount | ReturnType<typeof mnemonicToAccount>) => createWalletClient({ account, chain: sepolia, transport })
+
   return {
     network,
     rpcUrl,
     publicClient,
     accounts,
     wallet,
+    graderAccount,
+    walletFor,
     nameLabel: process.env.NAME_LABEL ?? 'nafuda',
   }
 }

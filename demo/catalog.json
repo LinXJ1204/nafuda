@@ -1,0 +1,285 @@
+{
+  "_note": "Original placeholder cards for the demo. Names come from Japanese folklore and generic motifs; they are not real products.",
+  "cards": [
+    {
+      "card": "Nafuda Dragon - Holo #001 (demo card)",
+      "name": "Nafuda Dragon",
+      "rarity": "Holo",
+      "number": "001",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Kitsune Lantern - Promo #042 (demo card)",
+      "name": "Kitsune Lantern",
+      "rarity": "Promo",
+      "number": "042",
+      "set": "Harbor Lights"
+    },
+    {
+      "card": "Tanuki Drummer - Common #107 (demo card)",
+      "name": "Tanuki Drummer",
+      "rarity": "Common",
+      "number": "107",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Koi Ascending - Rare #013 (demo card)",
+      "name": "Koi Ascending",
+      "rarity": "Rare",
+      "number": "013",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Oni Blacksmith - Uncommon #066 (demo card)",
+      "name": "Oni Blacksmith",
+      "rarity": "Uncommon",
+      "number": "066",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Tengu Courier - Holo #024 (demo card)",
+      "name": "Tengu Courier",
+      "rarity": "Holo",
+      "number": "024",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Maneki Guardian - Promo #001 (demo card)",
+      "name": "Maneki Guardian",
+      "rarity": "Promo",
+      "number": "001",
+      "set": "Harbor Lights"
+    },
+    {
+      "card": "Kappa Ronin - Rare #088 (demo card)",
+      "name": "Kappa Ronin",
+      "rarity": "Rare",
+      "number": "088",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Crane of the Bay - Holo #031 (demo card)",
+      "name": "Crane of the Bay",
+      "rarity": "Holo",
+      "number": "031",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Orca Lantern - Common #140 (demo card)",
+      "name": "Orca Lantern",
+      "rarity": "Common",
+      "number": "140",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Baku Dreamer - Rare #057 (demo card)",
+      "name": "Baku Dreamer",
+      "rarity": "Rare",
+      "number": "057",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Raijin Spark - Secret #099 (demo card)",
+      "name": "Raijin Spark",
+      "rarity": "Secret",
+      "number": "099",
+      "set": "Festival Night"
+    },
+    {
+      "card": "Fujin Gale - Secret #100 (demo card)",
+      "name": "Fujin Gale",
+      "rarity": "Secret",
+      "number": "100",
+      "set": "Festival Night"
+    },
+    {
+      "card": "Kirin Dawn - Holo #005 (demo card)",
+      "name": "Kirin Dawn",
+      "rarity": "Holo",
+      "number": "005",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Tsukumo Teapot - Common #121 (demo card)",
+      "name": "Tsukumo Teapot",
+      "rarity": "Common",
+      "number": "121",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Yuki-onna Frost - Rare #044 (demo card)",
+      "name": "Yuki-onna Frost",
+      "rarity": "Rare",
+      "number": "044",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Jorogumo Weaver - Uncommon #077 (demo card)",
+      "name": "Jorogumo Weaver",
+      "rarity": "Uncommon",
+      "number": "077",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Nue Thunder - Holo #019 (demo card)",
+      "name": "Nue Thunder",
+      "rarity": "Holo",
+      "number": "019",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Bakeneko Shadow - Rare #063 (demo card)",
+      "name": "Bakeneko Shadow",
+      "rarity": "Rare",
+      "number": "063",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Hoo Phoenix - Secret #001 (demo card)",
+      "name": "Hoo Phoenix",
+      "rarity": "Secret",
+      "number": "001",
+      "set": "Festival Night"
+    },
+    {
+      "card": "Komainu Pair - Uncommon #032 (demo card)",
+      "name": "Komainu Pair",
+      "rarity": "Uncommon",
+      "number": "032",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Umibozu Tide - Rare #090 (demo card)",
+      "name": "Umibozu Tide",
+      "rarity": "Rare",
+      "number": "090",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Zashiki Child - Common #150 (demo card)",
+      "name": "Zashiki Child",
+      "rarity": "Common",
+      "number": "150",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Kamaitachi Wind - Uncommon #071 (demo card)",
+      "name": "Kamaitachi Wind",
+      "rarity": "Uncommon",
+      "number": "071",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Hitodama Wisp - Common #133 (demo card)",
+      "name": "Hitodama Wisp",
+      "rarity": "Common",
+      "number": "133",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Namazu Quake - Holo #027 (demo card)",
+      "name": "Namazu Quake",
+      "rarity": "Holo",
+      "number": "027",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Shisa Sentinel - Rare #049 (demo card)",
+      "name": "Shisa Sentinel",
+      "rarity": "Rare",
+      "number": "049",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Tsuchinoko Burrow - Common #118 (demo card)",
+      "name": "Tsuchinoko Burrow",
+      "rarity": "Common",
+      "number": "118",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Karakasa Hop - Common #126 (demo card)",
+      "name": "Karakasa Hop",
+      "rarity": "Common",
+      "number": "126",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Ryujin Pearl - Secret #007 (demo card)",
+      "name": "Ryujin Pearl",
+      "rarity": "Secret",
+      "number": "007",
+      "set": "Festival Night"
+    },
+    {
+      "card": "Akaname Scrubber - Common #144 (demo card)",
+      "name": "Akaname Scrubber",
+      "rarity": "Common",
+      "number": "144",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Inugami Oath - Uncommon #083 (demo card)",
+      "name": "Inugami Oath",
+      "rarity": "Uncommon",
+      "number": "083",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Mujina Mask - Uncommon #059 (demo card)",
+      "name": "Mujina Mask",
+      "rarity": "Uncommon",
+      "number": "059",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Gashadokuro Night - Holo #066 (demo card)",
+      "name": "Gashadokuro Night",
+      "rarity": "Holo",
+      "number": "066",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Amabie Blessing - Promo #012 (demo card)",
+      "name": "Amabie Blessing",
+      "rarity": "Promo",
+      "number": "012",
+      "set": "Harbor Lights"
+    },
+    {
+      "card": "Hakutaku Scholar - Rare #037 (demo card)",
+      "name": "Hakutaku Scholar",
+      "rarity": "Rare",
+      "number": "037",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Sazae-oni Shell - Uncommon #095 (demo card)",
+      "name": "Sazae-oni Shell",
+      "rarity": "Uncommon",
+      "number": "095",
+      "set": "Shrine Spirits"
+    },
+    {
+      "card": "Yatagarasu Guide - Holo #003 (demo card)",
+      "name": "Yatagarasu Guide",
+      "rarity": "Holo",
+      "number": "003",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Ittan-momen Ribbon - Common #112 (demo card)",
+      "name": "Ittan-momen Ribbon",
+      "rarity": "Common",
+      "number": "112",
+      "set": "Yokai Parade"
+    },
+    {
+      "card": "Shachihoko Roof - Rare #051 (demo card)",
+      "name": "Shachihoko Roof",
+      "rarity": "Rare",
+      "number": "051",
+      "set": "Shrine Spirits"
+    }
+  ]
+}

@@ -16,6 +16,8 @@
     "report": "node --env-file-if-exists=../.env src/report.ts",
     "lock": "node --env-file-if-exists=../.env src/lock.ts",
     "reset": "node --env-file-if-exists=../.env src/reset.ts",
+    "deploy-grader": "node --env-file-if-exists=../.env src/deploy-grader.ts",
+    "collectors": "node --env-file-if-exists=../.env src/collectors.ts",
     "chips": "node src/chips.ts"
   },
   "dependencies": {

@@ -4,9 +4,9 @@
 
 import type { Hono } from 'hono'
 import type { Context } from 'hono'
-import { createPublicClient, fallback, http, isAddressEqual, parseEventLogs, type Address, type Hex } from 'viem'
+import { createPublicClient, fallback, http, isAddressEqual, parseEventLogs, zeroAddress, type Address, type Hex } from 'viem'
 import { sepolia } from 'viem/chains'
-import { titleIssuedEvent } from '../../packages/core/src/abis.ts'
+import { controllerAbi, titleIssuedEvent } from '../../packages/core/src/abis.ts'
 import { env } from './env.ts'
 import { GRADERS, graderByLabel } from '../../packages/core/src/deployment.ts'
 import {
@@ -84,10 +84,14 @@ function submissionOut(r: Record<string, unknown>) {
   }
 }
 
-/// Open offers only: not withdrawn, not expired, and asks only while the asker still holds the title.
+/// Open offers only: not withdrawn, not expired, and asks only while the asker still holds the
+/// title. A title issued moments ago may not be indexed yet: its ask was checked on chain when
+/// posted, so it counts until the index knows the holder.
 const OPEN = (sql: Sql) => sql`
   o.status = 'open' and o.expiry > now()
-  and (o.kind = 'bid' or o.from_addr = (select holder from titles t where t.grader = o.grader and t.cert = o.cert))`
+  and (o.kind = 'bid'
+    or not exists (select 1 from titles t where t.grader = o.grader and t.cert = o.cert)
+    or o.from_addr = (select holder from titles t where t.grader = o.grader and t.cert = o.cert))`
 
 export function signedRoutes(app: Hono, sql: Sql, out: Out) {
   app.get('/titles/:grader/:cert/offers', async (c) => {
@@ -129,10 +133,16 @@ export function signedRoutes(app: Hono, sql: Sql, out: Out) {
     const problem = graderByLabel(offer.grader) ? checkOffer(offer) : 'unknown grader'
     if (problem) return out(c, { error: problem }, 400)
     const signer = (await recoverOffer(offer, body.signature)).toLowerCase()
+    // The holder, from the index, or from the chain for a title issued moments ago
     const [title] = await sql`select holder from titles where grader = ${offer.grader} and cert = ${offer.cert}`
-    if (!title) return out(c, { error: 'no such title' }, 404)
-    if (offer.kind === 'ask' && title.holder !== signer) return out(c, { error: 'only the current holder can ask' }, 403)
-    if (offer.kind === 'bid' && title.holder === signer) return out(c, { error: 'the holder cannot bid on their own title' }, 400)
+    const holder = title
+      ? (title.holder as string)
+      : ((await client()
+          .readContract({ address: graderByLabel(offer.grader)!.controller, abi: controllerAbi, functionName: 'holderOf', args: [offer.cert] })
+          .catch(() => zeroAddress)) as string).toLowerCase()
+    if (holder === zeroAddress) return out(c, { error: 'no such title' }, 404)
+    if (offer.kind === 'ask' && holder !== signer) return out(c, { error: 'only the current holder can ask' }, 403)
+    if (offer.kind === 'bid' && holder === signer) return out(c, { error: 'the holder cannot bid on their own title' }, 400)
     if (!(await useNonce(sql, signer, offer.nonce))) return out(c, { error: 'signature already used' }, 409)
     const [row] = await sql.begin(async (tx) => {
       // one open offer per signer, kind and title: a new one replaces the old

@@ -20,6 +20,9 @@ const browser = await launch()
 const api = async <T>(path: string): Promise<T> => (await fetch(`${COLLECTOR}/api${path}`)).json() as Promise<T>
 const card = `E2E Kappa Ronin ${new Date().toISOString().slice(11, 19)} - Rare #088`
 
+// Set CERT=<an issued cgc-sim cert held by kenji> to skip steps 1–3 (resume a run).
+let cert = process.env.CERT ?? ''
+if (!cert) {
 // 1. kenji submits a card to CGC-Sim from the collector app
 {
   const { page, errors } = await open(browser, `${COLLECTOR}/submit`, kenji.key)
@@ -33,12 +36,13 @@ const card = `E2E Kappa Ronin ${new Date().toISOString().slice(11, 19)} - Rare #
   check(errors.length === 0, 'submit page without errors', errors[0])
   await page.close()
 }
-const subs = await api<{ id: string; card: string; status: string }[]>('/submissions?grader=cgc-sim')
-const sub = subs.find((s) => s.card === card)!
-check(sub?.status === 'received', 'submission is on the grader board as received', sub?.id)
+{
+  const subs = await api<{ id: string; card: string; status: string }[]>('/submissions?grader=cgc-sim')
+  const sub = subs.find((s) => s.card === card)!
+  check(sub?.status === 'received', 'submission is on the grader board as received', sub?.id)
+}
 
 // 2. CGC-Sim moves it along the intake board, then issues on chain
-let cert = ''
 {
   const { page, errors } = await open(browser, `${GRADER}/intake`, graderKey)
   await clickText(page, /Connect grader wallet/).catch(() => undefined)
@@ -70,6 +74,7 @@ let cert = ''
   await page.close()
 }
 
+}
 // 3. The new title resolves through ENS to kenji
 const name = `${cert}.cgc-sim.nafuda.eth`
 const holder = await chain.getEnsAddress({ name, universalResolverAddress: '0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe' })

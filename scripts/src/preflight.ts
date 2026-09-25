@@ -3,17 +3,9 @@
 //
 //   npm run preflight -- --network sepolia
 
-import { formatEther, parseEther } from 'viem'
+import { formatEther } from 'viem'
 import { BETA_CONTRACTS, SEPOLIA_CHAIN_ID, beta } from './addresses.ts'
-import { ROLES, loadConfig, networkFromArgs, type Role } from './config.ts'
-
-const MIN_BALANCE: Record<Role, bigint> = {
-  operator: parseEther('0.05'),
-  grader: parseEther('0.05'),
-  alice: parseEther('0.01'),
-  bob: parseEther('0.01'),
-  mallory: 0n,
-}
+import { MIN_BALANCE, ROLES, loadConfig, networkFromArgs } from './config.ts'
 
 const cfg = loadConfig(networkFromArgs())
 const { publicClient: client } = cfg

@@ -5,7 +5,7 @@
 //   sepolia  real Sepolia via SEPOLIA_RPC_URL
 //   fork     an `anvil --fork-url $SEPOLIA_RPC_URL` node at FORK_RPC_URL (default http://127.0.0.1:8545)
 
-import { createPublicClient, createWalletClient, http, type Hex, type PrivateKeyAccount } from 'viem'
+import { createPublicClient, createWalletClient, http, parseEther, type Hex, type PrivateKeyAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
 
@@ -13,6 +13,15 @@ export type Network = 'sepolia' | 'fork'
 
 export const ROLES = ['operator', 'grader', 'alice', 'bob', 'mallory'] as const
 export type Role = (typeof ROLES)[number]
+
+/// Minimum balance each account needs for the full deploy + demo; `fund.ts` tops up to this.
+export const MIN_BALANCE: Record<Role, bigint> = {
+  operator: parseEther('0.05'),
+  grader: parseEther('0.05'),
+  alice: parseEther('0.01'),
+  bob: parseEther('0.01'),
+  mallory: 0n,
+}
 
 export function networkFromArgs(argv: string[] = process.argv): Network {
   const i = argv.indexOf('--network')

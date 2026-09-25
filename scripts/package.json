@@ -2,10 +2,13 @@
   "name": "nafuda-scripts",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "preflight": "node --env-file-if-exists=../.env src/preflight.ts"
+    "preflight": "node --env-file-if-exists=../.env src/preflight.ts",
+    "fund": "node --env-file-if-exists=../.env src/fund.ts"
   },
   "dependencies": {
     "viem": "2.56.8"

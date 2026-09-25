@@ -1,7 +1,8 @@
 // Page chrome shared by both apps: header (brand, nav, network, wallet), the demo notice, footer.
 
 import { useState, type ReactNode } from 'react'
-import { NavLink } from 'react-router'
+import { NavLink, useLocation } from 'react-router'
+import { ErrorBoundary } from './ErrorBoundary.tsx'
 import { GRADERS, NAFUDA_REGISTRY } from '@nafuda/core/deployment.ts'
 import { AddressLink, ExtLink, Seal } from './components.tsx'
 import { useStatus } from './api.ts'
@@ -28,6 +29,7 @@ export function Shell({
   const [open, setOpen] = useState(false)
   const { t, lang } = useT()
   const status = useStatus()
+  const location = useLocation()
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-line bg-card/90 backdrop-blur">
@@ -76,7 +78,9 @@ export function Shell({
           with or endorsed by those companies. Slab chips are <strong>simulated</strong> in the browser; in production the grader seals an NFC chip (such as
           Arx HaLo) inside the slab. Cards and collectors are fictional.</>}
         </p>
-        <main className="pb-20">{children}</main>
+        <main className="pb-20">
+          <ErrorBoundary resetKey={location.pathname}>{children}</ErrorBoundary>
+        </main>
         <footer className="border-t border-line py-8 text-xs text-muted">
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             <span>

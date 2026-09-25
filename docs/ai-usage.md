@@ -25,10 +25,9 @@ A new entry is appended at the end of each work session.
 
 **What the AI did**: created the repo skeleton, `.gitignore`, and README draft; added the `contracts-v2` submodule; organized the planning documents and this log.
 
-**What the author did**: created the GitHub repo.
-- Funded the demo accounts: the author sent faucet ETH to the operator; `fund.ts` (AI-written) distributed it.
+**What the author did**: created the GitHub repo and sent faucet ETH to the operator account. The AI-written `fund.ts` then distributed it to the other demo accounts.
 
-## P1 TitleController (from 2026-09-25 ~22:00 JST)
+## P1 TitleController (from 2026-09-25 ~21:15 JST)
 
 **What the AI did**: drafted `contracts/src/TitleController.sol` and `contracts/test/TitleController.t.sol` (25 tests, T1–T8, built on the official ENSv2 `V2Fixture`), generated the deterministic demo chip keys and EIP-191 test vectors in `demo/`, and mutation-tested the guards: five deliberate bugs, all caught by the tests.
 

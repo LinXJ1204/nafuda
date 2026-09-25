@@ -2,12 +2,12 @@
 // transfer it), and list the titles an address holds. Hash routes, see lib/routes.ts.
 
 import '../style.css'
-import { el, muted } from '../lib/dom.ts'
+import { el } from '../lib/dom.ts'
 import { graderHref, mountShell } from '../lib/layout.ts'
 import { consumerRoute } from '../lib/routes.ts'
 import { viewRunner } from '../lib/view.ts'
 import { explorePage } from './explore.ts'
-import { certSearch } from './search.ts'
+import { holderPage, myTitlesPage } from './holder.ts'
 import { titlePage } from './title.ts'
 
 const shell = mountShell({
@@ -34,8 +34,10 @@ function render() {
       void explorePage(view)
       return
     case 'holder':
+      holderPage(view, route.address)
+      return
     case 'me':
-      view.main.append(el('h1', { textContent: 'Look up a slab' }), certSearch(), muted('The gallery is coming next.'))
+      myTitlesPage(view)
       return
     case 'not-found':
       view.main.append(el('h1', { textContent: 'Page not found' }), el('p', {}, el('a', { href: '#/', textContent: 'Back to Explore' })))

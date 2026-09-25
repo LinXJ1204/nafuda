@@ -45,10 +45,12 @@ Open these side by side. On the collector app, the header button switches Englis
 | What | Result |
 |---|---|
 | `forge test` | 32/32 |
-| `npm test` (core, server) | 26 + 6 |
+| `npm test` (core, server) | 26 + 6 unit tests, plus 5 API integration tests on a real Postgres (in CI with a Postgres service) |
 | Typecheck and build of both apps; both Docker images | ✓ (also in CI: `.github/workflows/web.yml`) |
 | `e2e/public.test.ts` against the live site | 26/26 (every page loads without console errors; index matches ENS; resolution path; S1, S2, S4; trust checks) |
 | `e2e/live.test.ts` on Sepolia, driving both apps through a Node-side test wallet | Full path passed, in two runs, using the real apps and real transactions: kenji submits → CGC-Sim grades, seals and **issues 4000317221** → ENS resolves it to kenji → kenji asks, yuki bids → kenji transfers with a declared ¥84,000 → the index shows it → a non-grader wallet is refused before sending. The first run stopped at the ask, which exposed a real bug (see below); after the fix, the run resumed from that step. One check failed on test timing and has since been fixed |
+| `e2e/batch.test.ts` on Sepolia | The intake board's batch issue: CGC-Sim issued every sealed submission and each was marked issued ✓ |
+| `e2e/consistency.test.ts` | Every indexed title's holder and chip vs ENS: 45/45 ✓ |
 | Fork rehearsals | Graders added **after** the final lock on a fork; names and primary names on a fork before Sepolia |
 
 Found and fixed by the tests overnight:

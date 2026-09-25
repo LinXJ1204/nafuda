@@ -11,8 +11,8 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { SimulatedChip } from './chip.ts'
 import { checkChip, classify, makeChallenge, type Challenge, type Title } from './verify.ts'
 
-const demo = JSON.parse(readFileSync(new URL('../../demo/slabs.json', import.meta.url), 'utf8'))
-const vectors = JSON.parse(readFileSync(new URL('../../demo/test-vectors.json', import.meta.url), 'utf8'))
+const demo = JSON.parse(readFileSync(new URL('../../../demo/slabs.json', import.meta.url), 'utf8'))
+const vectors = JSON.parse(readFileSync(new URL('../../../demo/test-vectors.json', import.meta.url), 'utf8'))
 const slab = demo.slabs['12345678']
 const alice: Address = '0x92785192Bb6a16be1Ac305ab419e0F36F0216370'
 const mallory: Address = '0xdc93F3229859dFA27F97608Bff83B53a1d39B477'

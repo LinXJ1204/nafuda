@@ -10,6 +10,8 @@
   --bad: #c8352b;
   --none: #6b655c;
   --code: #f0ebe0;
+  --ai: #2d4f86; /* 藍: indigo, the grader console accent */
+  --accent: var(--shu);
   color-scheme: light;
 }
 
@@ -25,9 +27,12 @@
     --warn: #e0a84a;
     --bad: #ef6b5f;
     --shu: #e0584c;
+    --ai: #86a6e0;
     color-scheme: dark;
   }
 }
+
+body.grader { --accent: var(--ai); }
 
 * { box-sizing: border-box; }
 
@@ -55,7 +60,7 @@ h1 { margin: 0; font-size: 28px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
 .card h2 { margin: 0 0 12px; font-size: 16px; display: flex; gap: 8px; align-items: baseline; }
-.step { color: var(--shu); font-weight: 700; }
+.step { color: var(--accent); font-weight: 700; }
 
 label { display: block; font-size: 13px; color: var(--muted); margin: 8px 0 4px; }
 input[type="text"] {
@@ -71,7 +76,7 @@ button {
 }
 button:hover:not(:disabled) { border-color: var(--ink); }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
-button.primary { background: var(--shu); border-color: var(--shu); color: #fff; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 button.chip { padding: 4px 10px; font-size: 13px; }
 button.chip[aria-pressed="true"] { border-color: var(--shu); color: var(--shu); }
 .tap { width: 100%; margin-top: 16px; padding: 14px; font-size: 17px; font-weight: 600; }
@@ -114,3 +119,36 @@ pre { background: var(--code); border-radius: 8px; padding: 12px; overflow-x: au
 
 footer { margin-top: 32px; font-size: 13px; color: var(--muted); }
 footer p { margin: 4px 0; }
+
+/* ------------------------------------------------------------------ */
+/* App shell (consumer / and grader /grader/)                          */
+/* ------------------------------------------------------------------ */
+
+.topbar {
+  display: flex; align-items: center; gap: 12px 24px; flex-wrap: wrap;
+  padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card);
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar .seal { width: 40px; height: 40px; font-size: 17px; border-radius: 6px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+.brand strong { display: block; font-size: 17px; line-height: 1.2; }
+.brand small { display: block; font-size: 12px; color: var(--muted); }
+.topbar nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.topbar nav a { text-decoration: none; padding: 6px 10px; border-radius: 8px; font-size: 14px; color: var(--muted); }
+.topbar nav a:hover { color: var(--ink); background: var(--paper); }
+.topbar nav a[aria-current="page"] { color: var(--accent); background: var(--paper); font-weight: 600; }
+.topbar nav a.cross { color: var(--muted); font-style: italic; }
+.topbar-end { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.topbar .network { margin: 0; }
+button.wallet { font-size: 13px; padding: 6px 12px; }
+button.wallet.connected { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; border-color: var(--accent); }
+
+.page { max-width: 1120px; margin: 0 auto; padding: 0 16px 64px; }
+.page > main { max-width: none; margin: 0; padding: 0; }
+.page > .notice { margin: 16px 0; }
+.page h1 { font-size: 26px; margin: 8px 0 12px; }
+
+@media (max-width: 640px) {
+  .topbar { position: static; }
+  .topbar-end { margin-left: 0; width: 100%; justify-content: space-between; }
+}

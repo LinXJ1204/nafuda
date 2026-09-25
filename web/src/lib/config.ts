@@ -2,8 +2,8 @@
 // simulated chips from demo/slabs.json (single source of truth for both).
 
 import type { Address, Hex } from 'viem'
-import deployment from '../../deployments/sepolia.json' with { type: 'json' }
-import demo from '../../demo/slabs.json' with { type: 'json' }
+import deployment from '../../../deployments/sepolia.json' with { type: 'json' }
+import demo from '../../../demo/slabs.json' with { type: 'json' }
 
 export const ROOT_NAME = `${deployment.nameLabel}.eth`
 export const GRADER_LABEL: string = demo.grader

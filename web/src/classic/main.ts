@@ -1,8 +1,8 @@
-import './style.css'
+import '../style.css'
 import { getAddress, isAddress, type Address, type Hex } from 'viem'
-import { SimulatedChip } from './chip.ts'
-import { DEMO_ACCOUNTS, DEMO_SLABS, GRADER_LABEL, GRADER_NAME, PSA_REGISTRY, TITLE_CONTROLLER, UNIVERSAL_RESOLVER } from './config.ts'
-import { isCanonicalCert, lookupTitle, type TitleView } from './ens.ts'
+import { SimulatedChip } from '../lib/chip.ts'
+import { DEMO_ACCOUNTS, DEMO_SLABS, GRADER_LABEL, GRADER_NAME, PSA_REGISTRY, TITLE_CONTROLLER, UNIVERSAL_RESOLVER } from '../lib/config.ts'
+import { isCanonicalCert, lookupTitle, type TitleView } from '../lib/ens.ts'
 import {
   OUTCOME_TEXT,
   checkChip,
@@ -12,8 +12,8 @@ import {
   type Challenge,
   type ChipCheck,
   type Outcome,
-} from './verify.ts'
-import { sellerSigns, transferTitle } from './wallet.ts'
+} from '../lib/verify.ts'
+import { sellerSigns, transferTitle } from '../lib/wallet.ts'
 
 ////////////////////////////////////////////////////////////////////////
 // Helpers (all chain data goes into the DOM through textContent, never innerHTML)

@@ -9,7 +9,7 @@ Nafuda gives every graded trading-card slab an **ENSv2 name that works as its ti
 [![contracts](https://github.com/LinXJ1204/nafuda/actions/workflows/contracts.yml/badge.svg)](https://github.com/LinXJ1204/nafuda/actions/workflows/contracts.yml)
 [![web](https://github.com/LinXJ1204/nafuda/actions/workflows/web.yml/badge.svg)](https://github.com/LinXJ1204/nafuda/actions/workflows/web.yml)
 
-- **Live demo:** <!-- TODO: public URL --> (Sepolia): the collector app at `/`, the PSA-Sim grader console at `/grader/`
+- **Live demo:** https://nafuda.sololin.xyz (Sepolia): the collector app at [`/`](https://nafuda.sololin.xyz/), the PSA-Sim grader console at [`/grader/`](https://nafuda.sololin.xyz/grader/)
 - **Try a name:** `12345678.psa-sim.nafuda.eth` with any ENS client pointed at the ENSv2 Beta Universal Resolver
 - **Contracts and transactions:** [docs/deployments.md](docs/deployments.md)
 

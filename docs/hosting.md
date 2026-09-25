@@ -2,6 +2,8 @@
 
 The web app is static files: the collector app at `/` and the grader console at `/grader/`. It talks to Sepolia from the visitor's browser, and every transaction is signed in the visitor's own wallet. There is no backend and no key on the server.
 
+**Live:** https://nafuda.sololin.xyz
+
 **Main host:** the author's Mac mini runs nginx in Docker and publishes it through a **Cloudflare Tunnel**, so no inbound port is opened on the home network.
 **Standby:** the same build can be deployed to Cloudflare Workers static assets (`web/wrangler.jsonc`) if the Mac mini is down.
 

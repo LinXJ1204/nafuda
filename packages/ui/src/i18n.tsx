@@ -122,7 +122,7 @@ export function LangToggle() {
   return (
     <button
       onClick={() => setLang(lang === 'en' ? 'ja' : 'en')}
-      className="cursor-pointer rounded-lg border border-line px-2 py-1 text-xs font-semibold text-muted hover:text-ink"
+      className="cursor-pointer rounded-lg border border-line px-2 py-1 text-xs font-semibold whitespace-nowrap text-muted hover:text-ink"
       title="Language / 言語"
     >
       {lang === 'en' ? '日本語' : 'EN'}

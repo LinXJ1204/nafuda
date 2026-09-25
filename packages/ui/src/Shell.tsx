@@ -35,8 +35,8 @@ export function Shell({
           <NavLink to="/" className="flex items-center gap-2.5 no-underline">
             <Seal size={38} />
             <span className="leading-tight">
-              <strong className="block text-[17px]">{brand}</strong>
-              <small className="block text-xs text-muted">{t(tagline)}</small>
+              <strong className="block text-[17px] whitespace-nowrap">{brand}</strong>
+              <small className="hidden text-xs text-muted 2xl:block">{t(tagline)}</small>
             </span>
           </NavLink>
           <nav className={`${open ? 'flex' : 'hidden'} absolute top-full right-0 left-0 flex-col gap-1 border-b border-line bg-card p-3 lg:static lg:flex lg:flex-row lg:border-0 lg:bg-transparent lg:p-0`}>

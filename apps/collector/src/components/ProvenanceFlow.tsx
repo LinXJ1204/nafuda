@@ -6,7 +6,7 @@ import { Background, Handle, Position, ReactFlow, type Edge, type Node, type Nod
 import { graderByLabel } from '@nafuda/core/deployment.ts'
 import type { TitleDetail } from '@nafuda/ui/api.ts'
 import { Avatar, useEnsName } from '@nafuda/ui/components.tsx'
-import { jpy, scan, short, timeAgo, who } from '@nafuda/ui/format.ts'
+import { compactJpy, scan, short, timeAgo, who } from '@nafuda/ui/format.ts'
 
 type HolderData = { address: string; since: string; current: boolean; index: number }
 type GraderData = { label: string; time: string }
@@ -49,13 +49,13 @@ const nodeTypes = { grader: GraderNode, holder: HolderNode }
 export function ProvenanceFlow({ title }: { title: TitleDetail }) {
   const holders = [{ address: title.history[0]?.from ?? title.holder, time: title.issuedAt }, ...title.history.map((t) => ({ address: t.to, time: t.time }))]
   // The first holder is whoever the title was issued to: the `from` of the first transfer, or the holder if never transferred.
-  const X = 210
+  const X = 250
   const nodes: Node[] = [
     { id: 'grader', type: 'grader', position: { x: 0, y: 0 }, data: { label: title.grader, time: title.issuedAt }, draggable: false },
     ...holders.map((h, i) => ({
       id: `h${i}`,
       type: 'holder',
-      position: { x: X * (i + 1), y: i % 2 === 0 ? 0 : 36 },
+      position: { x: X * (i + 1), y: 0 },
       data: { address: h.address, since: h.time, current: i === holders.length - 1, index: i + 1 },
       draggable: false,
     })),
@@ -67,7 +67,7 @@ export function ProvenanceFlow({ title }: { title: TitleDetail }) {
       source: `h${i}`,
       target: `h${i + 1}`,
       animated: i === title.history.length - 1,
-      label: `${t.priceJpy ? jpy(t.priceJpy) : 'no price'} · ${timeAgo(t.time)}`,
+      label: t.priceJpy ? compactJpy(t.priceJpy) : '⇄',
       style: { stroke: 'var(--ink)', strokeWidth: 1.5 },
       labelStyle: { fontSize: 11, fill: 'var(--ink)' },
       labelBgStyle: { fill: 'var(--card)' },

@@ -13,7 +13,8 @@
     "issue": "node --env-file-if-exists=../.env src/issue.ts",
     "verify": "node --env-file-if-exists=../.env src/verify.ts",
     "transfer": "node --env-file-if-exists=../.env src/transfer.ts",
-    "report": "node --env-file-if-exists=../.env src/report.ts"
+    "report": "node --env-file-if-exists=../.env src/report.ts",
+    "lock": "node --env-file-if-exists=../.env src/lock.ts"
   },
   "dependencies": {
     "viem": "2.56.8"

@@ -88,6 +88,8 @@ export type DeploymentState = {
   nafudaRegistry?: Address
   psaRegistry?: Address
   titleController?: Address
+  /// Set by lock.ts once the P7-4 final lock has been executed.
+  locked?: boolean
   txs: Record<string, Hash>
 }
 
@@ -98,6 +100,10 @@ export function loadState(network: Network, nameLabel: string): DeploymentState 
   const path = statePath(network)
   if (!existsSync(path)) return { network, nameLabel, txs: {} }
   const state = JSON.parse(readFileSync(path, 'utf8')) as DeploymentState
+  if (state.network !== network) {
+    // Guards against a copied state file writing one network's transactions into another's record.
+    throw new Error(`deployments/${network}.json says network "${state.network}"`)
+  }
   if (state.nameLabel !== nameLabel) {
     throw new Error(`deployments/${network}.json is for "${state.nameLabel}", not "${nameLabel}"`)
   }

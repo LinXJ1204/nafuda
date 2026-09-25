@@ -8,7 +8,7 @@ import { getAddress, labelhash, type Address } from 'viem'
 import { normalize } from 'viem/ens'
 import { UNIVERSAL_RESOLVER, beta } from './addresses.ts'
 import { loadConfig, networkFromArgs } from './config.ts'
-import { GRADER_FINAL_ROOT_ROLES, GRADER_LABEL, ROLE, demoSlabs, loadState, sameAddress, transferTitle } from './lib.ts'
+import { GRADER_FINAL_ROOT_ROLES, GRADER_LABEL, GRADER_NAME_TOKEN_ROLES, ROLE, demoSlabs, loadState, sameAddress, transferTitle } from './lib.ts'
 
 const cfg = loadConfig(networkFromArgs())
 const { publicClient: client, accounts, nameLabel } = cfg
@@ -103,6 +103,53 @@ if (withTransfer) {
   )
 } else {
   console.log('- V8 skipped (Sepolia; pass --with-transfer to run it)')
+}
+
+// Post-lock invariants (P7-4), checked only once lock.ts has run.
+async function reverts(request: Parameters<typeof client.simulateContract>[0]) {
+  try {
+    await client.simulateContract(request)
+    return false
+  } catch {
+    return true
+  }
+}
+
+if (state.locked) {
+  const nafudaRegistry = state.nafudaRegistry
+  const graderNameId = BigInt(labelhash(GRADER_LABEL))
+  const rootNameId = BigInt(labelhash(nameLabel))
+  const lockedRootRoles = ROLE.SET_SUBREGISTRY | ROLE.admin(ROLE.SET_SUBREGISTRY)
+
+  const nafudaEmancipated = await client.readContract({ address: nafudaRegistry, abi: registryAbi, functionName: 'isEmancipated' })
+  check('V9', nafudaEmancipated === true, 'nafudaRegistry.isEmancipated()')
+
+  const graderTokenRoles = (await client.readContract({
+    address: nafudaRegistry,
+    abi: registryAbi,
+    functionName: 'roles',
+    args: [graderNameId, accounts.grader.address],
+  })) as bigint
+  const repointBlocked =
+    (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setResolver', args: [graderNameId, accounts.grader.address], account: accounts.grader })) &&
+    (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setResolver', args: [graderNameId, accounts.operator.address], account: accounts.operator })) &&
+    (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setSubregistry', args: [graderNameId, accounts.operator.address], account: accounts.operator }))
+  check('V10', (graderTokenRoles & GRADER_NAME_TOKEN_ROLES) === 0n && repointBlocked, `nobody can re-point ${GRADER_LABEL}.${nameLabel}.eth`)
+
+  const operatorRootRoles = (await client.readContract({
+    address: ethRegistry.address,
+    abi: ethRegistry.abi,
+    functionName: 'roles',
+    args: [rootNameId, accounts.operator.address],
+  })) as bigint
+  const swapBlocked = await reverts({
+    address: ethRegistry.address,
+    abi: ethRegistry.abi,
+    functionName: 'setSubregistry',
+    args: [rootNameId, accounts.operator.address],
+    account: accounts.operator,
+  })
+  check('V11', (operatorRootRoles & lockedRootRoles) === 0n && swapBlocked, `operator cannot swap ${nameLabel}.eth's subregistry`)
 }
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nall checks passed')

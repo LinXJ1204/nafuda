@@ -12,7 +12,7 @@ ETHGlobal requires teams to include spec files, prompts, and planning artifacts 
 | [slab-title-implementation.md](slab-title-implementation.md) | Implementation plan: phased checklist with acceptance criteria | Same as above | Created 21:02, last edited 21:06 |
 | [web-v2-plan.md](web-v2-plan.md) | Web v2 plan: separate consumer and grader pages, self-hosting, event-based index | Same as above | 2026-09-25 22:03, **after kickoff** |
 
-The four documents above are kept exactly as written, in Traditional Chinese, the author's working language. English summaries:
+All planning documents are in Traditional Chinese, the author's working language. The pre-kickoff ones are kept as written; later edits are in git history. English summaries:
 
 - **Brainstorm v1**: vaults publicly claim custody of a cert number through a unique, expiring ENS name, so a cloned slab of a vaulted card can be detected.
 - **Plan v1**: a feasibility review of v1 against the ENSv2 Beta source, plus a critique. The main problem is that counterfeiters can simply avoid vaulted cert numbers, so the value moves to cross-platform double-vaulting detection.

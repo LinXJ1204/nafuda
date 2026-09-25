@@ -21,11 +21,13 @@ import { TradePanel } from '../components/TradePanel.tsx'
 import { TransferPanel } from '../components/TransferPanel.tsx'
 import { VerifyPanel } from '../components/VerifyPanel.tsx'
 import { NotFound } from './NotFound.tsx'
+import { useT } from '@nafuda/ui/i18n.tsx'
 
 export function TitlePage() {
   const { grader = '', cert = '' } = useParams()
   const g = graderByLabel(grader)
   const [tapping, setTapping] = useState(false)
+  const { t: tr } = useT()
   const ens = useQuery({ queryKey: ['ens', grader, cert], queryFn: () => resolveTitle(grader, cert), enabled: !!g && isCanonicalCert(cert), staleTime: 15_000 })
   const indexed = useTitle(grader, cert)
 
@@ -140,7 +142,7 @@ export function TitlePage() {
       </section>
 
       {issued && idx && (
-        <Section title="Provenance" sub="Every holder since the grader issued the title. Edges are transfers; click one to open the transaction.">
+        <Section title={tr('Provenance')} sub="Every holder since the grader issued the title. Edges are transfers; click one to open the transaction.">
           <ProvenanceFlow title={idx} />
           <div className="mt-4 overflow-x-auto rounded-2xl border border-line bg-card">
             <table className="w-full text-sm">
@@ -204,7 +206,7 @@ export function TitlePage() {
           <ResolutionPath grader={grader} cert={cert} title={t} />
           <div className="grid content-start gap-6">
             <Card className="p-5">
-              <h2 className="text-lg font-bold">Declared price history</h2>
+              <h2 className="text-lg font-bold">{tr('Declared price history')}</h2>
               <p className="mt-1 text-xs text-muted">Written by each seller into the transfer. Self-reported, never verified.</p>
               {prices.length ? <PriceChart data={prices} /> : <p className="mt-6 text-sm text-muted">No declared prices yet.</p>}
             </Card>
@@ -216,7 +218,7 @@ export function TitlePage() {
               </div>
             </Card>
             <Card className="p-5">
-              <h2 className="text-lg font-bold">Any ENS client can read it</h2>
+              <h2 className="text-lg font-bold">{tr('Any ENS client can read it')}</h2>
               <pre className="mt-3 overflow-x-auto rounded-xl bg-code p-3 text-[11.5px] leading-relaxed">{`const name = '${titleName(grader, cert)}'
 const universalResolverAddress = '${UNIVERSAL_RESOLVER}'
 

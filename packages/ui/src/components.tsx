@@ -202,7 +202,7 @@ export function Button({ variant = 'secondary', size = 'md', className = '', ...
   return (
     <button
       {...rest}
-      className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border font-semibold whitespace-nowrap transition disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
     />
   )
 }

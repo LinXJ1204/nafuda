@@ -7,13 +7,15 @@ import { UNIVERSAL_RESOLVER } from '@nafuda/core/deployment.ts'
 import { AddressLink, Card, Skeleton } from '@nafuda/ui/components.tsx'
 import { resolutionPath, type ResolvedTitle } from '@nafuda/ui/ens.ts'
 import { short } from '@nafuda/ui/format.ts'
+import { useT } from '@nafuda/ui/i18n.tsx'
 
 export function ResolutionPath({ grader, cert, title }: { grader: string; cert: string; title: ResolvedTitle }) {
   const path = useQuery({ queryKey: ['path', grader, cert], queryFn: () => resolutionPath(grader, cert), staleTime: 300_000 })
   const steps = path.data ? [...path.data].reverse() : null // root first
+  const { t } = useT()
   return (
     <Card className="p-5 md:p-6">
-      <h2 className="text-xl font-bold">How ENS resolves this name</h2>
+      <h2 className="text-xl font-bold">{t('How ENS resolves this name')}</h2>
       <p className="mt-1 text-sm text-muted">
         Read live from the ENSv2 registries. The Universal Resolver ({short(UNIVERSAL_RESOLVER)}) walks down the tree and asks the nearest resolver.
       </p>

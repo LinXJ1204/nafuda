@@ -12,6 +12,7 @@ import { publicClient } from '@nafuda/ui/ens.ts'
 import { who } from '@nafuda/ui/format.ts'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
 import { WalletButton } from '@nafuda/ui/WalletButton.tsx'
+import { useT } from '@nafuda/ui/i18n.tsx'
 
 export function TransferPanel({ grader, cert, holder, onDone }: { grader: string; cert: string; holder: Address; onDone: () => void }) {
   const { account, client } = useWallet()
@@ -20,6 +21,7 @@ export function TransferPanel({ grader, cert, holder, onDone }: { grader: string
   const [price, setPrice] = useState('')
   const [state, setState] = useState<{ kind: 'idle' | 'busy' | 'done' | 'error'; text?: string; tx?: string }>({ kind: 'idle' })
   const isHolder = account && isAddressEqual(account, holder)
+  const { t } = useT()
 
   async function send() {
     if (!isAddress(to.trim())) return setState({ kind: 'error', text: 'Enter the buyer address.' })
@@ -53,7 +55,7 @@ export function TransferPanel({ grader, cert, holder, onDone }: { grader: string
 
   return (
     <Card className="p-4">
-      <h3 className="font-bold">Transfer this title</h3>
+      <h3 className="font-bold">{t('Transfer this title')}</h3>
       {!account ? (
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-muted">Holder? Connect your wallet to send the title to the buyer.</p>

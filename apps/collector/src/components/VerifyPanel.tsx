@@ -11,6 +11,7 @@ import { OUTCOME_TEXT, checkChip, classify, makeChallenge, makeSellerChallenge, 
 import { Avatar, Button, Card } from '@nafuda/ui/components.tsx'
 import type { ResolvedTitle } from '@nafuda/ui/ens.ts'
 import { short, who } from '@nafuda/ui/format.ts'
+import { useT } from '@nafuda/ui/i18n.tsx'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
 import { recoverMessageAddress } from 'viem'
 
@@ -34,6 +35,7 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
   const [busy, setBusy] = useState(false)
   const timers = useRef<number[]>([])
   const { client } = useWallet()
+  const { t, outcome } = useT()
 
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
@@ -88,7 +90,7 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
 
   const recovered = run && 'signer' in run.check ? run.check.signer : null
   const holderMatch = run?.seller && title.holder ? isAddressEqual(run.seller, title.holder) : null
-  const text = run ? OUTCOME_TEXT[run.outcome] : null
+  const text = run ? outcome(run.outcome, OUTCOME_TEXT[run.outcome]) : null
   const tone = { ok: 'border-ok text-ok', warn: 'border-warn text-warn', bad: 'border-bad text-bad', none: 'border-line text-muted' }
 
   const steps = run
@@ -105,8 +107,8 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
     <Card className="p-5 md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-xl font-bold">Check this slab before you buy</h2>
-          <p className="mt-1 text-sm text-muted">At a card show: tap the slab with your phone, then check the seller against the holder on ENS.</p>
+          <h2 className="text-xl font-bold">{t('Check this slab before you buy')}</h2>
+          <p className="mt-1 text-sm text-muted">{t('At a card show: tap the slab with your phone, then check the seller against the holder on ENS.')}</p>
         </div>
         <span className="rounded border border-shu px-1.5 text-[11px] font-bold tracking-wide text-shu">SIMULATED CHIP</span>
       </div>
@@ -114,7 +116,7 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
       <div className="mt-5 grid gap-5 md:grid-cols-2">
         <div>
           <div className="mb-2 text-sm font-bold">
-            <span className="text-accent">1</span> The slab in the seller's hand
+            <span className="text-accent">1</span> {t("The slab in the seller's hand")}
           </div>
           {(['genuine', 'clone'] as const).map((v) => (
             <label key={v} className={`mb-2 flex cursor-pointer gap-3 rounded-xl border p-3 ${variant === v ? 'border-accent bg-accent/5' : 'border-line'}`}>
@@ -132,7 +134,7 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
         </div>
         <div>
           <div className="mb-2 text-sm font-bold">
-            <span className="text-accent">2</span> Who is selling?
+            <span className="text-accent">2</span> {t('Who is selling?')}
           </div>
           <div className="mb-2 flex flex-wrap gap-2">
             {picks.map((p) => (
@@ -157,7 +159,7 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
       </div>
 
       <Button variant="primary" size="lg" className="mt-5 w-full" disabled={busy} onClick={tap}>
-        Tap the slab and verify
+        {t('Tap the slab and verify')}
       </Button>
 
       {run && (
@@ -183,7 +185,7 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
           </ol>
           {text && (
             <div className={`rounded-2xl border-2 p-5 transition-opacity duration-500 ${shown >= 6 ? 'opacity-100' : 'opacity-0'} ${tone[text.tone]}`}>
-              <div className="text-[11px] font-bold tracking-widest uppercase">Result</div>
+              <div className="text-[11px] font-bold tracking-widest uppercase">{t('Result')}</div>
               <h3 className="mt-1 text-lg font-bold">{text.title}</h3>
               <p className="mt-2 text-sm text-ink">{text.body}</p>
               {run.replay && <p className="mt-2 text-xs text-muted">Replayed an earlier signature against a new challenge: it no longer proves anything.</p>}

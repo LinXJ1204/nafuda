@@ -5,6 +5,7 @@ import { NavLink } from 'react-router'
 import { GRADERS, NAFUDA_REGISTRY } from '@nafuda/core/deployment.ts'
 import { AddressLink, ExtLink, Seal } from './components.tsx'
 import { useStatus } from './api.ts'
+import { LangToggle, useT } from './i18n.tsx'
 import { WalletButton } from './WalletButton.tsx'
 
 export type NavItem = { to: string; label: string; end?: boolean }
@@ -25,6 +26,7 @@ export function Shell({
   children: ReactNode
 }) {
   const [open, setOpen] = useState(false)
+  const { t, lang } = useT()
   const status = useStatus()
   return (
     <div className="min-h-screen">
@@ -34,7 +36,7 @@ export function Shell({
             <Seal size={38} />
             <span className="leading-tight">
               <strong className="block text-[17px]">{brand}</strong>
-              <small className="block text-xs text-muted">{tagline}</small>
+              <small className="block text-xs text-muted">{t(tagline)}</small>
             </span>
           </NavLink>
           <nav className={`${open ? 'flex' : 'hidden'} absolute top-full right-0 left-0 flex-col gap-1 border-b border-line bg-card p-3 lg:static lg:flex lg:flex-row lg:border-0 lg:bg-transparent lg:p-0`}>
@@ -48,11 +50,11 @@ export function Shell({
                   `rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap no-underline ${isActive ? 'bg-raised font-semibold text-accent' : 'text-muted hover:bg-raised hover:text-ink'}`
                 }
               >
-                {n.label}
+                {t(n.label)}
               </NavLink>
             ))}
             <a href={cross.href} className="rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap text-muted italic no-underline hover:text-ink">
-              {cross.label}
+              {t(cross.label)}
             </a>
           </nav>
           <div className="ml-auto flex items-center gap-2">
@@ -60,7 +62,8 @@ export function Shell({
               <span className={`size-1.5 rounded-full ${status.isError ? 'bg-bad' : 'bg-ok'}`} />
               Sepolia · ENSv2
             </span>
-            <WalletButton label={walletLabel} />
+            <LangToggle />
+            <WalletButton label={t(walletLabel ?? 'Connect wallet')} />
             <button className="rounded-lg border border-line px-2 py-1.5 lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu">
               ☰
             </button>
@@ -69,9 +72,9 @@ export function Shell({
       </header>
       <div className="mx-auto max-w-7xl px-4">
         <p className="mt-4 rounded-lg border-l-4 border-shu bg-card px-3 py-2 text-xs text-muted">
-          Demo on Sepolia. <strong>PSA-Sim, BGS-Sim and CGC-Sim</strong> are simulated graders modeled after PSA, Beckett and CGC; they are not affiliated
+          {lang === 'ja' ? t('notice') : <>Demo on Sepolia. <strong>PSA-Sim, BGS-Sim and CGC-Sim</strong> are simulated graders modeled after PSA, Beckett and CGC; they are not affiliated
           with or endorsed by those companies. Slab chips are <strong>simulated</strong> in the browser; in production the grader seals an NFC chip (such as
-          Arx HaLo) inside the slab. Cards and collectors are fictional.
+          Arx HaLo) inside the slab. Cards and collectors are fictional.</>}
         </p>
         <main className="pb-20">{children}</main>
         <footer className="border-t border-line py-8 text-xs text-muted">

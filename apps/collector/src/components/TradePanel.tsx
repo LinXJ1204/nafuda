@@ -9,6 +9,7 @@ import { useTitleOffers, type OfferRow } from '@nafuda/ui/api.ts'
 import { Addr, Button, Card, Pill, TimeAgo } from '@nafuda/ui/components.tsx'
 import { jpy } from '@nafuda/ui/format.ts'
 import { signOffer, withdrawOffer } from '@nafuda/ui/sign.ts'
+import { useT } from '@nafuda/ui/i18n.tsx'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
 
 export function TradePanel({ grader, cert, holder }: { grader: string; cert: string; holder: Address }) {
@@ -16,6 +17,7 @@ export function TradePanel({ grader, cert, holder }: { grader: string; cert: str
   const { account, client } = useWallet()
   const queryClient = useQueryClient()
   const [price, setPrice] = useState('')
+  const { t } = useT()
   const [note, setNote] = useState('')
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const isHolder = !!account && isAddressEqual(account, holder)
@@ -50,7 +52,7 @@ export function TradePanel({ grader, cert, holder }: { grader: string; cert: str
     <Card className="p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="text-lg font-bold">Trade interest</h2>
+          <h2 className="text-lg font-bold">{t('Trade interest')}</h2>
           <p className="mt-1 text-xs text-muted">Signed intents to meet and trade. They never move the title: at the show you still tap the slab, pay, and the holder transfers.</p>
         </div>
         {ask ? <Pill tone="accent">For trade</Pill> : <Pill>Not listed</Pill>}

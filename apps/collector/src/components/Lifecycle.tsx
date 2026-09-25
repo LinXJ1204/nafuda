@@ -1,5 +1,7 @@
 // The life of a slab title, as an animated pipeline (home page).
 
+import { useT } from '@nafuda/ui/i18n.tsx'
+
 const STEPS = [
   { icon: '🔍', title: 'Graded', who: 'Grader', text: 'The card is graded and encapsulated.' },
   { icon: '◈', title: 'Chip sealed', who: 'Grader', text: 'An NFC chip with its own key goes inside the slab.' },
@@ -9,6 +11,7 @@ const STEPS = [
 ]
 
 export function Lifecycle() {
+  const { t } = useT()
   return (
     <div className="grid gap-3 md:grid-cols-5">
       {STEPS.map((s, i) => (
@@ -18,12 +21,12 @@ export function Lifecycle() {
               <span className="grid size-9 place-items-center rounded-xl bg-accent/10 font-serif text-lg text-accent">{s.icon}</span>
               <div>
                 <div className="text-[11px] font-bold tracking-wide text-muted uppercase">
-                  {i + 1} · {s.who}
+                  {i + 1} · {t(s.who)}
                 </div>
-                <div className="font-bold">{s.title}</div>
+                <div className="font-bold">{t(s.title)}</div>
               </div>
             </div>
-            <p className="mt-2 text-[13px] leading-snug text-muted">{s.text}</p>
+            <p className="mt-2 text-[13px] leading-snug text-muted">{t(s.text)}</p>
           </div>
           {i < STEPS.length - 1 && (
             <svg className="absolute top-1/2 -right-3 z-10 hidden -translate-y-1/2 md:block" width="18" height="12" viewBox="0 0 18 12" aria-hidden>

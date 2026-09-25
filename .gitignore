@@ -1,0 +1,13 @@
+# secrets
+.env
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+
+# Node / Vite
+node_modules/
+dist/
+
+.DS_Store

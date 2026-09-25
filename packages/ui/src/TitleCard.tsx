@@ -1,17 +1,20 @@
 import { splitCard } from '@nafuda/core/slab.ts'
-import type { Title } from './api.ts'
+import { useOpenAsks, type Title } from './api.ts'
 import { AppLink, Avatar, GraderBadge, Skeleton, useLinks } from './components.tsx'
 import { jpy, who } from './format.ts'
 import { SlabArt } from './SlabArt.tsx'
 
 export function TitleCard({ t }: { t: Title }) {
   const links = useLinks()
+  const asks = useOpenAsks()
+  const ask = asks.data?.find((o) => o.grader === t.grader && o.cert === t.cert)
   const c = splitCard(t.card)
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-card transition hover:-translate-y-0.5 hover:border-accent hover:shadow-lg">
       <AppLink to={links.title(t.grader, t.cert)} className="block bg-raised px-6 pt-5 pb-3 no-underline">
         <SlabArt grader={t.grader} cert={t.cert} card={t.card} grade={t.grade} attributes={t.attributes} />
       </AppLink>
+      {ask && <span className="absolute top-2 right-2 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-on-accent shadow">Asking {jpy(ask.priceJpy)}</span>}
       <div className="flex flex-1 flex-col gap-1 p-3 text-sm">
         <div className="flex items-center justify-between gap-2">
           <AppLink to={links.title(t.grader, t.cert)} className="truncate font-bold no-underline hover:text-accent">

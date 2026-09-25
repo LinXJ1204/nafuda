@@ -11,6 +11,7 @@ import { GradersPage } from './pages/Graders.tsx'
 import { HomePage } from './pages/Home.tsx'
 import { MarketMapPage } from './pages/MarketMap.tsx'
 import { NotFound } from './pages/NotFound.tsx'
+import { SubmitPage } from './pages/Submit.tsx'
 import { TitlePage } from './pages/Title.tsx'
 import { VerifyStart } from './pages/VerifyStart.tsx'
 
@@ -34,6 +35,7 @@ export function App() {
         { to: '/graders', label: 'Graders' },
         { to: '/collectors', label: 'Collectors' },
         { to: '/map', label: 'Map' },
+        { to: '/submit', label: 'Submit' },
         { to: '/me', label: 'My titles' },
       ]}
       cross={{ href: GRADER_CONSOLE_URL, label: 'Grader console ↗' }}
@@ -50,6 +52,7 @@ export function App() {
         <Route path="/collector/:address" element={<CollectorPage />} />
         <Route path="/map" element={<MarketMapPage />} />
         <Route path="/developers" element={<DevelopersPage />} />
+        <Route path="/submit" element={<SubmitPage />} />
         <Route path="/me" element={<Me />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

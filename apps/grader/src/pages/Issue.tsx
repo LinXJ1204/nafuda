@@ -4,6 +4,10 @@
 
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router'
+import { privateKeyToAddress } from 'viem/accounts'
+import { chipKey } from '@nafuda/core/chips.ts'
+import { signGraderAction } from '@nafuda/ui/sign.ts'
 import { isAddress, zeroAddress, type Address, type Hash } from 'viem'
 import { controllerAbi } from '@nafuda/core/abis.ts'
 import { COLLECTORS, titleName } from '@nafuda/core/deployment.ts'
@@ -26,7 +30,15 @@ export function IssuePage() {
   const links = useLinks()
   const queryClient = useQueryClient()
   const issued = useTitles({ grader: grader.label, limit: 200 })
-  const slabs = useMemo(() => bench(grader, 12), [grader])
+  const [params] = useSearchParams()
+  const fromIntake = params.get('sub')
+  const slabs = useMemo(() => {
+    const list = bench(grader, 12)
+    const c = params.get('cert')
+    // a slab sealed from the intake board may sit outside the bench range: its chip is derivable
+    if (c && !list.some((s) => s.cert === c)) list.unshift({ cert: c, card: params.get('card') ?? '', chip: privateKeyToAddress(chipKey(grader.label, 'genuine', c)) })
+    return list
+  }, [grader, params])
   const issuedCerts = new Set(issued.data?.items.map((t) => t.cert))
 
   const [step, setStep] = useState(0)
@@ -43,7 +55,16 @@ export function IssuePage() {
     setGrade(grader.scale[1] ?? grader.scale[0])
     setSubgrades(Object.fromEntries(grader.subgrades.map((k) => [k, '9.5'])))
     setResult(null)
-  }, [grader])
+    const c = params.get('cert')
+    if (c) {
+      setCert(c)
+      setCard(params.get('card') ?? '')
+      const g = params.get('grade')
+      if (g && grader.scale.includes(g)) setGrade(g)
+      setHolder(params.get('holder') ?? '')
+      setStep(params.get('holder') ? 3 : 1)
+    }
+  }, [grader, params])
 
   const slab = slabs.find((s) => s.cert === cert)
   const form: IssueForm | null = slab ? { cert: slab.cert, card, grade, holder: holder.trim(), chip: slab.chip, subgrades } : null
@@ -79,7 +100,16 @@ export function IssuePage() {
       setResult({ kind: 'busy', text: 'Waiting for the block…', tx: hash })
       const receipt = await publicClient.waitForTransactionReceipt({ hash })
       if (receipt.status !== 'success') throw new Error('issue reverted')
-      setResult({ kind: 'done', text: `Issued ${titleName(grader.label, form.cert)}`, tx: hash })
+      let text = `Issued ${titleName(grader.label, form.cert)}`
+      if (fromIntake) {
+        try {
+          await signGraderAction(client, fromIntake, { action: 'issued', grade: '', cert: '', txHash: hash })
+          text += `, and submission #${fromIntake} is marked issued`
+        } catch (e) {
+          text += ` (could not update submission #${fromIntake}: ${(e as Error).message.split('\n')[0]})`
+        }
+      }
+      setResult({ kind: 'done', text, tx: hash })
       await queryClient.invalidateQueries()
     } catch (e) {
       const name = revertName(e)

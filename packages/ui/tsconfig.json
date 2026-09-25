@@ -17,7 +17,9 @@
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "types": [],
+    "types": [
+      "vite/client"
+    ],
     "jsx": "react-jsx"
   },
   "include": [

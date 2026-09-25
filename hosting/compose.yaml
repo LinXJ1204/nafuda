@@ -57,6 +57,7 @@ services:
     command: ["node", "src/main.ts", "api"]
     environment:
       DATABASE_URL: postgres://nafuda:${DB_PASSWORD:-nafuda-local-only}@db:5432/nafuda
+      SEPOLIA_RPC_URL: ${INDEXER_RPC_URL:-https://ethereum-sepolia-rpc.publicnode.com}
       PORT: "3000"
     depends_on:
       db:

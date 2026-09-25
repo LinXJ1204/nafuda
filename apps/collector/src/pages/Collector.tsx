@@ -1,19 +1,22 @@
 import { useParams } from 'react-router'
 import { isAddress } from 'viem'
-import { useHolder } from '@nafuda/ui/api.ts'
+import { useHolder, useHolderOffers, useSubmissions } from '@nafuda/ui/api.ts'
 import { ActivityFeed } from '@nafuda/ui/ActivityFeed.tsx'
-import { AddressLink, Avatar, Empty, Pill, Section, Skeleton, Stat, useEnsName } from '@nafuda/ui/components.tsx'
+import { Addr, AddressLink, AppLink, Avatar, Empty, Pill, Section, Skeleton, Stat, useEnsName } from '@nafuda/ui/components.tsx'
 import { PrimaryNameButton } from '../components/PrimaryName.tsx'
-import { compactJpy, short } from '@nafuda/ui/format.ts'
+import { compactJpy, jpy, short } from '@nafuda/ui/format.ts'
 import { TitleGrid } from '@nafuda/ui/TitleCard.tsx'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
 import { NotFound } from './NotFound.tsx'
+import { SubmissionList } from './Submit.tsx'
 
 export function CollectorPage() {
   const { address = '' } = useParams()
   const holder = useHolder(isAddress(address) ? address : null)
   const { account } = useWallet()
   const ens = useEnsName(isAddress(address) ? address : null)
+  const offers = useHolderOffers(isAddress(address) ? address : null)
+  const submissions = useSubmissions({ submitter: isAddress(address) ? address.toLowerCase() : undefined })
   if (!isAddress(address)) return <NotFound />
   const h = holder.data
   const mine = account?.toLowerCase() === address.toLowerCase()
@@ -45,6 +48,40 @@ export function CollectorPage() {
       {h && h.past.length > 0 && (
         <Section title="Held before" sub="Titles this collector sold on.">
           <TitleGrid items={h.past} />
+        </Section>
+      )}
+      {offers.data && (offers.data.received.length > 0 || offers.data.made.length > 0) && (
+        <Section title="Trade interest" sub="Signed asks and offers. They never move a title.">
+          <div className="grid gap-4 md:grid-cols-2">
+            {[
+              ['Offers on their titles', offers.data.received],
+              ['Their asks and offers', offers.data.made],
+            ].map(([label, rows]) => (
+              <div key={label as string}>
+                <h3 className="mb-2 text-sm font-semibold text-muted">{label as string}</h3>
+                <div className="grid gap-2">
+                  {(rows as typeof offers.data.made).length === 0 && <p className="text-sm text-faint">None.</p>}
+                  {(rows as typeof offers.data.made).map((o) => (
+                    <div key={o.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-card px-3 py-2 text-sm">
+                      <AppLink to={`/title/${o.grader}/${o.cert}`} className="font-medium hover:text-accent">
+                        {(o.card ?? '').replace(' (demo card)', '').split(' - ')[0]} <span className="font-mono text-xs text-faint">#{o.cert}</span>
+                      </AppLink>
+                      <span className="flex items-center gap-2">
+                        <span className={o.kind === 'ask' ? 'font-semibold text-accent' : ''}>{o.kind === 'ask' ? 'asks' : 'offers'}</span>
+                        <strong className="tabular-nums">{jpy(o.priceJpy)}</strong>
+                        {o.kind === 'bid' && <Addr address={o.from} />}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+      {submissions.data && submissions.data.length > 0 && (
+        <Section title="Grading submissions">
+          <SubmissionList items={submissions.data} />
         </Section>
       )}
       <Section title="Activity">

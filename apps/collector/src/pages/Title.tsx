@@ -17,6 +17,7 @@ import { PriceChart } from '@nafuda/ui/Charts.tsx'
 import { ProvenanceFlow } from '../components/ProvenanceFlow.tsx'
 import { QrCode } from '../components/QrCode.tsx'
 import { ResolutionPath } from '../components/ResolutionPath.tsx'
+import { TradePanel } from '../components/TradePanel.tsx'
 import { TransferPanel } from '../components/TransferPanel.tsx'
 import { VerifyPanel } from '../components/VerifyPanel.tsx'
 import { NotFound } from './NotFound.tsx'
@@ -129,7 +130,8 @@ export function TitlePage() {
                   </>
                 )}
               </dl>
-              <div className="mt-6">
+              <div className="mt-6 grid gap-4">
+                <TradePanel grader={grader} cert={cert} holder={t.holder!} />
                 <TransferPanel grader={grader} cert={cert} holder={t.holder!} onDone={() => ens.refetch()} />
               </div>
             </>

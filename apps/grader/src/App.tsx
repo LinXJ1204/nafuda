@@ -3,6 +3,7 @@ import { LinksProvider } from '@nafuda/ui/components.tsx'
 import { Shell } from '@nafuda/ui/Shell.tsx'
 import { COLLECTOR_URL, useConsole } from './console.tsx'
 import { DashboardPage } from './pages/Dashboard.tsx'
+import { IntakePage } from './pages/Intake.tsx'
 import { IssuePage } from './pages/Issue.tsx'
 import { IssuedPage } from './pages/Issued.tsx'
 import { JoinPage } from './pages/Join.tsx'
@@ -31,6 +32,7 @@ export function App() {
         tagline="Issue and track Nafuda slab titles"
         nav={[
           { to: '/', label: 'Dashboard', end: true },
+          { to: '/intake', label: 'Intake' },
           { to: '/issue', label: 'Issue' },
           { to: '/issued', label: 'Issued titles' },
           { to: '/trust', label: 'Trust' },
@@ -43,6 +45,7 @@ export function App() {
         <GraderBar />
         <Routes>
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/intake" element={<IntakePage />} />
           <Route path="/issue" element={<IssuePage />} />
           <Route path="/issued" element={<IssuedPage />} />
           <Route path="/trust" element={<TrustPage />} />

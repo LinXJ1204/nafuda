@@ -19,8 +19,9 @@ export function ExplorePage() {
   const sort = params.get('sort') ?? 'recent'
   const minGrade = params.get('minGrade') ?? ''
   const q = params.get('q') ?? ''
+  const forTrade = params.get('forTrade') ?? ''
   const [limit, setLimit] = useState(40)
-  const titles = useTitles({ grader, sort, minGrade: minGrade ? Number(minGrade) : undefined, q, limit })
+  const titles = useTitles({ grader, sort, minGrade: minGrade ? Number(minGrade) : undefined, q, limit, forTrade: forTrade ? 1 : undefined })
   const set = (k: string, v: string) => {
     const next = new URLSearchParams(params)
     if (v) next.set(k, v)
@@ -53,6 +54,9 @@ export function ExplorePage() {
           </Button>
         ))}
         <span className="mx-2 hidden h-5 w-px bg-line sm:block" />
+        <Button size="sm" variant={forTrade ? 'primary' : 'secondary'} onClick={() => set('forTrade', forTrade ? '' : '1')}>
+          For trade only
+        </Button>
         <select value={minGrade} onChange={(e) => set('minGrade', e.target.value)} className="rounded-xl border border-line bg-card px-2.5 py-1.5 text-sm">
           <option value="">Any grade</option>
           <option value="10">10 only</option>

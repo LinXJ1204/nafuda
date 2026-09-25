@@ -5,6 +5,7 @@ import { Hono, type Context } from 'hono'
 import { getAddress, isAddress } from 'viem'
 import { COLLECTORS, GRADERS, collectorOf } from '../../packages/core/src/deployment.ts'
 import type { Sql } from './db.ts'
+import { signedRoutes } from './signed-api.ts'
 
 const SORTS = {
   newest: 'issued_block desc, cert',
@@ -106,8 +107,11 @@ export function api(sql: Sql) {
     const holder = q.holder && isAddress(q.holder) ? q.holder.toLowerCase() : null
     const minGrade = q.minGrade ? Number(q.minGrade) : null
     const search = q.q?.trim().toLowerCase() || null
+    const forTrade = q.forTrade === '1'
     const where = sql`
       where (${grader}::text is null or grader = ${grader})
+        and (not ${forTrade} or exists (select 1 from offers o where o.grader = titles.grader and o.cert = titles.cert and o.kind = 'ask'
+          and o.status = 'open' and o.expiry > now() and o.from_addr = titles.holder))
         and (${holder}::text is null or holder = ${holder})
         and (${minGrade}::real is null or grade_score >= ${minGrade})
         and (${search}::text is null or cert like ${search + '%'} or lower(card) like ${'%' + search + '%'} or holder = ${search})`
@@ -215,6 +219,8 @@ export function api(sql: Sql) {
       edges: edges.map((e) => ({ from: e.from_addr, to: e.to_addr, count: e.n, volumeJpy: Number(e.volume) })),
     })
   })
+
+  signedRoutes(app, sql, out)
 
   app.notFound((c) => out(c, { error: 'not found' }, 404))
   app.onError((err, c) => {

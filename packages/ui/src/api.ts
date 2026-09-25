@@ -71,11 +71,10 @@ export type Status = { indexedBlock: string | null; titles: number; transfers: n
 export type CollectorRow = { name: string; bio: string; address: string; source: string; titles: number }
 
 export class ApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
+  readonly status: number
+  constructor(status: number, message: string) {
     super(message)
+    this.status = status
   }
 }
 
@@ -101,7 +100,7 @@ export const useGrader = (label: string) => useQuery({ queryKey: ['grader', labe
 export const useCollectors = () => useQuery({ queryKey: ['collectors'], queryFn: () => api<CollectorRow[]>('/collectors'), ...live })
 export const useGraph = () => useQuery({ queryKey: ['graph'], queryFn: () => api<Graph>('/graph'), ...live })
 
-export type TitleQuery = { grader?: string; holder?: string; q?: string; sort?: string; minGrade?: number; limit?: number; offset?: number }
+export type TitleQuery = { grader?: string; holder?: string; q?: string; sort?: string; minGrade?: number; limit?: number; offset?: number; forTrade?: number }
 export const useTitles = (query: TitleQuery) =>
   useQuery({
     queryKey: ['titles', query],
@@ -123,3 +122,40 @@ export const useActivity = (query: { grader?: string; type?: string; limit?: num
 
 export const useHolder = (address: string | null | undefined) =>
   useQuery({ queryKey: ['holder', address], queryFn: () => api<Holder>(`/holders/${address}`), enabled: !!address, ...live })
+
+////////////////////////////////////////////////////////////////////////
+// Signed, off-chain data: trade interest and grading submissions
+////////////////////////////////////////////////////////////////////////
+
+export type OfferRow = { id: string; grader: string; cert: string; kind: 'ask' | 'bid'; from: string; priceJpy: number; note: string; expiry: string; createdAt: string; card: string | null; grade: string | null }
+export type SubmissionRow = {
+  id: string
+  grader: string
+  submitter: string
+  card: string
+  declaredValueJpy: number
+  service: string
+  status: 'received' | 'grading' | 'sealed' | 'issued' | 'rejected'
+  grade: string | null
+  cert: string | null
+  issueTx: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export const useTitleOffers = (grader: string, cert: string) =>
+  useQuery({ queryKey: ['offers', grader, cert], queryFn: () => api<OfferRow[]>(`/titles/${grader}/${cert}/offers`), ...live })
+export const useOpenAsks = () => useQuery({ queryKey: ['asks'], queryFn: () => api<OfferRow[]>('/offers?kind=ask'), ...live })
+export const useHolderOffers = (address: string | null | undefined) =>
+  useQuery({ queryKey: ['holderOffers', address], queryFn: () => api<{ made: OfferRow[]; received: OfferRow[] }>(`/holders/${address}/offers`), enabled: !!address, ...live })
+export const useSubmissions = (query: { grader?: string; submitter?: string }) =>
+  useQuery({ queryKey: ['submissions', query], queryFn: () => api<SubmissionRow[]>(`/submissions${qs(query)}`), ...live })
+
+const json = (v: unknown) => JSON.stringify(v, (_k, x) => (typeof x === 'bigint' ? x.toString() : x))
+
+export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`/api${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: json(body) })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new ApiError(res.status, (data as { error?: string }).error ?? `${res.status}`)
+  return data as T
+}

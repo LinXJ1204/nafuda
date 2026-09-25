@@ -56,3 +56,12 @@ A new entry is appended at the end of each work session.
 
 **What the author does**: reviews, enables GitHub Pages, and checks the page in a browser.
 
+## P7/P8 lock script, README, demo prep (2026-09-25 ~21:55–22:10 JST)
+
+**What the AI did**:
+- Wrote `scripts/src/lock.ts` (dry run by default) and the post-lock checks V9–V11, and rehearsed the lock on an anvil fork of the live Sepolia state. The lock has not been executed on Sepolia; that needs the author's explicit go-ahead.
+- Added a state-file network guard after noticing that a copied state file could write fork transactions into the Sepolia record.
+- Drafted the README (English), `scripts/src/reset.ts`, and a narration draft in `docs/demo-script.md`. The author records the video in their own voice.
+
+**Still with the author**: team intro in the README, enabling GitHub Pages, checking the Explorer and ENS App display, review, and the final-lock decision.
+

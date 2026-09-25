@@ -196,7 +196,7 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 - [x] P7-1 賣家用錢包簽名證明自己是持有人（P5-4 的簽名版；在 P5 一起完成，賣家簽的訊息前綴是 `NAFUDA-SELLER|`，跟晶片的 `ENS-SLAB|` 分開，避免被混用）
 - [x] P7-2 鏈上的 `verifyChip()`，並用同一組 test vectors 測試（在 P1 一起完成）
 - [x] P7-3 用 Beta fixture 的 UniversalResolverV2 做端到端測試（在 P1 一起完成，即 T8）
-- [ ] P7-4 **最後鎖定（不可逆）**：`npm run lock -- --network sepolia --i-understand-this-is-irreversible`
+- [ ] P7-4 **最後鎖定（不可逆）**：`npm run lock -- --network sepolia --execute --i-understand-this-is-irreversible`。腳本已完成，預設只做模擬；在 live Sepolia 狀態的 fork 上彩排過：3 個步驟全部成功，鎖定後 V1–V11 全部 ✓，權狀照樣可以轉手。**在 Sepolia 上執行之前要作者明確同意**
 
 P7-4 的驗收：`verify` 多跑三項 ——
 - nafudaRegistry `isEmancipated() == true`
@@ -207,8 +207,8 @@ P7-4 的驗收：`verify` 多跑三項 ——
 
 ### P8　提交素材（H28–H31）
 
-- [ ] README，逐項打勾：一句話；問題；運作方式（直接用產品計劃 §1.6 的圖）；用到哪些 v2 功能，附程式碼行號連結；公開網址；Sepolia 地址；安裝與測試指令；誠實的邊界；營運方的權力；團隊介紹；AI 使用揭露；規劃文件的撰寫時間說明；Curvegrid 要求的內容（一句話摘要、團隊介紹、安裝說明；MultiBaas 標註「未使用」）
-- [ ] 影片：自己配音、螢幕錄影
+- [x] README 草稿（2026-09-25 22:05，英文；團隊介紹留給作者填），逐項打勾：一句話；問題；運作方式（直接用產品計劃 §1.6 的圖）；用到哪些 v2 功能，附程式碼行號連結；公開網址；Sepolia 地址；安裝與測試指令；誠實的邊界；營運方的權力；團隊介紹；AI 使用揭露；規劃文件的撰寫時間說明；Curvegrid 要求的內容（一句話摘要、團隊介紹、安裝說明；MultiBaas 標註「未使用」）
+- [ ] 影片：自己配音、螢幕錄影（旁白草稿見 `docs/demo-script.md`；錄影前後各跑一次 `npm run reset -- --network sepolia`）
 - [ ] 簡報（選做，可以用 README 的圖）
 
 **驗收**
@@ -219,7 +219,7 @@ P7-4 的驗收：`verify` 多跑三項 ——
 
 ### P9　提交（H31–H36，07:00 前送出）
 
-- [ ] 從乾淨環境驗證：`git clone --recursive <repo>` → `cd contracts && forge test` 通過
+- [x] 從乾淨環境驗證：`git clone --recursive <repo>` → `cd contracts && forge test` 通過（由 GitHub Actions 的 `contracts` workflow 在每次 push 時執行）
 - [ ] repo 是 public；在無痕視窗打開公開網址，S1–S4 能用
 - [ ] ETHGlobal 表單：repo、公開網址、影片、勾選 ENS「Best Use of ENSv2」和 Curvegrid「Best RWA Tokenization」、AI 使用揭露
 - [ ] 送出之後再打開一次提交頁，確認所有連結都正確

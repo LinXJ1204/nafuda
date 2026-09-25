@@ -98,7 +98,8 @@ check(holder === kenji.address, `ENS: ${name} resolves to the submitter`)
   await page.type('input[placeholder="¥ price"]', '80000')
   await clickText(page, /Sign offer/)
   await waitFor(page, /Offer sent to the holder/)
-  check(/¥80,000/.test(await text(page)), 'another collector signs an offer')
+  await waitFor(page, /Offers \(\d+\)[\s\S]*¥80,000/, 30_000).catch(() => undefined)
+  check(/¥80,000/.test(await text(page)), 'another collector signs an offer (listed on the title)')
   await page.close()
 }
 

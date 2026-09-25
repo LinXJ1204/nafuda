@@ -167,7 +167,7 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 - [x] P5-6 過戶：用注入的錢包（MetaMask 匯入 alice 和 bob）呼叫 `safeTransferFrom`；`transfer.ts` 當備案
 - [x] P5-7 頁面附一段 viem 程式碼，示範任何 client 都查得到
   （前端的判斷邏輯另有 `web/src/verify.test.ts`，用 node:test 跑 S1–S5、挑戰逾時、格式錯誤的簽名，共 9 個測試；bundle 已掃描過，找不到 `.env` 的任何值）
-- [ ] P5-8 部署到公開網址：GitHub Pages，由 `.github/workflows/pages.yml` 發布到 `https://linxj1204.github.io/nafuda/`。**需要作者先到 repo 的 Settings → Pages → Source 選「GitHub Actions」**
+- [ ] P5-8 部署到公開網址：改用 **Cloudflare Pages（Git 整合）加上作者自己的網域**（作者 21:50 決定）。GitHub Actions 的 `web.yml` 只負責測試和 build
 
 **驗收**
 

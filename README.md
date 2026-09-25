@@ -7,9 +7,9 @@ Nafuda gives every graded trading-card slab an **ENSv2 name that works as its ti
 > **One-sentence summary:** Graders issue each slab an ENSv2 title name bound to a chip sealed inside the slab, so anyone can verify a slab's authenticity and ownership with any ENS client, and selling it is an ENS name transfer.
 
 [![contracts](https://github.com/LinXJ1204/nafuda/actions/workflows/contracts.yml/badge.svg)](https://github.com/LinXJ1204/nafuda/actions/workflows/contracts.yml)
-[![web](https://github.com/LinXJ1204/nafuda/actions/workflows/pages.yml/badge.svg)](https://github.com/LinXJ1204/nafuda/actions/workflows/pages.yml)
+[![web](https://github.com/LinXJ1204/nafuda/actions/workflows/web.yml/badge.svg)](https://github.com/LinXJ1204/nafuda/actions/workflows/web.yml)
 
-- **Live demo:** https://linxj1204.github.io/nafuda/ (Sepolia)
+- **Live demo:** <!-- TODO: Cloudflare Pages URL --> (Sepolia)
 - **Try a name:** `12345678.psa-sim.nafuda.eth` with any ENS client pointed at the ENSv2 Beta Universal Resolver
 - **Contracts and transactions:** [docs/deployments.md](docs/deployments.md)
 
@@ -130,8 +130,8 @@ git clone --recursive https://github.com/LinXJ1204/nafuda && cd nafuda
 # contracts: T1–T8 (issue, title rules, emancipation, resolve, chip verification, Universal Resolver end-to-end)
 cd contracts && forge test -vv && cd ..
 
-# web: scenario tests S1–S5, then the app on http://localhost:5173/nafuda/
-cd web && npm ci && npm test && npm run dev
+# web: scenario tests S1–S5, then the app
+cd web && npm ci && npm test && npm run dev   # http://localhost:5173/
 ```
 
 To deploy your own copy (Sepolia or an anvil fork), copy `.env.example` to `.env`, fund the operator, then run:

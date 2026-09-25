@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 
-// `base` is the GitHub Pages project path; override with VITE_BASE for other hosts.
+// Served from the domain root (Cloudflare Pages). Set VITE_BASE for a sub-path host.
 export default defineConfig({
-  base: process.env.VITE_BASE ?? '/nafuda/',
+  base: process.env.VITE_BASE ?? '/',
   server: { fs: { allow: ['..'] } },
 })

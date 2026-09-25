@@ -23,6 +23,47 @@ services:
       - "127.0.0.1:${WEB_PORT:-8088}:80"
     restart: unless-stopped
 
+  # v3 backend: Postgres (own container, no host port), the indexer and the read API.
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: nafuda
+      POSTGRES_USER: nafuda
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nafuda-local-only}
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "nafuda"]
+      interval: 5s
+    restart: unless-stopped
+
+  indexer:
+    build:
+      context: ..
+      dockerfile: hosting/server.Dockerfile
+    image: nafuda-server
+    command: ["node", "src/main.ts", "indexer"]
+    environment:
+      DATABASE_URL: postgres://nafuda:${DB_PASSWORD:-nafuda-local-only}@db:5432/nafuda
+      SEPOLIA_RPC_URL: ${INDEXER_RPC_URL:-https://ethereum-sepolia-rpc.publicnode.com}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
+    image: nafuda-server
+    command: ["node", "src/main.ts", "api"]
+    environment:
+      DATABASE_URL: postgres://nafuda:${DB_PASSWORD:-nafuda-local-only}@db:5432/nafuda
+      PORT: "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      indexer:
+        condition: service_started
+    restart: unless-stopped
+
   tunnel:
     image: cloudflare/cloudflared:latest
     profiles: [tunnel]
@@ -52,3 +93,5 @@ services:
       MARKET_UNTIL: ${MARKET_UNTIL:-2026-09-26T08:00:00+09:00}
     restart: on-failure
 
+volumes:
+  db:

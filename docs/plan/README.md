@@ -10,6 +10,7 @@ ETHGlobal requires teams to include spec files, prompts, and planning artifacts 
 | [card-custody-plan.md](card-custody-plan.md) | Plan v1: custody registry (superseded by v2) | Written by Claude Code after discussion with the author | Created 16:51, last edited 18:39, **before kickoff** |
 | [slab-title-plan.md](slab-title-plan.md) | Plan v2: grader-issued ENS title + chip verification (current direction) | Same as above | Created 18:39, **before kickoff**; last pre-kickoff edit at 21:06 (rename to Nafuda) |
 | [slab-title-implementation.md](slab-title-implementation.md) | Implementation plan: phased checklist with acceptance criteria | Same as above | Created 21:02, last edited 21:06 |
+| [web-v2-plan.md](web-v2-plan.md) | Web v2 plan: separate consumer and grader pages, self-hosting, event-based index | Same as above | 2026-09-25 22:03, **after kickoff** |
 
 The four documents above are kept exactly as written, in Traditional Chinese, the author's working language. English summaries:
 
@@ -17,6 +18,7 @@ The four documents above are kept exactly as written, in Traditional Chinese, th
 - **Plan v1**: a feasibility review of v1 against the ENSv2 Beta source, plus a critique. The main problem is that counterfeiters can simply avoid vaulted cert numbers, so the value moves to cross-platform double-vaulting detection.
 - **Plan v2 (current)**: the grader seals an NFC chip into the slab and issues a transferable ENS name, `<cert>.psa-sim.nafuda.eth`, recording the chip's address and the holder. A buyer verifies the chip signature and checks that the name resolves to the seller. A sale is a `safeTransferFrom` of the name. The title registry is emancipated, so nobody can claw titles back.
 - **Implementation plan**: phases P0–P9 with checklists, commands, and acceptance criteria.
+- **Web v2 plan**: splits the web app into a consumer side (OpenSea-style browsing, title pages with transfer history, verification) and a grader console (issue titles, issued list, trust panel). It is self-hosted with Docker and Cloudflare Tunnel, reads lists and history from on-chain events via getLogs (no indexer), and is scoped in three tiers.
 
 Notes:
 

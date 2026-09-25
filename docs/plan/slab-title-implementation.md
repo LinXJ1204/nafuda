@@ -143,13 +143,15 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 
 ### P3　上 Sepolia（H10–H12）
 
-- [ ] P3-1 `npm run deploy -- --network sepolia`
-- [ ] P3-2 `npm run issue -- --network sepolia`
-- [ ] P3-3 `npm run verify -- --network sepolia`（V1–V7）
-- [ ] P3-4 `docs/deployments.md`：所有地址、tx hash、Etherscan 連結
+- [x] P3-1 `npm run deploy -- --network sepolia`
+- [x] P3-2 `npm run issue -- --network sepolia`
+- [x] P3-3 `npm run verify -- --network sepolia`（V1–V7）
+- [x] P3-4 `docs/deployments.md`：所有地址、tx hash、Etherscan 連結
 - [ ] P3-5 在 ENS App Beta / Explorer 上查 `12345678.psa-sim.nafuda.eth`，把結果記下來（會影響 demo 主畫面用哪一個）
 
 **驗收（Gate B，H12）**：V1–V7 在 Sepolia 上全部 ✓，而且 `docs/deployments.md` 已經 push。
+
+實際結果（2026-09-25 21:37）：Sepolia 上 V1–V7 全部 ✓，地址見 `docs/deployments.md`（由 `npm run report` 產生）。P3-5 需要人工用瀏覽器確認（Explorer 是前端渲染的網站，抓下來只有空殼）。
 
 ### P4　睡覺（H12–H18）
 
@@ -157,14 +159,15 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 
 ### P5　前端（H18–H23）
 
-- [ ] P5-1 買家頁：輸入證書號 → 顯示卡名、分數、持有人、晶片地址、`title.status`
-- [ ] P5-2 模擬 slab 面板：真品和複製品各一顆，介面是 `sign(message)`（和 libhalo 相同），畫面上標示「模擬晶片」
-- [ ] P5-3 挑戰與驗證：產生 32 bytes 的 nonce 和時間戳；簽名；用 viem 還原簽名者並比對 `slab.chip`；超過 60 秒就拒絕
-- [ ] P5-4 「賣家是誰」：輸入賣家地址，或讓賣家錢包簽同一個挑戰（Should）
-- [ ] P5-5 結果：依產品計劃 §1.3 的四種情況顯示
-- [ ] P5-6 過戶：用注入的錢包（MetaMask 匯入 alice 和 bob）呼叫 `safeTransferFrom`；`transfer.ts` 當備案
-- [ ] P5-7 頁面附一段 viem 程式碼，示範任何 client 都查得到
-- [ ] P5-8 部署到公開網址
+- [x] P5-1 買家頁：輸入證書號 → 顯示卡名、分數、持有人、晶片地址、`title.status`
+- [x] P5-2 模擬 slab 面板：真品和複製品各一顆，介面是 `sign(message)`（和 libhalo 相同），畫面上標示「模擬晶片」
+- [x] P5-3 挑戰與驗證：產生 32 bytes 的 nonce 和時間戳；簽名；用 viem 還原簽名者並比對 `slab.chip`；超過 60 秒就拒絕
+- [x] P5-4 「賣家是誰」：輸入賣家地址，或讓賣家錢包簽同一個挑戰（Should）
+- [x] P5-5 結果：依產品計劃 §1.3 的四種情況顯示
+- [x] P5-6 過戶：用注入的錢包（MetaMask 匯入 alice 和 bob）呼叫 `safeTransferFrom`；`transfer.ts` 當備案
+- [x] P5-7 頁面附一段 viem 程式碼，示範任何 client 都查得到
+  （前端的判斷邏輯另有 `web/src/verify.test.ts`，用 node:test 跑 S1–S5、挑戰逾時、格式錯誤的簽名，共 9 個測試；bundle 已掃描過，找不到 `.env` 的任何值）
+- [ ] P5-8 部署到公開網址：GitHub Pages，由 `.github/workflows/pages.yml` 發布到 `https://linxj1204.github.io/nafuda/`。**需要作者先到 repo 的 Settings → Pages → Source 選「GitHub Actions」**
 
 **驗收**
 
@@ -190,7 +193,7 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 
 ### P7　Should（H25–H28，照順序做，時間到就停）
 
-- [ ] P7-1 賣家用錢包簽名證明自己是持有人（P5-4 的簽名版）
+- [x] P7-1 賣家用錢包簽名證明自己是持有人（P5-4 的簽名版；在 P5 一起完成，賣家簽的訊息前綴是 `NAFUDA-SELLER|`，跟晶片的 `ENS-SLAB|` 分開，避免被混用）
 - [x] P7-2 鏈上的 `verifyChip()`，並用同一組 test vectors 測試（在 P1 一起完成）
 - [x] P7-3 用 Beta fixture 的 UniversalResolverV2 做端到端測試（在 P1 一起完成，即 T8）
 - [ ] P7-4 **最後鎖定（不可逆）**：`npm run lock -- --network sepolia --i-understand-this-is-irreversible`

@@ -41,3 +41,18 @@ A new entry is appended at the end of each work session.
 
 **What the author does**: reviews the scripts; approves going to Sepolia (P3).
 
+## P3 Sepolia deployment (2026-09-25 ~21:35 JST)
+
+**What the AI did**: ran the deploy, issue, and verify scripts against Sepolia, after the author said to continue while reviewing in parallel. The AI also fixed a bug in `issue.ts` (the tx hash was not saved to the state file) and added `report.ts`, which generates `docs/deployments.md`.
+
+**What the author did**: approved going to Sepolia.
+
+## P5 web app (from 2026-09-25 ~21:40 JST)
+
+**What the AI did**:
+- Wrote `web/`: the pure verification logic with node tests, the simulated chip behind a HaLo-compatible `sign()` interface, ENS lookup through the Universal Resolver, the wallet-based seller proof and title transfer, and the UI
+- Scanned the bundle for leaked secrets
+- Added the GitHub Pages and Foundry CI workflows
+
+**What the author does**: reviews, enables GitHub Pages, and checks the page in a browser.
+

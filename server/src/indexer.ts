@@ -21,6 +21,37 @@ export async function syncGraders(sql: Sql) {
   }
 }
 
+/// Write one batch (from applyBatch) and refresh the touched titles' aggregates. Runs inside the
+/// caller's transaction.
+export async function writeBatch(tx: Sql, batch: ReturnType<typeof applyBatch>, blockTimes: Map<bigint, Date>) {
+  for (const [number, time] of blockTimes) await tx`insert into blocks (number, time) values (${String(number)}, ${time}) on conflict do nothing`
+  for (const t of batch.titles) {
+    await tx`
+      insert into titles (grader, cert, label_id, card, grade, grade_score, chip, holder, issued_block, issued_tx, issued_at)
+      values (${t.grader}, ${t.cert}, ${t.labelId.toString()}, ${t.card}, ${t.grade}, ${t.gradeScore}, ${t.chip}, ${t.holder}, ${String(t.issuedBlock)}, ${t.issuedTx}, ${t.issuedAt})
+      on conflict (grader, cert) do nothing`
+  }
+  for (const a of batch.attributes) {
+    await tx`update titles set attributes = attributes || ${tx.json({ [a.key]: a.value })} where grader = ${a.grader} and cert = ${a.cert}`
+  }
+  for (const t of batch.transfers) {
+    await tx`
+      insert into transfers (grader, cert, from_addr, to_addr, block, log_index, tx, time, price_jpy)
+      values (${t.grader}, ${t.cert}, ${t.from}, ${t.to}, ${String(t.block)}, ${t.logIndex}, ${t.tx}, ${t.time}, ${t.priceJpy})
+      on conflict do nothing`
+  }
+  for (const k of new Set(batch.transfers.map((t) => `${t.grader}|${t.cert}`))) {
+    const [grader, cert] = k.split('|')
+    await tx`
+      update titles set
+        holder = (select to_addr from transfers where grader = ${grader} and cert = ${cert} order by block desc, log_index desc limit 1),
+        transfer_count = (select count(*) from transfers where grader = ${grader} and cert = ${cert}),
+        last_transfer_at = (select max(time) from transfers where grader = ${grader} and cert = ${cert}),
+        last_price_jpy = (select price_jpy from transfers where grader = ${grader} and cert = ${cert} and price_jpy is not null order by block desc, log_index desc limit 1)
+      where grader = ${grader} and cert = ${cert}`
+  }
+}
+
 export async function runIndexer(sql: Sql, { once = false } = {}) {
   const retry = { retryCount: 6, retryDelay: 1500 }
   const client = createPublicClient({
@@ -88,33 +119,7 @@ export async function runIndexer(sql: Sql, { once = false } = {}) {
     const batch = applyBatch({ issued, attributes, transfers, knownCerts, blockTime: (b) => known.get(b)!, priceOf: (h) => prices.get(h) ?? null })
 
     await sql.begin(async (tx) => {
-      for (const [number, time] of known) await tx`insert into blocks (number, time) values (${String(number)}, ${time}) on conflict do nothing`
-      for (const t of batch.titles) {
-        await tx`
-          insert into titles (grader, cert, label_id, card, grade, grade_score, chip, holder, issued_block, issued_tx, issued_at)
-          values (${t.grader}, ${t.cert}, ${t.labelId.toString()}, ${t.card}, ${t.grade}, ${t.gradeScore}, ${t.chip}, ${t.holder}, ${String(t.issuedBlock)}, ${t.issuedTx}, ${t.issuedAt})
-          on conflict (grader, cert) do nothing`
-      }
-      for (const a of batch.attributes) {
-        await tx`update titles set attributes = attributes || ${tx.json({ [a.key]: a.value })} where grader = ${a.grader} and cert = ${a.cert}`
-      }
-      for (const t of batch.transfers) {
-        await tx`
-          insert into transfers (grader, cert, from_addr, to_addr, block, log_index, tx, time, price_jpy)
-          values (${t.grader}, ${t.cert}, ${t.from}, ${t.to}, ${String(t.block)}, ${t.logIndex}, ${t.tx}, ${t.time}, ${t.priceJpy})
-          on conflict do nothing`
-      }
-      const touched = [...new Set(batch.transfers.map((t) => `${t.grader}|${t.cert}`))]
-      for (const k of touched) {
-        const [grader, cert] = k.split('|')
-        await tx`
-          update titles set
-            holder = (select to_addr from transfers where grader = ${grader} and cert = ${cert} order by block desc, log_index desc limit 1),
-            transfer_count = (select count(*) from transfers where grader = ${grader} and cert = ${cert}),
-            last_transfer_at = (select max(time) from transfers where grader = ${grader} and cert = ${cert}),
-            last_price_jpy = (select price_jpy from transfers where grader = ${grader} and cert = ${cert} and price_jpy is not null order by block desc, log_index desc limit 1)
-          where grader = ${grader} and cert = ${cert}`
-      }
+      await writeBatch(tx as unknown as Sql, batch, known)
       await tx`insert into indexer_state (key, value) values ('block', ${String(toBlock)}) on conflict (key) do update set value = excluded.value`
     })
     console.log(

@@ -11,6 +11,16 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,7 +28,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Tests (core, server)
+      - name: Tests (core; server incl. API integration tests on Postgres)
         run: npm test --workspace @nafuda/core --workspace @nafuda/server
       - name: Typecheck
         run: |

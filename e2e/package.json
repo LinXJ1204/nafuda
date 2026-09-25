@@ -4,11 +4,14 @@
   "type": "module",
   "scripts": {
     "public": "node public.test.ts",
-    "live": "node --env-file=../.env live.test.ts"
+    "live": "node --env-file=../.env live.test.ts",
+    "consistency": "node consistency.test.ts"
   },
   "dependencies": {
     "puppeteer-core": "^24.0.0",
     "viem": "2.56.8"
   },
-  "devDependencies": { "@types/node": "^24.0.0" }
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
 }

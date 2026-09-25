@@ -136,11 +136,11 @@
 | B1–B2 indexer、API | 完成 | |
 | B3 交易意向 | 完成 | EIP-712；只有持有人能開價；新發的權狀直接查鏈 |
 | B4 評級商收件 | 完成 | 評級商簽名推進狀態；「已發權狀」這一步會對照交易收據 |
-| B5 Docker | 完成 | 接 Postgres 的 API 測試：進行中 |
+| B5 Docker | 完成 | 接真實 Postgres 的 API 整合測試：5 項，CI 以 Postgres service 執行 |
 | C1–C11 收藏家 app | 完成 | C10 語言切換只翻譯主要文字 |
 | D1–D7 評級商後台 | 完成（D4 批次發行進行中） | D3 看板改用「每個動作簽名」，沒有另做 SIWE session |
 | E1 e2e | 完成 | public 26 項全過；live 在 Sepolia 上走完整條流程 |
 | E2 打磨 | 大致完成 | 手機版已檢查 390px；評級商後台以桌面為主 |
 | E3 文件 | 完成 | |
 | E4 部署 | 完成 | 兩個網域都已上線 |
-| §4 index 對 ENS 的全面比對腳本 | 進行中 | |
+| §4 index 對 ENS 的全面比對腳本 | 完成 | `e2e/consistency.test.ts`：45/45 一致 |

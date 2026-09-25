@@ -30,9 +30,9 @@ Open these side by side. On the collector app, the header button switches Englis
 **Code** (every part is TypeScript except the contracts)
 - `contracts/`: TitleControllerV2 plus 7 tests. All 6 mutations of its checks were caught.
 - `packages/core` (26 tests): verification, issue rules, and EIP-712 signed messages.
-- `server/` (6 tests): indexer, API, signed-intent endpoints, write limits.
+- `server/` (6 unit tests plus 5 integration tests on Postgres): indexer, API, signed-intent endpoints, write limits.
 - `apps/collector` and `apps/grader`: React. `web/` (v2) is gone from the tree but kept in git history.
-- `e2e/`: two suites, described in section 3.
+- `e2e/`: four suites (public, live, batch, consistency), described in section 3.
 - `scripts/`:
   - `deploy-grader.ts`, `seed.ts`, `market.ts`: new graders, demo data, simulated trades
   - `names.ts`, `social.ts`: collector names, demo intents
@@ -72,4 +72,4 @@ Found and fixed by the tests overnight:
 - **Mobile:** the core pages were checked at 390 px. The grader console is desktop-first.
 - **MetaMask itself was not driven by the tests.** The e2e wallet signs in Node with the demo keys. Please try one issue and one transfer with the real extension.
 - **Heads-up:** your local docker context is `mini-ts` (the Mac mini). While testing, a throwaway Postgres container briefly ran on the mini, bound to `0.0.0.0:55433` with password `dev` and no data. It existed for about 2 minutes and was removed. Local testing then used `--context colima`.
-- **Time and gas:** the night's Sepolia spend is visible on the operator and grader addresses in [docs/deployments.md](deployments.md). It was well under the 0.1 ETH estimate at about 1 gwei.
+- **Sepolia ETH:** the operator went from 1.327 ETH (after your 1 ETH) to 0.997 ETH. Most of the difference was not burned: it was moved to the demo collectors and graders to pay their gas, and about 0.27 ETH of it is still in their wallets. Gas was about 1 gwei all night.

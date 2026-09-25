@@ -139,7 +139,7 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 
 **驗收**：在 fork 上 `deploy` 從零跑完；第二次跑沒有送出任何交易；`verify` V1–V8 全部 ✓。
 
-實際結果（2026-09-25 21:40 前後）：fork 上從零部署共 12 筆交易；第二次跑區塊高度不變（沒有送出任何交易）；V1–V8 全部 ✓，其中 V5–V7 走的是 viem 加上 Beta 的 UR proxy `0xeEeE…`。跟產品計劃 §4 的差異：`nafuda.eth` 的 subregistry 直接在 `ETHRegistrar.register` 時帶入，省掉一筆 `setSubregistry`。
+實際結果（2026-09-25 21:30）：fork 上從零部署共 12 筆交易；第二次跑區塊高度不變（沒有送出任何交易）；V1–V8 全部 ✓，其中 V5–V7 走的是 viem 加上 Beta 的 UR proxy `0xeEeE…`。跟產品計劃 §4 的差異：`nafuda.eth` 的 subregistry 直接在 `ETHRegistrar.register` 時帶入，省掉一筆 `setSubregistry`。
 
 ### P3　上 Sepolia（H10–H12）
 

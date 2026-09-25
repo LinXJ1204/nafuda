@@ -6,6 +6,7 @@ import { el, muted } from '../lib/dom.ts'
 import { graderHref, mountShell } from '../lib/layout.ts'
 import { consumerRoute } from '../lib/routes.ts'
 import { viewRunner } from '../lib/view.ts'
+import { explorePage } from './explore.ts'
 import { certSearch } from './search.ts'
 import { titlePage } from './title.ts'
 
@@ -30,6 +31,8 @@ function render() {
       void titlePage(view, route.cert, render)
       return
     case 'explore':
+      void explorePage(view)
+      return
     case 'holder':
     case 'me':
       view.main.append(el('h1', { textContent: 'Look up a slab' }), certSearch(), muted('The gallery is coming next.'))

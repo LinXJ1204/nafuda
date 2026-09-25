@@ -237,3 +237,33 @@ select {
   .issue-layout { grid-template-columns: 1fr; }
   .issue-grid { grid-template-columns: 120px 1fr; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Explore and holder galleries                                        */
+/* ------------------------------------------------------------------ */
+
+.hero { padding: 8px 0 8px; }
+.hero h1 { font-size: 34px; margin: 8px 0; font-family: "Hiragino Mincho ProN", "Noto Serif JP", serif; }
+.hero .lede { max-width: 760px; color: var(--muted); margin: 0 0 8px; }
+.how { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; padding: 0; margin: 16px 0 8px; list-style: none; counter-reset: how; }
+.how li { counter-increment: how; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px 12px 44px; position: relative; font-size: 14px; color: var(--muted); }
+.how li::before { content: counter(how); position: absolute; left: 14px; top: 11px; font-weight: 800; color: var(--accent); font-size: 18px; }
+.how strong { color: var(--ink); }
+
+.section-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 24px 0 12px; }
+.section-head h2 { margin: 0; font-size: 20px; }
+.stats { margin: 0; color: var(--muted); font-size: 14px; }
+
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+.tile {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.tile:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12); }
+.tile-art { padding: 16px 20px 8px; background: var(--paper); }
+.tile-art .slab-art { filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15)); }
+.tile-body { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px 12px; font-size: 14px; }
+.tile-sub { color: var(--muted); font-size: 13px; }
+.tile-cert { color: var(--muted); }
+.tile-foot { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }

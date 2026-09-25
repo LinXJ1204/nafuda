@@ -5,6 +5,7 @@ import { Hono, type Context } from 'hono'
 import { getAddress, isAddress } from 'viem'
 import { COLLECTORS, GRADERS, collectorOf } from '../../packages/core/src/deployment.ts'
 import type { Sql } from './db.ts'
+import { writeLimits } from './limits.ts'
 import { signedRoutes } from './signed-api.ts'
 
 const SORTS = {
@@ -61,6 +62,7 @@ function transferOut(r: Record<string, unknown>) {
 
 export function api(sql: Sql) {
   const app = new Hono().basePath('/api')
+  app.use('*', writeLimits)
 
   app.get('/status', async (c) => {
     const [state] = await sql`select value from indexer_state where key = 'block'`

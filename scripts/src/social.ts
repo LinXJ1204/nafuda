@@ -22,7 +22,11 @@ let failures = 0
 type Account = PrivateKeyAccount | ReturnType<typeof mnemonicToAccount>
 const json = (v: unknown) => JSON.stringify(v, (_k, x) => (typeof x === 'bigint' ? x.toString() : x))
 
+// The API rate-limits writes per client (30/min): pace the demo data.
+const pace = () => new Promise((r) => setTimeout(r, Number(process.env.SOCIAL_PACE_MS ?? 2100)))
+
 async function post(path: string, body: unknown, expect: number) {
+  await pace()
   const res = await fetch(`${API}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: json(body) })
   const text = await res.text()
   if (res.status !== expect) {

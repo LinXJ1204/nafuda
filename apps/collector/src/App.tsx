@@ -1,19 +1,22 @@
+import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { Shell } from '@nafuda/ui/Shell.tsx'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
-import { ActivityPage } from './pages/Activity.tsx'
 import { CollectorPage } from './pages/Collector.tsx'
 import { CollectorsPage } from './pages/Collectors.tsx'
-import { DevelopersPage } from './pages/Developers.tsx'
 import { ExplorePage } from './pages/Explore.tsx'
-import { GraderPage } from './pages/Grader.tsx'
 import { GradersPage } from './pages/Graders.tsx'
 import { HomePage } from './pages/Home.tsx'
-import { MarketMapPage } from './pages/MarketMap.tsx'
 import { NotFound } from './pages/NotFound.tsx'
-import { SubmitPage } from './pages/Submit.tsx'
-import { TitlePage } from './pages/Title.tsx'
 import { VerifyStart } from './pages/VerifyStart.tsx'
+
+// Heavy pages (React Flow, charts) load on demand.
+const TitlePage = lazy(() => import('./pages/Title.tsx').then((m) => ({ default: m.TitlePage })))
+const MarketMapPage = lazy(() => import('./pages/MarketMap.tsx').then((m) => ({ default: m.MarketMapPage })))
+const ActivityPage = lazy(() => import('./pages/Activity.tsx').then((m) => ({ default: m.ActivityPage })))
+const GraderPage = lazy(() => import('./pages/Grader.tsx').then((m) => ({ default: m.GraderPage })))
+const DevelopersPage = lazy(() => import('./pages/Developers.tsx').then((m) => ({ default: m.DevelopersPage })))
+const SubmitPage = lazy(() => import('./pages/Submit.tsx').then((m) => ({ default: m.SubmitPage })))
 
 export const GRADER_CONSOLE_URL: string = (import.meta.env.VITE_GRADER_URL as string | undefined) || 'https://nafuda-grader.sololin.xyz'
 
@@ -40,6 +43,7 @@ export function App() {
       ]}
       cross={{ href: GRADER_CONSOLE_URL, label: 'Grader console ↗' }}
     >
+      <Suspense fallback={<div className="skeleton mt-8 h-96" />}>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/explore" element={<ExplorePage />} />
@@ -56,6 +60,7 @@ export function App() {
         <Route path="/me" element={<Me />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </Shell>
   )
 }

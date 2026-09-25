@@ -1,15 +1,18 @@
+import { Suspense, lazy } from 'react'
 import { Route, Routes } from 'react-router'
 import { LinksProvider } from '@nafuda/ui/components.tsx'
 import { Shell } from '@nafuda/ui/Shell.tsx'
 import { COLLECTOR_URL, useConsole } from './console.tsx'
-import { DashboardPage } from './pages/Dashboard.tsx'
 import { IntakePage } from './pages/Intake.tsx'
 import { IssuePage } from './pages/Issue.tsx'
-import { IssuedPage } from './pages/Issued.tsx'
-import { JoinPage } from './pages/Join.tsx'
-import { NetworkPage } from './pages/Network.tsx'
-import { TrustPage } from './pages/Trust.tsx'
 import { GraderBar } from './components/GraderBar.tsx'
+
+// Heavy pages (React Flow, charts) load on demand.
+const DashboardPage = lazy(() => import('./pages/Dashboard.tsx').then((m) => ({ default: m.DashboardPage })))
+const NetworkPage = lazy(() => import('./pages/Network.tsx').then((m) => ({ default: m.NetworkPage })))
+const TrustPage = lazy(() => import('./pages/Trust.tsx').then((m) => ({ default: m.TrustPage })))
+const IssuedPage = lazy(() => import('./pages/Issued.tsx').then((m) => ({ default: m.IssuedPage })))
+const JoinPage = lazy(() => import('./pages/Join.tsx').then((m) => ({ default: m.JoinPage })))
 
 const links = {
   collector: (a: string) => `${COLLECTOR_URL}/collector/${a}`,
@@ -43,6 +46,7 @@ export function App() {
         walletLabel="Connect grader wallet"
       >
         <GraderBar />
+        <Suspense fallback={<div className="skeleton mt-8 h-96" />}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/intake" element={<IntakePage />} />
@@ -53,6 +57,7 @@ export function App() {
           <Route path="/join" element={<JoinPage />} />
           <Route path="*" element={<DashboardPage />} />
         </Routes>
+        </Suspense>
       </Shell>
     </LinksProvider>
   )

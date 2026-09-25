@@ -267,3 +267,13 @@ select {
 .tile-sub { color: var(--muted); font-size: 13px; }
 .tile-cert { color: var(--muted); }
 .tile-foot { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+.checks-list { list-style: none; padding: 0; margin: 8px 0 0; display: grid; gap: 10px; }
+.check { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; }
+.check p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+.check-icon { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; border: 2px solid currentColor; }
+.check.ok .check-icon { color: var(--ok); }
+.check.bad .check-icon { color: var(--bad); }
+.check.pending .check-icon { color: var(--warn); }
+.card h2 .pill { font-size: 12px; margin-left: 6px; vertical-align: middle; }
+td.num { text-align: right; }

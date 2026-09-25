@@ -19,6 +19,9 @@ export const START_BLOCK: number = deployment.startBlock
 /// so every ENS call passes this explicitly.
 export const UNIVERSAL_RESOLVER: Address = '0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe'
 
+/// ENSv2 Beta ETHRegistry (the .eth registry) on Sepolia.
+export const ETH_REGISTRY: Address = '0x657eA849311d3D5823348ddEd7C2AaAFb3EDE09E'
+
 /// Public RPC by default so no API key ends up in the bundle. Override with VITE_SEPOLIA_RPC_URL.
 export const SEPOLIA_RPC_URL: string =
   (import.meta.env?.VITE_SEPOLIA_RPC_URL as string | undefined) || 'https://ethereum-sepolia-rpc.publicnode.com'

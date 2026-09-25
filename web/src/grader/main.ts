@@ -2,11 +2,13 @@
 // issued, and show the on-chain guarantees (what the grader can and cannot do).
 
 import '../style.css'
-import { el, muted } from '../lib/dom.ts'
+import { el } from '../lib/dom.ts'
 import { consumerHref, mountShell } from '../lib/layout.ts'
 import { graderRoute } from '../lib/routes.ts'
 import { viewRunner } from '../lib/view.ts'
 import { issuePage } from './issue.ts'
+import { issuedPage } from './issued.ts'
+import { trustPage } from './trust.ts'
 
 const shell = mountShell({
   side: 'grader',
@@ -30,8 +32,10 @@ function render() {
       void issuePage(view)
       return
     case 'issued':
+      void issuedPage(view)
+      return
     case 'trust':
-      view.main.append(el('h1', { textContent: route.view }), muted('Coming next.'))
+      void trustPage(view)
       return
     case 'not-found':
       view.main.append(el('h1', { textContent: 'Page not found' }), el('p', {}, el('a', { href: '#/issue', textContent: 'Back to Issue' })))

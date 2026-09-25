@@ -15,3 +15,6 @@ dist/
 # deployment state: fork runs and commit-reveal secrets stay local
 deployments/fork.json
 deployments/.secret-*
+
+# wrangler local state
+.wrangler/

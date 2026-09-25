@@ -86,7 +86,7 @@ The one-liner: **a cert number can be copied, a chip can't; a card can be stolen
    - A title holder gets exactly [`ROLE_CAN_TRANSFER_ADMIN`](contracts/src/TitleController.sol#L51) and nothing else. Holders can't re-point the name's resolver and fake the chip record.
    - The grader's registry is **emancipated** (`isEmancipated() == true`). The only issuer is the controller (`ROLE_REGISTRAR`). The grader keeps only `REGISTRAR_ADMIN`, `SET_PARENT`, and `CAN_NAME`, so it cannot unregister, re-point, or upgrade issued titles.
 4. **Safe-transfer buyer protection is built into v2.** `safeTransferFrom` only works on emancipated registries, and only if the holder is the token's sole assignee. A buyer who receives a title knows nobody can claw it back and no hidden delegate remains. We did not have to write any of this.
-5. **Any client can read it.** The demo page uses plain `viem.getEnsAddress` / `getEnsText` with the ENSv2 Universal Resolver ([web/src/ens.ts](web/src/ens.ts)). There is no Nafuda API.
+5. **Any client can read it.** The demo page uses plain `viem.getEnsAddress` / `getEnsText` with the ENSv2 Universal Resolver ([web/src/lib/ens.ts](web/src/lib/ens.ts)). There is no Nafuda API.
 
 A final, irreversible lock ([scripts/src/lock.ts](scripts/src/lock.ts)) also revokes the operator's and grader's power to swap the `psa-sim` subtree or its resolver. After that, the chip records are immutable end to end. It has been rehearsed on a fork of the live Sepolia deployment: the post-lock checks V9–V11 pass, and transfers still work.
 

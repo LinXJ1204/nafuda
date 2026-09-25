@@ -3,9 +3,8 @@ import { defineConfig } from 'vite'
 
 const page = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
-// Two pages: the consumer app at / and the grader console at /grader/ (plus the original
-// single-page verifier at /classic/ until the new title page replaces it). Both use hash
-// routes, so any static host works without rewrites. Set VITE_BASE for a sub-path host.
+// Two pages: the consumer app at / and the grader console at /grader/. Both use hash routes,
+// so any static host works without rewrites. Set VITE_BASE for a sub-path host.
 export default defineConfig({
   base: process.env.VITE_BASE ?? '/',
   server: { fs: { allow: ['..'] } },
@@ -14,7 +13,6 @@ export default defineConfig({
       input: {
         consumer: page('index.html'),
         grader: page('grader/index.html'),
-        classic: page('classic/index.html'),
       },
     },
   },

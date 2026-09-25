@@ -1,0 +1,23 @@
+{
+  "network": "sepolia",
+  "nameLabel": "nafuda",
+  "txs": {
+    "deploy nafudaRegistry": "0x6d09da22437630d32412515fbe248703313af0aa2a9641a5da07f8ed0624ec0a",
+    "deploy psaRegistry": "0x367141054b5007a2cfcc627358b0e1f10bee3ef852fddd0d06587705040e1709",
+    "deploy TitleController": "0x094b60032a139009476ba9c468da1fcb5081ee94f590910c4abfd7710a6e2ba9",
+    "ETHRegistrar.commit": "0xb0e4fd83d17c07cc4b8002a03f1e55ce424c17e8397a9b75dca323fd473a382d",
+    "MockUSDC.mint": "0x8af5e0ea7b57fad4c5aa929f8ceef462bfc607bd0c495c224961df384297a3b5",
+    "MockUSDC.approve": "0x8cda02e1981cbe225dc7a44b1d87f2cbe70b3275117fb9da7a9d8ac392683bda",
+    "ETHRegistrar.register nafuda": "0x0e02f381ab71f7f1cb120bd83b4fe769a63807715d0a1fd2e199cffced89e5ca",
+    "setParent nafuda": "0x5ee2984a0fa884dad363aade8db0beac778f488ed2557f521a0a0c0e6c3e3409",
+    "register psa-sim": "0x91bafb566a7b19e19dcba29a58258a6336c6841ae7de36de4a863d5b6a829b70",
+    "setParent psa-sim": "0xea0057ffbd730d22dfd88f759d9f7366576ce7f9ff9d839b6bb83d887b87797d",
+    "grant REGISTRAR to controller": "0x0dfafb263d19196d210181020a16fc060c9146e8ee986d5b4b39f8c3c746163c",
+    "grader revokes all but final roles": "0x39d46e0d914f487feec642ee336f51e4745512c0bedd8e8d14dfffbcdfb3ddc0",
+    "issue 12345678": "0x7265ae6e26d3b8668ec677d3765b3ef08f82d40e1a7373ee63a0bedca9fad1ed",
+    "issue 12345679": "0x22ada741368c1a1686ca702568a4b6b69134c57da379d5997f6249125f5a989e"
+  },
+  "nafudaRegistry": "0xE82fa5f595C2EF9f5bf8BF779EC1f58E39Db4B43",
+  "psaRegistry": "0x7c4De791AcF68E4fd9305770524f7F25a8cA646A",
+  "titleController": "0xf0f17d40df37257b3433acc273373f16d8d06c50"
+}

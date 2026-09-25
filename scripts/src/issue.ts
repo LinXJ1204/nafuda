@@ -4,7 +4,7 @@
 
 import { zeroAddress, type Address } from 'viem'
 import { loadConfig, networkFromArgs } from './config.ts'
-import { confirm, demoSlabs, loadState, skip, titleControllerArtifact } from './lib.ts'
+import { confirm, demoSlabs, loadState, saveState, skip, titleControllerArtifact } from './lib.ts'
 
 const cfg = loadConfig(networkFromArgs())
 const { publicClient: client } = cfg
@@ -28,5 +28,6 @@ for (const [cert, slab] of Object.entries(demoSlabs())) {
     args: [cert, alice, slab.genuine.address, slab.card, slab.grade],
   })
   state.txs[label] = hash
+  saveState(state)
   await confirm(client, label, hash)
 }

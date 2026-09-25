@@ -12,7 +12,8 @@
     "deploy": "node --env-file-if-exists=../.env src/deploy.ts",
     "issue": "node --env-file-if-exists=../.env src/issue.ts",
     "verify": "node --env-file-if-exists=../.env src/verify.ts",
-    "transfer": "node --env-file-if-exists=../.env src/transfer.ts"
+    "transfer": "node --env-file-if-exists=../.env src/transfer.ts",
+    "report": "node --env-file-if-exists=../.env src/report.ts"
   },
   "dependencies": {
     "viem": "2.56.8"

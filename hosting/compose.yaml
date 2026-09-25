@@ -24,20 +24,6 @@ services:
       - api
     restart: unless-stopped
 
-  # v2 single-page app (superseded by apps); kept as a fallback on :8087 with --profile v2
-  web:
-    build:
-      context: ..
-      dockerfile: hosting/Dockerfile
-      args:
-        VITE_SEPOLIA_RPC_URL: ${VITE_SEPOLIA_RPC_URL:-}
-    image: nafuda-web
-    profiles: [v2]
-    ports:
-      # Loopback only: the tunnel is the way in. WEB_PORT avoids clashing with other services.
-      - "127.0.0.1:8087:80"
-    restart: unless-stopped
-
   # v3 backend: Postgres (own container, no host port), the indexer and the read API.
   db:
     image: postgres:17-alpine

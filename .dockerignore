@@ -6,7 +6,6 @@
 !packages/
 !apps/
 !server/
-!web/
 !demo/
 !deployments/sepolia.json
 !hosting/*.conf

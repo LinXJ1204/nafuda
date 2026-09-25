@@ -1,40 +1,45 @@
-# Test and build the web app (consumer / and grader console /grader/), and check that the
-# self-hosting image builds and serves both pages. Hosting: see docs/hosting.md.
+# Apps and server: tests, typecheck, build; then both Docker images build and serve.
 name: web
 
 on:
   push:
     branches: [main]
-    paths: ['web/**', 'deployments/sepolia.json', 'demo/**', 'hosting/**', '.dockerignore', '.github/workflows/web.yml']
+    paths: ['apps/**', 'packages/**', 'server/**', 'demo/**', 'deployments/sepolia.json', 'hosting/**', 'package.json', 'package-lock.json', '.dockerignore', '.github/workflows/web.yml']
   pull_request:
   workflow_dispatch:
 
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: web/package-lock.json
       - run: npm ci
-      - run: npm test
-      - run: npm run build
+      - name: Tests (core, server)
+        run: npm test --workspace @nafuda/core --workspace @nafuda/server
+      - name: Typecheck
+        run: |
+          npx tsc --noEmit -p packages/core
+          npx tsc --noEmit -p server
+          npx tsc --noEmit -p apps/collector
+          npx tsc --noEmit -p apps/grader
+      - name: Build apps
+        run: npm run build --workspace @nafuda/collector --workspace @nafuda/grader
 
   docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -f hosting/Dockerfile -t nafuda-web .
-      - name: Serve both pages
+      - run: docker build -f hosting/server.Dockerfile -t nafuda-server .
+      - run: docker build -f hosting/apps.Dockerfile -t nafuda-apps .
+      - name: Apps image serves both apps
         run: |
-          docker run -d -p 8080:80 --name web nafuda-web
+          docker run -d -p 8088:80 -p 8089:81 --name apps nafuda-apps
           sleep 2
-          curl -fsS -o /dev/null http://localhost:8080/
-          curl -fsS -o /dev/null http://localhost:8080/grader/
-          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/.env)" = 404
+          curl -fsS -o /dev/null http://localhost:8088/
+          curl -fsS -o /dev/null http://localhost:8088/title/psa-sim/12345678
+          curl -fsS -o /dev/null http://localhost:8089/issue
+          ! curl -fsS http://localhost:8088/.env | grep -q "PK="

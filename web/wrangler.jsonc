@@ -1,9 +1,0 @@
-// Cloudflare Workers static-assets deployment of the buyer-check page.
-// Workers Builds (Git integration) runs `npm run build` in web/, then `npx wrangler deploy`.
-{
-  "name": "nafuda",
-  "compatibility_date": "2025-09-01",
-  "assets": {
-    "directory": "./dist"
-  }
-}

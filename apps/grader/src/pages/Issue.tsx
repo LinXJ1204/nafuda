@@ -8,17 +8,16 @@ import { useSearchParams } from 'react-router'
 import { privateKeyToAddress } from 'viem/accounts'
 import { chipKey } from '@nafuda/core/chips.ts'
 import { signGraderAction } from '@nafuda/ui/sign.ts'
-import { isAddress, zeroAddress, type Address, type Hash } from 'viem'
-import { controllerAbi } from '@nafuda/core/abis.ts'
+import { isAddress, zeroAddress, type Hash } from 'viem'
 import { COLLECTORS, titleName } from '@nafuda/core/deployment.ts'
-import { SUBGRADE_VALUES, bench, precheck, type IssueForm } from '@nafuda/core/issue-rules.ts'
+import { SUBGRADE_VALUES, bench, type IssueForm } from '@nafuda/core/issue-rules.ts'
 import { useTitles } from '@nafuda/ui/api.ts'
 import { AppLink, Avatar, Button, Card, Pill, TxLink, useLinks } from '@nafuda/ui/components.tsx'
-import { publicClient } from '@nafuda/ui/ens.ts'
 import { short, who } from '@nafuda/ui/format.ts'
 import { SlabArt } from '@nafuda/ui/SlabArt.tsx'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
 import { WalletButton } from '@nafuda/ui/WalletButton.tsx'
+import { issueTitle } from '../issue.ts'
 import { revertName } from '../revert.ts'
 import { useConsole } from '../console.tsx'
 
@@ -79,27 +78,8 @@ export function IssuePage() {
 
   async function issue() {
     if (!form) return
-    setResult({ kind: 'busy', text: 'Checking on chain…' })
     try {
-      const heldBy = (await publicClient.readContract({ address: grader.controller, abi: controllerAbi, functionName: 'holderOf', args: [form.cert] })) as Address
-      const reason = precheck(form, grader, account, heldBy)
-      if (reason) return setResult({ kind: 'error', text: reason })
-      const keys = grader.subgrades.map((k) => `subgrade.${k}`)
-      const values = grader.subgrades.map((k) => form.subgrades[k])
-      const base = [form.cert, form.holder as Address, form.chip, form.card.trim(), form.grade] as const
-      const target = { address: grader.controller, abi: controllerAbi } as const
-      const withAttributes = grader.controllerVersion === 2 && keys.length > 0
-      // Simulate first: a revert here costs nothing and names the reason.
-      if (withAttributes) await publicClient.simulateContract({ ...target, account: account!, functionName: 'issueWithAttributes', args: [...base, keys, values] })
-      else await publicClient.simulateContract({ ...target, account: account!, functionName: 'issue', args: base })
-      setResult({ kind: 'busy', text: 'Confirm in your wallet…' })
-      const { wallet, account: from } = await client()
-      const hash = withAttributes
-        ? await wallet.writeContract({ ...target, account: from, chain: wallet.chain, functionName: 'issueWithAttributes', args: [...base, keys, values] })
-        : await wallet.writeContract({ ...target, account: from, chain: wallet.chain, functionName: 'issue', args: base })
-      setResult({ kind: 'busy', text: 'Waiting for the block…', tx: hash })
-      const receipt = await publicClient.waitForTransactionReceipt({ hash })
-      if (receipt.status !== 'success') throw new Error('issue reverted')
+      const hash = await issueTitle(client, account, grader, form, (text, tx) => setResult({ kind: 'busy', text, tx }))
       let text = `Issued ${titleName(grader.label, form.cert)}`
       if (fromIntake) {
         try {

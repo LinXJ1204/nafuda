@@ -11,6 +11,10 @@ import { jpy } from '@nafuda/ui/format.ts'
 import { signGraderAction } from '@nafuda/ui/sign.ts'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
 import { useConsole } from '../console.tsx'
+import { issueTitle } from '../issue.ts'
+import { privateKeyToAddress } from 'viem/accounts'
+import { chipKey } from '@nafuda/core/chips.ts'
+import { splitGrade } from '@nafuda/core/slab.ts'
 
 const COLUMNS: { status: SubmissionRow['status']; title: string; hint: string }[] = [
   { status: 'received', title: 'Received', hint: 'Card arrived at the grader' },
@@ -21,7 +25,8 @@ const COLUMNS: { status: SubmissionRow['status']; title: string; hint: string }[
 
 export function IntakePage() {
   const { grader, canIssue } = useConsole()
-  const { client } = useWallet()
+  const { client, account } = useWallet()
+  const [batch, setBatch] = useState<string | null>(null)
   const links = useLinks()
   const queryClient = useQueryClient()
   const subs = useSubmissions({ grader: grader.label })
@@ -47,6 +52,40 @@ export function IntakePage() {
 
   const by = (status: string) => subs.data?.filter((s) => s.status === status) ?? []
 
+  /// Batch: issue every sealed submission, one transaction each, then mark it issued.
+  async function issueAllSealed() {
+    const sealed = by('sealed')
+    setError(null)
+    for (const [i, s] of sealed.entries()) {
+      const tag = `${i + 1}/${sealed.length} #${s.cert}`
+      try {
+        const score = splitGrade(s.grade ?? '').number || '9'
+        const hash = await issueTitle(
+          client,
+          account,
+          grader,
+          {
+            cert: s.cert!,
+            card: s.card,
+            grade: s.grade!,
+            holder: s.submitter,
+            chip: privateKeyToAddress(chipKey(grader.label, 'genuine', s.cert!)),
+            // subgrades default to the overall grade in a batch; adjust one by one on the Issue page
+            subgrades: Object.fromEntries(grader.subgrades.map((k) => [k, score])),
+          },
+          (text) => setBatch(`${tag}: ${text}`),
+        )
+        await signGraderAction(client, s.id, { action: 'issued', grade: '', cert: '', txHash: hash })
+        setBatch(`${tag}: issued`)
+        await queryClient.invalidateQueries({ queryKey: ['submissions'] })
+      } catch (e) {
+        setError(`${tag}: ${(e as Error).message.split('\n')[0]}`)
+        break
+      }
+    }
+    setBatch((b) => (b ? `${b}. Batch done.` : b))
+  }
+
   return (
     <>
       <div className="mt-8 flex flex-wrap items-end justify-between gap-3">
@@ -58,7 +97,13 @@ export function IntakePage() {
           </p>
         </div>
         {!canIssue && <span className="text-sm text-muted">Read-only: connect the {grader.short} wallet to move cards.</span>}
+        {canIssue && by('sealed').length > 0 && (
+          <Button variant="primary" onClick={issueAllSealed}>
+            Issue all {by('sealed').length} sealed (one transaction each)
+          </Button>
+        )}
       </div>
+      {batch && <p className="mt-3 text-sm text-muted">{batch}</p>}
       {error && <p className="mt-3 text-sm text-bad">{error}</p>}
       <div className="mt-6 grid gap-4 md:grid-cols-4">
         {COLUMNS.map((col) => (

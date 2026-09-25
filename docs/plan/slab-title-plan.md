@@ -266,7 +266,7 @@ ENS-SLAB|<grader>|<cert>|<nonce 32 bytes hex>|<unix 秒>
 5. 部署 `TitleController(psaRegistry, grader)`
 6. `nafudaRegistry.register("psa-sim", grader, psaRegistry, controller, …)` → `psaRegistry.setParent`
 7. grader：`psaRegistry.grantRootRoles(REGISTRAR, controller)`
-8. grader：把自己在 root 上 `UNEMANCIPATED_ROLE_BITMAP` 裡的角色（`SET_SUBREGISTRY` / `SET_RESOLVER` / `UNREGISTER` / `UPGRADE`，連同 admin）全部撤掉 → 確認 `isEmancipated() == true`
+8. grader：撤掉自己在 root 上 `REGISTRAR_ADMIN`、`SET_PARENT`（連同 admin）、`CAN_NAME`（連同 admin）以外的**所有**角色 → 確認 `isEmancipated() == true`，而且 grader 不再持有 `ROLE_REGISTRAR`（只撤掉 `UNEMANCIPATED_ROLE_BITMAP` 的話，grader 可以繞過 controller 直接發權狀）
 9. grader：`issue` 兩張 demo 權狀（alice 持有），每張 slab 各一把模擬晶片私鑰，存在 `demo/slabs/*.json`
 10. **最後鎖定（不可逆，Gate C 之後、錄影之前做）**：撤掉 `psa-sim` token 的 `SET_SUBREGISTRY` / `SET_RESOLVER`、nafudaRegistry root 的危險角色、`nafuda.eth` token 的 `SET_SUBREGISTRY`（全部連同 admin）
 

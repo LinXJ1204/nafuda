@@ -26,3 +26,12 @@ A new entry is appended at the end of each work session.
 **What the AI did**: created the repo skeleton, `.gitignore`, and README draft; added the `contracts-v2` submodule; organized the planning documents and this log.
 
 **What the author did**: created the GitHub repo.
+- Funded the demo accounts: the author sent faucet ETH to the operator; `fund.ts` (AI-written) distributed it.
+
+## P1 TitleController (from 2026-09-25 ~22:00 JST)
+
+**What the AI did**: drafted `contracts/src/TitleController.sol` and `contracts/test/TitleController.t.sol` (25 tests, T1–T8, built on the official ENSv2 `V2Fixture`), generated the deterministic demo chip keys and EIP-191 test vectors in `demo/`, and mutation-tested the guards: five deliberate bugs, all caught by the tests.
+
+**Found during implementation**: revoking only `UNEMANCIPATED_ROLE_BITMAP` from the grader is not enough. The grader would keep `ROLE_REGISTRAR` and could register titles directly, bypassing the controller, even with `SET_RESOLVER` for the holder. The setup now leaves the grader only `REGISTRAR_ADMIN`, `SET_PARENT`, and `CAN_NAME`, and a test pins this.
+
+**What the author does**: line-by-line review of the contract and tests. The review outcome will be recorded here.

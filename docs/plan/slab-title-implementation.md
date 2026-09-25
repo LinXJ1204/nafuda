@@ -69,15 +69,15 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 
 ### P0　環境（H0–H1）
 
-- [ ] P0-1 確認官方開賽時間，記下來
-- [ ] P0-2 GitHub 建 repo → 本機 `git init` → 第一個 commit（`.gitignore`、`README.md` 骨架）→ push
-- [ ] P0-3 把 `slab-title-plan.md`、`card-custody-plan.md`、本文件複製到 `docs/plan/`，並在 `docs/plan/README.md` 註明每份的撰寫時間和官方開賽時間
-- [ ] P0-4 研究 repo 的 `.gitignore` 加上 `nafuda/`
-- [ ] P0-5 `contracts/`：加 submodule 並釘在 `71a3b733` → `git submodule update --init --recursive` → 設定 remappings
-- [ ] P0-6 `scripts/`：`package.json`（viem 固定 2.56.8）、`tsconfig`、`config.ts`（讀 `.env`、fork / sepolia 切換）
-- [ ] P0-7 產生 5 把 EOA、寫 `.env`、領 Sepolia ETH：operator 和 grader 各 ≥ 0.05，alice 和 bob 各 ≥ 0.01
-- [ ] P0-8 再查一次 `nafuda` 能不能註冊；被搶走就依序改用 `kamifuda` → `hanko` → `menko`（2026-09-25 查過全部可以註冊）
-- [ ] P0-9 `preflight.ts`
+- [x] P0-1 確認官方開賽時間，記下來
+- [x] P0-2 GitHub 建 repo → 本機 `git init` → 第一個 commit（`.gitignore`、`README.md` 骨架）→ push
+- [x] P0-3 把 `slab-title-plan.md`、`card-custody-plan.md`、本文件複製到 `docs/plan/`，並在 `docs/plan/README.md` 註明每份的撰寫時間和官方開賽時間
+- [x] P0-4 研究 repo 的 `.gitignore` 加上 `nafuda/`
+- [x] P0-5 `contracts/`：加 submodule 並釘在 `71a3b733` → `git submodule update --init --recursive` → 設定 remappings
+- [x] P0-6 `scripts/`：`package.json`（viem 固定 2.56.8）、`tsconfig`、`config.ts`（讀 `.env`、fork / sepolia 切換）
+- [x] P0-7 產生 5 把 EOA、寫 `.env`、領 Sepolia ETH：operator 和 grader 各 ≥ 0.05，alice 和 bob 各 ≥ 0.01
+- [x] P0-8 再查一次 `nafuda` 能不能註冊；被搶走就依序改用 `kamifuda` → `hanko` → `menko`（2026-09-25 查過全部可以註冊）
+- [x] P0-9 `preflight.ts`
 
 **驗收（Gate 0）**
 
@@ -91,14 +91,14 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 
 ### P1　`TitleController`（H1–H7）
 
-- [ ] P1-1 骨架：`REGISTRY`、`GRADER`（immutable）、`Slab` struct、事件、自訂 error
-- [ ] P1-2 label 規則：只能是數字、不能有前導 0、1–10 位
-- [ ] P1-3 `issue()`：只有 GRADER 能呼叫；檢查 `chip != 0`、還沒發過 → `register(cert, holder, 0, 0, CAN_TRANSFER_ADMIN, type(uint64).max)` → 寫入 `slabs` → emit
-- [ ] P1-4 測試用的部署流程（setUp）：在本地建出 root registry → eth registry → nafudaRegistry（`nafuda` 的 subregistry）→ psaRegistry（`psa-sim` 的 subregistry）這一串，並撤掉 grader 在 root 上的危險角色，讓 psaRegistry 變成 emancipated
-- [ ] P1-5 `resolve(name, data)`：支援 `addr(bytes32)`、`addr(bytes32,uint256)`（coinType 60）、`text(bytes32,string)`；其他 selector 回傳空值
-- [ ] P1-6 `supportsInterface`：`IExtendedResolver` 和 ERC-165
-- [ ] P1-7 `demo/test-vectors.json`：固定的晶片私鑰、訊息、簽名、預期的地址
-- [ ] P1-8 測試 T1–T7（下表）
+- [x] P1-1 骨架：`REGISTRY`、`GRADER`（immutable）、`Slab` struct、事件、自訂 error
+- [x] P1-2 label 規則：只能是數字、不能有前導 0、1–10 位
+- [x] P1-3 `issue()`：只有 GRADER 能呼叫；檢查 `chip != 0`、還沒發過 → `register(cert, holder, 0, 0, CAN_TRANSFER_ADMIN, type(uint64).max)` → 寫入 `slabs` → emit
+- [x] P1-4 測試用的部署流程（setUp）：在本地建出 root registry → eth registry → nafudaRegistry（`nafuda` 的 subregistry）→ psaRegistry（`psa-sim` 的 subregistry）這一串，grader 撤掉 root 上 `REGISTRAR_ADMIN`、`SET_PARENT`（連同 admin）、`CAN_NAME`（連同 admin）以外的所有角色，讓 psaRegistry 變成 emancipated。**注意**：只撤掉 `UNEMANCIPATED_ROLE_BITMAP` 不夠，grader 還會留著 `ROLE_REGISTRAR`，可以繞過 controller 直接註冊權狀，並給持有人 `SET_RESOLVER`（實作時發現，已寫成測試 `test_setup_graderKeepsOnlyNonDangerousRootRoles`）
+- [x] P1-5 `resolve(name, data)`：支援 `addr(bytes32)`、`addr(bytes32,uint256)`（coinType 60）、`text(bytes32,string)`；其他 selector 回傳空值
+- [x] P1-6 `supportsInterface`：`IExtendedResolver` 和 ERC-165
+- [x] P1-7 `demo/test-vectors.json`：固定的晶片私鑰、訊息、簽名、預期的地址
+- [x] P1-8 測試 T1–T7（下表），另外把原本排在 P7-3 的 T8（經過 UniversalResolverV2 的端到端解析）提前完成，因為官方 `V2Fixture` 已經附帶 UR
 
 | 測試 | 驗收內容 |
 |---|---|
@@ -189,8 +189,8 @@ NAME_LABEL=nafuda         # 備案名字被搶走時改這裡
 ### P7　Should（H25–H28，照順序做，時間到就停）
 
 - [ ] P7-1 賣家用錢包簽名證明自己是持有人（P5-4 的簽名版）
-- [ ] P7-2 鏈上的 `verifyChip()`，並用同一組 test vectors 測試
-- [ ] P7-3 用 Beta fixture 的 UniversalResolverV2 做端到端測試
+- [x] P7-2 鏈上的 `verifyChip()`，並用同一組 test vectors 測試（在 P1 一起完成）
+- [x] P7-3 用 Beta fixture 的 UniversalResolverV2 做端到端測試（在 P1 一起完成，即 T8）
 - [ ] P7-4 **最後鎖定（不可逆）**：`npm run lock -- --network sepolia --i-understand-this-is-irreversible`
 
 P7-4 的驗收：`verify` 多跑三項 ——

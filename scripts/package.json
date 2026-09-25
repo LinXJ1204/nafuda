@@ -15,7 +15,8 @@
     "transfer": "node --env-file-if-exists=../.env src/transfer.ts",
     "report": "node --env-file-if-exists=../.env src/report.ts",
     "lock": "node --env-file-if-exists=../.env src/lock.ts",
-    "reset": "node --env-file-if-exists=../.env src/reset.ts"
+    "reset": "node --env-file-if-exists=../.env src/reset.ts",
+    "chips": "node src/chips.ts"
   },
   "dependencies": {
     "viem": "2.56.8"

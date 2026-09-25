@@ -5,6 +5,8 @@ import '../style.css'
 import { el, muted } from '../lib/dom.ts'
 import { consumerHref, mountShell } from '../lib/layout.ts'
 import { graderRoute } from '../lib/routes.ts'
+import { viewRunner } from '../lib/view.ts'
+import { issuePage } from './issue.ts'
 
 const shell = mountShell({
   side: 'grader',
@@ -17,16 +19,23 @@ const shell = mountShell({
   ],
   cross: { label: '← Collector app', href: consumerHref() },
 })
+const nextView = viewRunner(shell.main)
 
 function render() {
   const route = graderRoute(location.hash)
+  const view = nextView()
   shell.setActive(route.view === 'not-found' ? null : route.view)
-  window.scrollTo(0, 0)
-  if (route.view === 'not-found') {
-    shell.main.replaceChildren(el('h1', { textContent: 'Page not found' }), el('p', {}, el('a', { href: '#/issue', textContent: 'Back to Issue' })))
-    return
+  switch (route.view) {
+    case 'issue':
+      void issuePage(view)
+      return
+    case 'issued':
+    case 'trust':
+      view.main.append(el('h1', { textContent: route.view }), muted('Coming next.'))
+      return
+    case 'not-found':
+      view.main.append(el('h1', { textContent: 'Page not found' }), el('p', {}, el('a', { href: '#/issue', textContent: 'Back to Issue' })))
   }
-  shell.main.replaceChildren(el('h1', { textContent: route.view }), muted('Coming next.'))
 }
 
 window.addEventListener('hashchange', render)

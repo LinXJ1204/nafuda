@@ -6,7 +6,6 @@ import {
   custom,
   getAddress,
   labelhash,
-  parseAbi,
   recoverMessageAddress,
   type Address,
   type EIP1193Provider,
@@ -14,12 +13,8 @@ import {
 } from 'viem'
 import { sepolia } from 'viem/chains'
 import { PSA_REGISTRY } from './config.ts'
+import { registryAbi } from './contracts.ts'
 import { client } from './ens.ts'
-
-const registryAbi = parseAbi([
-  'function getTokenId(uint256 anyId) view returns (uint256)',
-  'function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes data)',
-])
 
 const injected = () => (window as unknown as { ethereum?: EIP1193Provider }).ethereum
 

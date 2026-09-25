@@ -25,7 +25,10 @@ export const SEPOLIA_RPC_URL: string =
 
 export type DemoChip = { privateKey: Hex; address: Address }
 export type DemoSlab = { card: string; grade: string; genuine: DemoChip; clone: DemoChip }
-export const DEMO_SLABS = demo.slabs as Record<string, DemoSlab>
+/// Every simulated slab a buyer can tap: the issued demo slabs and the grader's pool.
+export const DEMO_SLABS = { ...demo.slabs, ...demo.pool } as Record<string, DemoSlab>
+/// Slabs on the grader's bench (chip sealed, no title yet); the grader console issues from these.
+export const CHIP_POOL = demo.pool as Record<string, DemoSlab>
 
 /// Demo accounts (public addresses only), used as quick picks for "who is the seller".
 export const DEMO_ACCOUNTS: Record<string, Address> = {

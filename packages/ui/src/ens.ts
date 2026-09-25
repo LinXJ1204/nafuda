@@ -100,3 +100,12 @@ export async function resolutionPath(grader: string, cert: string): Promise<Path
   )
   return steps
 }
+
+/// Primary name of an address, via the ENSv2 Universal Resolver (reverse + forward check).
+export async function lookupName(address: Address): Promise<string | null> {
+  try {
+    return await publicClient.getEnsName({ address, universalResolverAddress: UNIVERSAL_RESOLVER })
+  } catch {
+    return null
+  }
+}

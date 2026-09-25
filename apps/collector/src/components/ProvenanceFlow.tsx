@@ -5,7 +5,7 @@ import { Link } from 'react-router'
 import { Background, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react'
 import { graderByLabel } from '@nafuda/core/deployment.ts'
 import type { TitleDetail } from '@nafuda/ui/api.ts'
-import { Avatar } from '@nafuda/ui/components.tsx'
+import { Avatar, useEnsName } from '@nafuda/ui/components.tsx'
 import { jpy, scan, short, timeAgo, who } from '@nafuda/ui/format.ts'
 
 type HolderData = { address: string; since: string; current: boolean; index: number }
@@ -26,6 +26,7 @@ function GraderNode({ data }: NodeProps<Node<GraderData>>) {
 }
 
 function HolderNode({ data }: NodeProps<Node<HolderData>>) {
+  const ens = useEnsName(data.address)
   return (
     <Link
       to={`/collector/${data.address}`}
@@ -34,9 +35,9 @@ function HolderNode({ data }: NodeProps<Node<HolderData>>) {
       <Handle type="target" position={Position.Left} className="!bg-transparent !border-0" />
       <div className="flex items-center justify-center gap-1.5">
         <Avatar address={data.address} size={20} />
-        <span className="font-bold">{who(data.address)}</span>
+        <span className="font-bold">{ens.data?.split('.')[0] ?? who(data.address)}</span>
       </div>
-      <div className="font-mono text-[10px] text-faint">{short(data.address)}</div>
+      <div className="font-mono text-[10px] text-faint">{ens.data ?? short(data.address)}</div>
       <div className={`mt-0.5 text-[11px] font-semibold ${data.current ? 'text-accent' : 'text-muted'}`}>{data.current ? 'Current holder' : `Holder #${data.index}`}</div>
       <Handle type="source" position={Position.Right} className="!bg-transparent !border-0" />
     </Link>

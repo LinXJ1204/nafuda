@@ -3,7 +3,10 @@
 
 import { Background, Handle, Position, ReactFlow, type Edge, type Node, type NodeProps } from '@xyflow/react'
 import { ETH_REGISTRY, GRADERS, NAFUDA_REGISTRY } from '@nafuda/core/deployment.ts'
+import { useQuery } from '@tanstack/react-query'
+import { registryAbi } from '@nafuda/core/abis.ts'
 import { useGraders } from '@nafuda/ui/api.ts'
+import { publicClient } from '@nafuda/ui/ens.ts'
 import { Card } from '@nafuda/ui/components.tsx'
 import { short } from '@nafuda/ui/format.ts'
 
@@ -29,6 +32,15 @@ function TreeNode({ data }: NodeProps<Node<Data>>) {
 
 export function NetworkPage() {
   const graders = useGraders()
+  const emancipated = useQuery({
+    queryKey: ['emancipated'],
+    queryFn: async () =>
+      new Map(
+        await Promise.all(
+          GRADERS.map(async (g) => [g.label, await publicClient.readContract({ address: g.registry, abi: registryAbi, functionName: 'isEmancipated' })] as const),
+        ),
+      ),
+  })
   const count = new Map(graders.data?.map((g) => [g.label, g.titles]))
   const W = 260
   const x0 = ((GRADERS.length - 1) * W) / 2
@@ -40,7 +52,7 @@ export function NetworkPage() {
         id: g.label,
         type: 'tree',
         position: { x: i * W, y: 260 },
-        data: { title: g.ensName, color: g.color, lines: [`registry ${short(g.registry)}`, `resolver ${short(g.controller)} (v${g.controllerVersion})`], badge: '✓ emancipated' },
+        data: { title: g.ensName, color: g.color, lines: [`registry ${short(g.registry)}`, `resolver ${short(g.controller)} (v${g.controllerVersion})`], badge: emancipated.data ? (emancipated.data.get(g.label) ? '✓ emancipated (read live)' : '✗ not emancipated') : 'checking…' },
       },
       {
         id: `${g.label}-titles`,

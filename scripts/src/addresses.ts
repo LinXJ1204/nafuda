@@ -19,6 +19,7 @@ export const BETA_CONTRACTS = [
   'UniversalHelper',
   'LabelStore',
   'UpgradableUniversalResolverProxy',
+  'PermissionedResolverImpl',
 ] as const
 
 export type BetaContract = (typeof BETA_CONTRACTS)[number]

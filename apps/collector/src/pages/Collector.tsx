@@ -2,7 +2,8 @@ import { useParams } from 'react-router'
 import { isAddress } from 'viem'
 import { useHolder } from '@nafuda/ui/api.ts'
 import { ActivityFeed } from '@nafuda/ui/ActivityFeed.tsx'
-import { AddressLink, Avatar, Empty, Section, Skeleton, Stat } from '@nafuda/ui/components.tsx'
+import { AddressLink, Avatar, Empty, Pill, Section, Skeleton, Stat, useEnsName } from '@nafuda/ui/components.tsx'
+import { PrimaryNameButton } from '../components/PrimaryName.tsx'
 import { compactJpy, short } from '@nafuda/ui/format.ts'
 import { TitleGrid } from '@nafuda/ui/TitleCard.tsx'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
@@ -12,6 +13,7 @@ export function CollectorPage() {
   const { address = '' } = useParams()
   const holder = useHolder(isAddress(address) ? address : null)
   const { account } = useWallet()
+  const ens = useEnsName(isAddress(address) ? address : null)
   if (!isAddress(address)) return <NotFound />
   const h = holder.data
   const mine = account?.toLowerCase() === address.toLowerCase()
@@ -22,11 +24,13 @@ export function CollectorPage() {
         <Avatar address={address} size={72} />
         <div>
           <h1 className="text-3xl font-bold">
-            {h?.name ?? short(address)} {mine && <span className="align-middle text-sm font-semibold text-accent">· you</span>}
+            {ens.data ?? h?.name ?? short(address)} {mine && <span className="align-middle text-sm font-semibold text-accent">· you</span>}
           </h1>
-          <div className="mt-1 text-sm text-muted">
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
             <AddressLink address={address} />
+            {ens.data ? <Pill tone="ok">primary name via ENS</Pill> : ens.isFetched && <Pill>no primary name</Pill>}
           </div>
+          {mine && !ens.data && ens.isFetched && h?.name && <PrimaryNameButton name={`${h.name}.nafuda.eth`} onDone={() => ens.refetch()} />}
           {h?.bio && <p className="mt-2 max-w-xl text-sm text-muted">{h.bio}</p>}
         </div>
       </div>

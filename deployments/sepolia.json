@@ -29,7 +29,25 @@
     "bgs-sim: register name": "0x17f294e6dfec3856558cd5b3c0428eefb04b49a8bfe8d294ec74b5fc654df940",
     "bgs-sim: setParent": "0xc38f0ba6b1d60be392d307ece284d5c9ed01cc8e00e80a6404a91736912325a0",
     "bgs-sim: grant REGISTRAR to controller": "0x1d5ccb37be3d6ec8d0ee86523f8b8a8670b420b157daa789766c045cd5dbe83c",
-    "bgs-sim: grader revokes all but final roles": "0x3509889184ca2971bd421e2c6ae44f0e7421768eca1e19f10eb4c30c8801bac0"
+    "bgs-sim: grader revokes all but final roles": "0x3509889184ca2971bd421e2c6ae44f0e7421768eca1e19f10eb4c30c8801bac0",
+    "deploy collector resolver": "0x62e220e75c708a55e5f197731eb0946b5f618f39a67505b5e954668ff7d8fc3f",
+    "collector addr records": "0x1cc5d6b55855873cbbc50dea81e0dbf4e2efce0380c64dd3a78e27897c36e0fa",
+    "register alice.nafuda.eth": "0x23202d14927c207fcb8e9e8a99dda3757c741ba92d86f71617ca330240c5c4b8",
+    "register bob.nafuda.eth": "0xbe4562ffadfd60a01b9457d192bb98b15fe3724c4b9d7af34218ee15dcf02977",
+    "register mallory.nafuda.eth": "0xab1d2d3f6bd92261dd2b893dbd5bed81f79014c4765b6bcbd6642b938f30c282",
+    "register aiko.nafuda.eth": "0x448523174201ccc7aae0468ef2888195ce11dbf0503ca1ca29736a51f223f233",
+    "register kenji.nafuda.eth": "0xf751c3674825f74919db12732cb33187875a0e2bff785a7eb3608155da2fee47",
+    "register yuki.nafuda.eth": "0x6aad2630d0c0818677ff16236af16db452af1a62424b09b58ec3c808160872a9",
+    "register haruto.nafuda.eth": "0x9524aa2c8d5efb75949160ca899ca59cc1888b98d5023c9a1b231f51b2d40436",
+    "register sakura.nafuda.eth": "0x4dc81be0603ac1f58f9cb35451e0da0be911d242930e61f3943a55304f92d290",
+    "register ren.nafuda.eth": "0xa898482b1393c7cf362cbb2ca0ba7dbb9050132b89f537bcdfc2a5feb0f3ef02",
+    "register mika.nafuda.eth": "0xf40cb463d8956dd7acd1d51b7dc01efd6947cf7e8ade12aa31e4271344b23f5d",
+    "register taro.nafuda.eth": "0x5f5467267c88cd2ac94ba605b69dec34f4b91372f4b9faf444579083fcf79281",
+    "register emma.nafuda.eth": "0x8207d40dcf2842dc6189924b3cd835ae8e8265ad7eb9d797587bdf3d78baa72e",
+    "register liam.nafuda.eth": "0xa0838c34d8c4e70cabed3d72ca64f79722d34b4c23ca50417e0ba90992d26a10",
+    "register chen.nafuda.eth": "0xefee5499ef15e532a00441eb6bc7f03a9196a2efb7a85c45d26e7bfc8b45facd",
+    "register priya.nafuda.eth": "0xfe524d4aa256973cec5279095d0cb12046d6aa267cd441e40447195bc60771ac",
+    "register sololin.nafuda.eth": "0x821bb7a98c4187c5131307108792bd4f69ae195f3f270881ef8baaca2b13b443"
   },
   "nafudaRegistry": "0xE82fa5f595C2EF9f5bf8BF779EC1f58E39Db4B43",
   "psaRegistry": "0x7c4De791AcF68E4fd9305770524f7F25a8cA646A",
@@ -63,5 +81,6 @@
       "startBlock": 11779814,
       "controller": "0xa652a0281487c2ddb877ed19428e25d47ae9826a"
     }
-  }
+  },
+  "collectorResolver": "0x0d75D5269C9eB2EeC6Ef8243854aF235a7726A41"
 }

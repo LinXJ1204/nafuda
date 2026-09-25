@@ -19,6 +19,7 @@
     "deploy-grader": "node --env-file-if-exists=../.env src/deploy-grader.ts",
     "collectors": "node --env-file-if-exists=../.env src/collectors.ts",
     "seed": "node --env-file-if-exists=../.env src/seed.ts",
+    "names": "node --env-file-if-exists=../.env src/names.ts",
     "market": "node --env-file-if-exists=../.env src/market.ts",
     "chips": "node src/chips.ts"
   },

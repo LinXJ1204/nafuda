@@ -1,9 +1,12 @@
 // Small shared building blocks (Tailwind classes over the theme tokens in theme.css).
 
+import { useQuery } from '@tanstack/react-query'
 import { createContext, useContext, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { getAddress } from 'viem'
 import { Link } from 'react-router'
 import { graderByLabel } from '@nafuda/core/deployment.ts'
 import { paletteOf } from '@nafuda/core/slab.ts'
+import { lookupName } from './ens.ts'
 import { formatTime, nameOf, scan, short, timeAgo } from './format.ts'
 
 ////////////////////////////////////////////////////////////////////////
@@ -62,15 +65,34 @@ export function Avatar({ address, size = 24 }: { address: string; size?: number 
   )
 }
 
-/// A collector: avatar + name (or short address), linking to their profile.
+/// The address's primary ENS name, resolved in the browser through the ENSv2 Universal Resolver.
+export function useEnsName(address: string | null | undefined) {
+  return useQuery({
+    queryKey: ['ensName', address?.toLowerCase()],
+    queryFn: () => lookupName(getAddress(address!)),
+    enabled: !!address,
+    staleTime: 10 * 60_000,
+  })
+}
+
+/// A collector: avatar + primary ENS name (or the demo name, or a short address), linking to
+/// their profile.
 export function Addr({ address, avatar = true, className = '' }: { address: string | null | undefined; avatar?: boolean; className?: string }) {
   const links = useLinks()
+  const ens = useEnsName(address)
   if (!address) return <span className="text-muted">—</span>
-  const name = nameOf(address)
+  const name = ens.data ?? nameOf(address)
   return (
-    <AppLink to={links.collector(address)} title={address} className={`inline-flex items-center gap-1.5 font-medium hover:text-accent ${className}`}>
+    <AppLink to={links.collector(address)} title={ens.data ? `${ens.data} (primary ENS name) · ${address}` : address} className={`inline-flex items-center gap-1.5 font-medium hover:text-accent ${className}`}>
       {avatar && <Avatar address={address} size={18} />}
-      <span className={name ? '' : 'font-mono text-[13px]'}>{name ?? short(address)}</span>
+      {ens.data ? (
+        <span>
+          {ens.data.split('.')[0]}
+          <span className="text-faint">.{ens.data.split('.').slice(1).join('.')}</span>
+        </span>
+      ) : (
+        <span className={name ? '' : 'font-mono text-[13px]'}>{name ?? short(address)}</span>
+      )}
     </AppLink>
   )
 }

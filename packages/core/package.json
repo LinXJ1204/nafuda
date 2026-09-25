@@ -2,7 +2,7 @@
   "name": "@nafuda/core",
   "private": true,
   "type": "module",
-  "exports": { "./*": "./src/*.ts" },
+  "exports": { "./*": "./src/*" },
   "scripts": {
     "test": "node --test \"src/**/*.test.ts\"",
     "typecheck": "tsc --noEmit"

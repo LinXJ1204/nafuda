@@ -1,0 +1,76 @@
+/* Nafuda design tokens (washi paper, sumi ink, vermilion seal; the grader console uses indigo).
+   Apps import this after `@import "tailwindcss"` and point @source at packages/ui/src. */
+
+:root {
+  --paper: #f6f1e7;
+  --card: #fffdf8;
+  --raised: #fbf8f1;
+  --ink: #1d1b19;
+  --muted: #6b655c;
+  --faint: #9a9388;
+  --line: #e4ddcf;
+  --shu: #c8352b;
+  --ai: #2d4f86;
+  --accent: var(--shu);
+  --on-accent: #ffffff;
+  --ok: #2f7d4f;
+  --warn: #b7791f;
+  --bad: #c8352b;
+  --code: #f0ebe0;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #141311;
+    --card: #1d1b18;
+    --raised: #24211d;
+    --ink: #eee9df;
+    --muted: #a59e92;
+    --faint: #756f65;
+    --line: #34302a;
+    --shu: #e0584c;
+    --ai: #86a6e0;
+    --ok: #5cb884;
+    --warn: #e0a84a;
+    --bad: #ef6b5f;
+    --code: #262320;
+    color-scheme: dark;
+  }
+}
+.grader-app { --accent: var(--ai); }
+@media (prefers-color-scheme: dark) {
+  .grader-app { --on-accent: #0f1a2e; }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-shu: var(--shu);
+  --color-ai: var(--ai);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-code: var(--code);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --font-serif: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html, body { background: var(--paper); color: var(--ink); }
+body { margin: 0; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+@keyframes nafuda-pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.45 } }
+.skeleton { background: var(--line); border-radius: 8px; animation: nafuda-pulse 1.4s ease-in-out infinite; }
+@keyframes nafuda-dash { to { stroke-dashoffset: -24; } }
+.flow-dash { stroke-dasharray: 6 6; animation: nafuda-dash 1s linear infinite; }
+@keyframes nafuda-tap { 0% { transform: scale(0.6); opacity: 0.7 } 100% { transform: scale(2.2); opacity: 0 } }
+.tap-ring { animation: nafuda-tap 1.2s ease-out infinite; transform-origin: center; }

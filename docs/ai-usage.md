@@ -56,7 +56,7 @@ A new entry is appended at the end of each work session.
 
 **What the author does**: reviews, enables GitHub Pages, and checks the page in a browser.
 
-## P7/P8 lock script, README, demo prep (2026-09-25 ~21:55–22:10 JST)
+## P7/P8 lock script, README, demo prep (2026-09-25 ~21:38–21:48 JST)
 
 **What the AI did**:
 - Wrote `scripts/src/lock.ts` (dry run by default) and the post-lock checks V9–V11, and rehearsed the lock on an anvil fork of the live Sepolia state. The lock has not been executed on Sepolia; that needs the author's explicit go-ahead.

@@ -57,7 +57,7 @@ export function TitlePage() {
       </p>
 
       <section className="mt-4 grid gap-8 md:grid-cols-[minmax(240px,340px)_1fr]">
-        <div className="md:sticky md:top-24 md:self-start">
+        <div className="mx-auto w-full max-w-72 md:sticky md:top-24 md:mx-0 md:max-w-none md:self-start">
           {issued && t ? (
             <SlabArt grader={grader} cert={cert} card={t.card ?? ''} grade={t.grade ?? ''} attributes={t.attributes} chipGlow={tapping} />
           ) : ens.isLoading ? (

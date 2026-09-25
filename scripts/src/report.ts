@@ -24,6 +24,10 @@ const lines = [
   `| \`${root}\` | Nafuda root name, registered through the official \`ETHRegistrar\` |`,
   `| \`${grader}\` | PSA-Sim, the simulated grader. Its resolver is \`TitleController\`, which answers for every cert below it (wildcard) |`,
   ...Object.entries(demoSlabs()).map(([cert, s]) => `| \`${cert}.${grader}\` | Demo title: ${s.card}, ${s.grade} |`),
+  ...Object.values(state.graders ?? {})
+    .filter((g) => g.label !== GRADER_LABEL)
+    .map((g) => `| \`${g.label}.${root}\` | ${g.name.split(' (')[0]}, a simulated grader added in v3. Resolver: its own controller (v${g.controllerVersion}) |`),
+  `| \`<collector>.${root}\` | Demo collectors' names (v3), resolved by an official ENSv2 PermissionedResolver; each collector's primary name points back |`,
   '',
   '## Contracts deployed by Nafuda',
   '',
@@ -32,6 +36,15 @@ const lines = [
   `| \`nafudaRegistry\` (UserRegistry proxy for \`${root}\`) | ${scan('address', state.nafudaRegistry!)} |`,
   `| \`psaRegistry\` (UserRegistry proxy for \`${grader}\`, emancipated) | ${scan('address', state.psaRegistry!)} |`,
   `| \`TitleController\` | ${scan('address', state.titleController!)} |`,
+  ...Object.values(state.graders ?? {})
+    .filter((g) => g.label !== GRADER_LABEL)
+    .flatMap((g) => [
+      `| \`${g.label}\` registry (UserRegistry proxy, emancipated) | ${scan('address', g.registry)} |`,
+      `| \`${g.label}\` controller (TitleController${g.controllerVersion === 2 ? 'V2' : ''}) | ${scan('address', g.controller)} |`,
+    ]),
+  ...((state as { collectorResolver?: string }).collectorResolver
+    ? [`| Collector names resolver (PermissionedResolver proxy) | ${scan('address', (state as { collectorResolver?: string }).collectorResolver!)} |`]
+    : []),
   '',
   '## Official ENSv2 Beta contracts used',
   '',

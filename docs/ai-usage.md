@@ -79,3 +79,44 @@ A new entry is appended at the end of each work session.
 - Deployed the web container to the author's Mac mini over SSH at the author's request. Before deploying, the AI checked the ports already in use there and moved off 8080, which another service was using.
 
 **Still with the author**: add a public hostname for `localhost:8088` to the Mac mini's existing Cloudflare Tunnel, issue a pool slab from the console on Sepolia (A4 on the live network), and review.
+
+## v3 productization (2026-09-25 23:10 JST – 2026-09-26 morning, overnight)
+
+**Decisions made by the author**:
+- The site felt too thin. Make it look like a mature product, with visual flows and flow-style transfer history, and much more data: more graders, and more buyers and sellers.
+- A backend is fine. Keep the grader side and the collector side strictly separate (two frontends are fine, since they use different wallets).
+- Everything in TypeScript.
+- Approved the plan in [docs/plan/v3-plan.md](plan/v3-plan.md) as proposed:
+  - React
+  - two origins
+  - its own Postgres, not the other projects' containers on the Mac mini
+  - BGS-Sim and CGC-Sim
+  - TitleControllerV2 for subgrades
+- Funded the operator and set up the second hostname.
+- On AI use: the ideas are the author's and are never outsourced. Nearly all of the code is written by the coding agent, which is the author's normal way of working.
+
+**What the AI did** (the author was asleep for most of it; everything is in git, one commit per item):
+- **Contracts:** TitleControllerV2, which adds attributes as text records, with tests and a mutation check. `deploy-grader.ts`, rehearsed on a fork, including after the final lock. Deployed `cgc-sim` (v1) and `bgs-sim` (v2) on Sepolia.
+- **Demo data:**
+  - A deterministic seed plan (60 titles across 3 graders) and 16 collectors, one of them the author's wallet.
+  - A market simulator that trades on the Mac mini through the night, with declared prices.
+  - Collector names (`<name>.nafuda.eth`, through the official PermissionedResolver) and primary names.
+- **Backend:** indexer and API (Hono, Postgres), signed off-chain intents (offers, grading submissions) verified on the server, write limits, and Docker services.
+- **Frontends:** the collector app and the grader console in React. Visual flows include:
+  - provenance with React Flow
+  - the step-by-step buyer check
+  - the live ENS resolution path
+  - the market map and the name tree
+
+  Also: an intake kanban, English / 日本語, and code splitting.
+- **Tests:**
+  - Unit tests: core 26, server 6.
+  - e2e suites in Chrome: a read-only suite on the live site (26 checks), and a live suite that walked submit → grade → seal → issue → ask/bid → transfer on Sepolia.
+  - The e2e runs found three bugs, now fixed: asks on a just-issued title, concurrent migrations, and an unverified "issued" transaction hash.
+- **Docs:** README v3, hosting, deployments, the demo script, and [docs/review-guide.md](review-guide.md) for the author's review.
+- **Operations:**
+  - Checked the Mac mini's ports and containers before deploying, and touched nothing else there.
+  - Paused the market simulator while other scripts signed with the same keys.
+  - A dev Postgres container was briefly started on the Mac mini by mistake (the local docker context points there). It was removed within minutes, and the mistake is reported in the review guide.
+
+**Still with the author**: the review, the final lock, the author's own primary name, the README team line, and the video.

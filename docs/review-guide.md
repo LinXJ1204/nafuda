@@ -1,0 +1,73 @@
+# Review guide (v3, night of 2026-09-25)
+
+For the author's morning review. It covers what changed overnight, where to click, what was tested and how, what is left, and which decisions are yours. The plan being implemented is [docs/plan/v3-plan.md](plan/v3-plan.md).
+
+## 1. Ten-minute tour
+
+Open these side by side. On the collector app, the header button switches English / 日本語.
+
+| # | Where | What to look for |
+|---|---|---|
+| 1 | https://nafuda.sololin.xyz | Home: hero, live stats, the animated lifecycle, latest activity with **names from ENS** (`aiko.nafuda.eth`), graders |
+| 2 | https://nafuda.sololin.xyz/title/bgs-sim/1004827304 | Title page: BGS-style label with **subgrades as ENS text records**, pill "index matches ENS ✓", **provenance flow**, trade interest, transfer. Scroll down: tap the slab (genuine, then clone, then "Attack: replay"); **"How ENS resolves this name"** shows the registry at each level and where the wildcard resolver is found |
+| 3 | https://nafuda.sololin.xyz/explore | Filters (grader, grade, "For trade only"), sort; "Asking ¥…" badges come from signed asks |
+| 4 | https://nafuda.sololin.xyz/map | Market map: who traded with whom (arrow labels show declared volume) |
+| 5 | https://nafuda.sololin.xyz/collector/0x192Fe9ee6b82B6a5c2C1bE9A7eE89EAc91D38240 | **Your wallet** as a collector: it holds titles from all three graders. Connect it and a button appears to set `sololin.nafuda.eth` as your primary name (one transaction; the name and its addr record are already set up) |
+| 6 | https://nafuda-grader.sololin.xyz | Grader console: dashboard, **Intake** (kanban of signed submissions), Issue (4 steps), Trust (live), **Name tree** |
+| 7 | https://nafuda-grader.sololin.xyz/intake?as=cgc-sim | The "Title issued" column holds submission #13, made by the live e2e run below |
+
+## 2. What exists now
+
+**On Sepolia**
+- Three graders under `nafuda.eth`, each with its own emancipated registry and its own controller:
+  - `psa-sim` (v1): the original grader
+  - `cgc-sim` (v1)
+  - `bgs-sim` (**TitleControllerV2**: subgrades stored as text records)
+- About 45 titles, 16 collectors including your wallet, and dozens of transfers, each carrying a declared price. The **market simulator** keeps trading on the Mac mini until 08:00 JST.
+- Collector names `<name>.nafuda.eth` (official `PermissionedResolver`), and **primary names** for the 15 demo wallets.
+- Contracts and transactions: [docs/deployments.md](deployments.md).
+
+**Code** (every part is TypeScript except the contracts)
+- `contracts/`: TitleControllerV2 plus 7 tests. All 6 mutations of its checks were caught.
+- `packages/core` (26 tests): verification, issue rules, and EIP-712 signed messages.
+- `server/` (6 tests): indexer, API, signed-intent endpoints, write limits.
+- `apps/collector` and `apps/grader`: React. `web/` (v2) is gone from the tree but kept in git history.
+- `e2e/`: two suites, described in section 3.
+- `scripts/`:
+  - `deploy-grader.ts`, `seed.ts`, `market.ts`: new graders, demo data, simulated trades
+  - `names.ts`, `social.ts`: collector names, demo intents
+  - `collectors.ts`, `chips.ts`: demo data generators
+
+**Hosting:** see [docs/hosting.md](hosting.md). Everything runs on the Mac mini, and nothing else there was touched.
+
+## 3. How it was tested
+
+| What | Result |
+|---|---|
+| `forge test` | 32/32 |
+| `npm test` (core, server) | 26 + 6 |
+| Typecheck and build of both apps; both Docker images | ✓ (also in CI: `.github/workflows/web.yml`) |
+| `e2e/public.test.ts` against the live site | 26/26 (every page loads without console errors; index matches ENS; resolution path; S1, S2, S4; trust checks) |
+| `e2e/live.test.ts` on Sepolia, driving both apps through a Node-side test wallet | Full path passed, in two runs, using the real apps and real transactions: kenji submits → CGC-Sim grades, seals and **issues 4000317221** → ENS resolves it to kenji → kenji asks, yuki bids → kenji transfers with a declared ¥84,000 → the index shows it → a non-grader wallet is refused before sending. The first run stopped at the ask, which exposed a real bug (see below); after the fix, the run resumed from that step. One check failed on test timing and has since been fixed |
+| Fork rehearsals | Graders added **after** the final lock on a fork; names and primary names on a fork before Sepolia |
+
+Found and fixed by the tests overnight:
+- An ask on a title issued moments ago was refused, because the indexer had not seen the title yet. The server now checks the holder on chain in that case.
+- Two containers starting at once could both run a migration. Fixed with a transaction-level advisory lock; tested by starting 3 processes at once.
+- A grader's "issued" step accepted any well-formed tx hash. It is now checked against the receipt.
+
+## 4. Decisions that are yours
+
+1. **The final lock** (`scripts/src/lock.ts --execute`). It is irreversible. New graders and names can still be added after it: this was rehearsed on a fork. When it has run, the Trust page shows "Applied".
+2. **Your primary name**: `sololin.nafuda.eth` is registered to your wallet and waits for one `setName` transaction from you (the button is on your collector page).
+3. **README team line**: the `TODO(author)` in the Team section.
+4. **Demo script**: [docs/demo-script.md](demo-script.md) is rewritten for v3. The recording is yours.
+
+## 5. Known gaps and honest notes
+
+- **i18n is partial.** Navigation, the home page, the buyer check and its outcomes, and section titles are translated. Detail pages are English.
+- **The market's trades are simulated,** and prices are declared by the (simulated) sellers. The site says so.
+- **Mobile:** the core pages were checked at 390 px. The grader console is desktop-first.
+- **MetaMask itself was not driven by the tests.** The e2e wallet signs in Node with the demo keys. Please try one issue and one transfer with the real extension.
+- **Heads-up:** your local docker context is `mini-ts` (the Mac mini). While testing, a throwaway Postgres container briefly ran on the mini, bound to `0.0.0.0:55433` with password `dev` and no data. It existed for about 2 minutes and was removed. Local testing then used `--context colima`.
+- **Time and gas:** the night's Sepolia spend is visible on the operator and grader addresses in [docs/deployments.md](deployments.md). It was well under the 0.1 ETH estimate at about 1 gwei.

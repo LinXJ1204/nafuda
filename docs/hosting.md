@@ -1,77 +1,79 @@
 # Hosting
 
-The web app is static files: the collector app at `/` and the grader console at `/grader/`. It talks to Sepolia from the visitor's browser, and every transaction is signed in the visitor's own wallet. There is no backend and no key on the server.
+**Live:** https://nafuda.sololin.xyz (collector app) and https://nafuda-grader.sololin.xyz (grader console)
 
-**Live:** https://nafuda.sololin.xyz
-
-**Main host:** the author's Mac mini runs nginx in Docker and publishes it through a **Cloudflare Tunnel**, so no inbound port is opened on the home network.
-**Standby:** the same build can be deployed to Cloudflare Workers static assets (`web/wrangler.jsonc`) if the Mac mini is down.
+Everything runs in Docker on the author's Mac mini and is published through a **Cloudflare Tunnel**, so no inbound port is open on the home network.
 
 ```
-visitor ──https──▶ Cloudflare ──tunnel──▶ cloudflared ──▶ web (nginx, static files)
-   │                                        (both containers on the Mac mini)
-   └──▶ Sepolia RPC (public) and the visitor's wallet, straight from the browser
+visitor ──https──▶ Cloudflare ──tunnel──▶ cloudflared (on the host)
+                                              │
+                        127.0.0.1:8088 ──▶ apps :80  collector app ─┐
+                        127.0.0.1:8089 ──▶ apps :81  grader console ┤── /api ──▶ api ──▶ db (Postgres)
+                                                                     │              ▲
+                                                           indexer ──┴── getLogs ───┘ (Sepolia)
+                                                           market  (demo trades, optional profile)
 ```
 
-## What is in the image
+The browser talks to Sepolia directly for everything authoritative (ENS resolution, wallets, transactions). The server only indexes events and stores signed, off-chain intents.
 
-[`hosting/Dockerfile`](../hosting/Dockerfile) builds in two stages: Node runs the tests and `vite build`, then `nginx:alpine` serves `web/dist` only. [`.dockerignore`](../.dockerignore) is a whitelist (`web/`, `demo/`, `deployments/sepolia.json`, `hosting/nginx.conf`), so `.env`, `contracts/` and deployment secrets are never even sent to the Docker daemon.
+## Services ([hosting/compose.yaml](../hosting/compose.yaml))
 
-[`hosting/nginx.conf`](../hosting/nginx.conf) adds a strict Content-Security-Policy (scripts and styles from the site only; network calls to https only), `nosniff`, no framing, long-lived caching for hashed assets, and `no-cache` for HTML.
+| Service | Image | What it does | Ports |
+|---|---|---|---|
+| `apps` | `hosting/apps.Dockerfile` | nginx serving both React apps (single-page, clean URLs) and proxying `/api` to `api`. Strict CSP, no framing | 127.0.0.1:8088 (collector), 127.0.0.1:8089 (grader) |
+| `api` | `hosting/server.Dockerfile` | Read API over the index, plus the signed-intent endpoints (offers, submissions). Writes are limited to 8 KB bodies and 30 writes per minute per client | internal |
+| `indexer` | same image | Follows Sepolia 2 blocks behind the head; writes issuances, attributes, transfers (with declared prices) into Postgres | internal |
+| `db` | `postgres:17-alpine` | Its own Postgres with a named volume. Not shared with any other project on the host | internal |
+| `market` | `node:24-alpine` (profile `market`) | The demo market simulator ([scripts/src/market.ts](../scripts/src/market.ts)); runs until `MARKET_UNTIL` and stops | none |
+| `tunnel` | `cloudflare/cloudflared` (profile `tunnel`) | Only for a host without cloudflared of its own | none |
 
-## Run it locally
+The compose project is named `nafuda`, and every host port is bound to loopback, so nothing collides with other projects on the Mac mini.
+
+## Configuration
+
+`hosting/.env` (gitignored; see [hosting/.env.example](../hosting/.env.example)):
+
+| Variable | Used by | Notes |
+|---|---|---|
+| `DB_PASSWORD` | db, api, indexer | Any random string |
+| `INDEXER_RPC_URL` | indexer, api | Sepolia RPC for the server side. It stays on the server; publicnode is the fallback |
+| `WEB_PORT`, `GRADER_PORT` | apps | Default 8088 and 8089 |
+| `MARKET_UNTIL` | market | ISO time to stop, e.g. `2026-09-26T08:00:00+09:00` |
+| `TUNNEL_TOKEN` | tunnel | Only with the `tunnel` profile |
+
+The market simulator also reads the repo's root `.env` (demo keys: `ALICE_PK` …, `GRADER_*_PK`, `DEMO_MNEMONIC`). These are **testnet** keys, and they stay on the host: they are never copied into an image.
+
+## Run and update
 
 ```bash
 cd hosting
-docker compose up -d --build     # http://localhost:8088/ and http://localhost:8088/grader/
+docker compose up -d --build                                  # apps, api, indexer, db
+docker compose --profile market up -d market                  # optional: demo trades
+docker compose ps
+docker compose logs -f indexer
 ```
 
-The port is bound to loopback only and can be changed with `WEB_PORT` in `hosting/.env`. The compose project is named `nafuda`, so it does not collide with other projects on the same machine.
+To update: `git pull && docker compose up -d --build`. Both the api and the indexer run the migrations in `server/migrations/` at start. Each step holds a transaction-level advisory lock, so two containers starting together never apply a migration twice.
 
-## Put it on the internet with a Cloudflare Tunnel
+## Cloudflare Tunnel
 
-### If the host already runs cloudflared (the author's Mac mini does)
+The Mac mini already runs cloudflared, so the tunnel has two public hostnames:
 
-Run only the `web` container, and add a route to the existing tunnel:
+| Hostname | Service |
+|---|---|
+| `nafuda.sololin.xyz` | `http://localhost:8088` |
+| `nafuda-grader.sololin.xyz` | `http://localhost:8089` |
 
-1. `cd hosting && docker compose up -d --build`
-2. In **Zero Trust → Networks → Tunnels**, open the tunnel the host runs, then **Public hostname → Add**: subdomain `nafuda`, your domain, service type **HTTP**, URL **`localhost:8088`**.
+A second-level name such as `grader.nafuda.sololin.xyz` would not work: Cloudflare's free Universal SSL covers only one level of subdomain. **Do not turn on Cloudflare Access** for these hostnames: judges must be able to open them without logging in.
 
-### Otherwise: a tunnel of its own
+## Keep it running
 
-1. In the Cloudflare dashboard, go to **Zero Trust → Networks → Tunnels → Create a tunnel**, pick **Cloudflared**, and name it `nafuda`.
-2. On the install screen, copy the token (the long value after `--token`). You do not need to install anything: the `tunnel` container runs cloudflared.
-3. `cp hosting/.env.example hosting/.env` and set `TUNNEL_TOKEN=` to that token. `hosting/.env` is gitignored.
-4. Add a **public hostname** to the tunnel: subdomain `nafuda`, your domain, service type **HTTP**, URL **`web:80`**. That is the web container's name on the compose network.
-5. Start both containers:
-
-   ```bash
-   cd hosting
-   docker compose --profile tunnel up -d --build
-   docker compose ps               # web healthy, tunnel running
-   docker compose logs tunnel      # "Registered tunnel connection" ×4
-   ```
-
-6. Open `https://nafuda.<your-domain>/` and `/grader/` in a private window.
-
-**Do not turn on Cloudflare Access** for this hostname. Judges must be able to open it without logging in.
-
-## Keep it running on the Mac mini
-
-- Docker Desktop: turn on **Start Docker Desktop when you sign in**. Both containers use `restart: unless-stopped`, so they come back after a reboot.
+- Docker Desktop: turn on **Start Docker Desktop when you sign in**. Services use `restart: unless-stopped`. The market uses `on-failure`, so it does not restart after its scheduled stop.
 - Stop the Mac from sleeping: **System Settings → Energy → Prevent automatic sleeping when the display is off**.
-- To deploy a new version: `git pull && cd hosting && docker compose --profile tunnel up -d --build`.
+- Fallback host: the same compose file runs on any Docker host, for example an EC2 instance with the `tunnel` profile and a tunnel token.
 
-## Standby: Cloudflare Workers
+## Security notes
 
-If the Mac mini or the home connection fails, deploy the same build to Cloudflare Workers and point the hostname there:
-
-```bash
-cd web && npm ci && npm run build && npx wrangler deploy
-```
-
-An EC2 instance running the same `docker compose --profile tunnel up -d` also works. The tunnel token lets any machine serve the hostname.
-
-## RPC
-
-By default, the browser uses the public `https://ethereum-sepolia-rpc.publicnode.com`. To use another endpoint, set `VITE_SEPOLIA_RPC_URL` in `hosting/.env` and rebuild. It is compiled into the public JavaScript, so use only a key that is restricted to your domain.
+- The images contain only built static files (apps) or the server code (api, indexer). A whitelist [.dockerignore](../.dockerignore) keeps `.env`, `contracts/` and deployment secrets out of every build context.
+- The collector app and the grader console run on separate origins, so wallet connections never leak between them.
+- Every write to the API carries an EIP-712 signature, and the signer is recovered on the server. The server checks asks against the current holder, including on chain for titles not indexed yet, and checks the grader's "issued" step against the transaction receipt.

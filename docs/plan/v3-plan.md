@@ -121,3 +121,26 @@
 1. 轉 1 SepoliaETH 到 operator `0xa5183ea7E97bf57935c4F8ddbaa6E21cCD6DAa82`
 2. 在 Cloudflare 的同一條 tunnel 加上 `nafuda-grader.sololin.xyz` → `http://localhost:8089`（早上再加也可以）
 3. 回覆 D1–D4（或者一句「照建議」）
+
+## 7. 進度（2026-09-26 凌晨）
+
+全部項目都有 commit，細節見 [../review-guide.md](../review-guide.md)。
+
+| 區塊 | 狀態 | 備註 |
+|---|---|---|
+| A1 多評級商 | 完成 | Sepolia 上已部署 `cgc-sim`（v1）和 `bgs-sim`（v2）；fork 上驗證過鎖定後仍能新增評級商 |
+| A2–A4 種子資料 | 完成 | 36 張權狀立刻發行，其餘由市場模擬器分散在夜間發行 |
+| A5 市場模擬器 | 運作中 | 在 mini 上跑到 08:00；轉手都附宣告價格 |
+| A6 收藏家 ENS 名稱 | 完成 | `<name>.nafuda.eth` 加上 15 個 primary name；作者錢包的名稱已經註冊，只差作者自己發一筆 setName |
+| X1 TitleControllerV2 | 完成 | 7 個測試；6 個 mutation 全部被抓到 |
+| B1–B2 indexer、API | 完成 | |
+| B3 交易意向 | 完成 | EIP-712；只有持有人能開價；新發的權狀直接查鏈 |
+| B4 評級商收件 | 完成 | 評級商簽名推進狀態；「已發權狀」這一步會對照交易收據 |
+| B5 Docker | 完成 | 接 Postgres 的 API 測試：進行中 |
+| C1–C11 收藏家 app | 完成 | C10 語言切換只翻譯主要文字 |
+| D1–D7 評級商後台 | 完成（D4 批次發行進行中） | D3 看板改用「每個動作簽名」，沒有另做 SIWE session |
+| E1 e2e | 完成 | public 26 項全過；live 在 Sepolia 上走完整條流程 |
+| E2 打磨 | 大致完成 | 手機版已檢查 390px；評級商後台以桌面為主 |
+| E3 文件 | 完成 | |
+| E4 部署 | 完成 | 兩個網域都已上線 |
+| §4 index 對 ENS 的全面比對腳本 | 進行中 | |

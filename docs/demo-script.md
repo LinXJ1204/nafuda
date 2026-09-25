@@ -1,27 +1,31 @@
-# Demo video script (target 3:00, hard limit 2:00–4:00)
+# Demo video script (target 3:30, hard limit 2:00–4:00)
 
 ETHGlobal rules: 2–4 minutes, at least 720p, screen recording (no phone), **your own voice** (no AI voiceover or TTS), no music-only narration, no heavy speed-ups. Cutting out a block wait is fine; speeding up the whole video is not.
 
-The story follows **one slab through its whole life** on the live site, https://nafuda.sololin.xyz: the grader issues its title, a buyer checks it at a card show, the seller transfers it, and the trust panel shows why nobody can take it back.
+The story follows **one slab from the grader's bench to its second owner**, across both apps, and ends on why ENS makes it trustworthy.
 
 **Before recording**
-- [ ] Decide on the final lock (`scripts/src/lock.ts`). If it has run, the Trust page shows **Final lock: Applied** in scene 7. If not, say "the final lock is the last step before launch" instead.
-- [ ] MetaMask on Sepolia with two accounts imported, testnet keys only: **grader** (`GRADER_PK`) for scene 2 and **alice** (`ALICE_PK`) for scene 5. Start with grader selected.
-- [ ] On https://nafuda.sololin.xyz/grader/#/issue, note the first slab marked **Awaiting title**; below it is `12345680`. Each take uses up one pool slab, because a title can never be issued twice. There are 10.
+- [ ] Decide on the final lock. If it has run, scene 7 shows **Final lock: Applied**.
+- [ ] Two browser profiles (or two browsers), because the apps are two origins with separate wallet connections:
+  - **Profile A**: MetaMask with **BGS-Sim's grader key** (`GRADER_BGS_SIM_PK`). Open https://nafuda-grader.sololin.xyz.
+  - **Profile B**: MetaMask with your own wallet (`0x192F…8240`) and **kenji** (derive the key from `DEMO_MNEMONIC`, index 1). Open https://nafuda.sololin.xyz.
+- [ ] In profile B, submit a card to BGS-Sim from `/submit` as **your own wallet**, so it waits on the intake board. Or record the submission as part of scene 2.
+- [ ] Optional: set your primary name from your collector page, so the app shows `sololin.nafuda.eth`.
 - [ ] Browser zoom so the page reads well at 720p. Close other tabs.
-- [ ] Optional: `cd scripts && npm run reset -- --network sepolia` puts the two original demo titles back with alice.
 
 | # | Time | On screen | Say (draft; rephrase in your own words) |
 |---|---|---|---|
-| 1 | 0:00–0:20 | Collector app, Explore: hero and the gallery | "Graded card slabs get cloned: counterfeiters copy a real cert number onto a fake slab, and the official lookup still says the number exists. Chips are coming to slabs, but each grader keeps its own database, and none of them tracks who owns the card. Nafuda puts both on ENS." |
-| 2 | 0:20–0:55 | **Grader console → Issue.** Point at the green "Connected as the PSA-Sim grader". Pick `12345680` on the bench, holder **alice**, **Issue title**, confirm in MetaMask. Cut the block wait. "Title issued" | "This is the grader's side: a simulated PSA we call PSA-Sim. The card is graded and sealed with a chip. Issuing creates an ENS name, 12345680.psa-sim.nafuda.eth, which records the chip's address and belongs to the submitter, Alice. The console checks everything the contract would reject before it asks me to sign." |
-| 3 | 0:55–1:15 | Click **Open it in the collector app**. Title page: "resolved via ENS", Holder alice, Slab chip; scroll to **Any ENS client can read it** | "Now the collector's side. Everything here is resolved through the ENSv2 Universal Resolver, exactly like any ENS client would. There is no Nafuda API." |
-| 4 | 1:15–1:55 | **Check this slab before you buy.** Genuine, seller **alice**, **Tap**: green. Then **Clone**, tap: red. Then Genuine with seller **mallory**: amber. Then **Attack: replay**: rejected | "At a card show, Bob taps the slab. The chip signs a fresh challenge, and it matches the chip on ENS, and Alice is the holder. A clone with the same cert number fails: its chip can't sign as the real one. If Mallory stole the real slab, the chip passes but Mallory isn't the holder. And an old signature can't be replayed." |
-| 5 | 1:55–2:20 | Switch MetaMask to **alice**. **Transfer this title** to bob, confirm. The page reloads: holder bob, History shows the transfer | "Bob pays, and Alice transfers the name. That's the sale. The name now resolves to Bob, and the history is read straight from on-chain events. No indexer, no database." |
-| 6 | 2:20–2:30 | **Explore**, then **My titles** or bob's holder page | "Every title and its owner, browsable like a marketplace, but the trade itself happens in person, with the slab in hand." |
-| 7 | 2:30–2:55 | **Grader console → Trust** | "Why ENSv2: the grader's registry is emancipated, so nobody can claw back a title, not the grader and not us. Only the controller can issue, the grader kept no power over issued titles, and holders can only transfer. ENSv2's safe transfers enforce that for every buyer. This page reads it live from the chain." |
-| 8 | 2:55–3:00 | Explore hero | "Nafuda. Every slab wears its name." |
+| 1 | 0:00–0:20 | Collector app home: hero, stats, lifecycle | "Graded card slabs get cloned: counterfeiters copy a real cert number onto a fake slab, and the official lookup still says it exists. Chips are coming to slabs, but each grader keeps its own database, and none of them tracks who owns the card. Nafuda puts both on ENS." |
+| 2 | 0:20–1:00 | **Grader console (profile A)** → Intake. Your submission: Start grading → Seal as cert → Issue the title → review (subgrades) → confirm in MetaMask. Cut the block wait. "Title issued … marked issued" | "This is a grader's console. BGS-Sim, a simulated Beckett, grades my card and seals it with a chip. Issuing creates an ENS name, the cert number under bgs-sim.nafuda.eth, that records the chip and belongs to me. Every step on this board is signed by the grader's key, and the last step is on chain." |
+| 3 | 1:00–1:30 | Click through to the **title page** (profile B). Point at "resolved via ENS", "index matches ENS", the subgrades. Scroll to **How ENS resolves this name** | "Here's the title in the collector app. Everything is resolved through the ENSv2 Universal Resolver in the browser. This diagram is live: the resolver sits on the grader's name as a wildcard, and it computes every record from on-chain state, subgrades included. Any ENS client gets the same answer." |
+| 4 | 1:30–2:05 | **Check this slab**: genuine + holder → green; clone → red; "Attack: replay" → rejected | "At a card show, the buyer taps the slab. The chip signs a fresh challenge that matches the chip on ENS, and the seller is the holder. A clone with the same cert number fails, and an old signature can't be replayed." |
+| 5 | 2:05–2:35 | Switch to kenji in profile B: **Make an offer**. Switch back to your wallet: **Transfer** to kenji with a declared price. Provenance flow updates | "Kenji makes an offer: a signed intent, not a payment. At the show he taps, pays, and I transfer the name. The sale is an ENS transfer, and the provenance shows every owner since the grader." |
+| 6 | 2:35–2:55 | **Explore**, **Market map**, a collector page with `aiko.nafuda.eth` | "Across three graders and a night of trading, every name you see comes from ENS reverse resolution. Collectors have names under nafuda.eth, too." |
+| 7 | 2:55–3:20 | **Grader console → Trust**, then **Name tree** | "Why ENSv2: each grader runs its own emancipated registry under one namespace. Nobody can claw back a title, not the grader and not us. Holders can only transfer, and safe transfers enforce that for every buyer. This page reads it live." |
+| 8 | 3:20–3:30 | Home | "Nafuda. Every slab wears its name." |
 
 After recording, check the length: `ffprobe -v error -show_entries format=duration -of csv=p=0 demo.mp4` must be between 120 and 240.
 
-If a transaction is slow on camera, the terminal is the fallback for scene 5: `cd scripts && npm run transfer -- --network sepolia --from alice --to bob --cert 12345680`.
+**Fallbacks.**
+- If a transaction is slow on camera, cut the wait.
+- If MetaMask misbehaves, the grader's issue step also works from the Issue page, and a transfer also works from `scripts/`: `npm run transfer -- --network sepolia --from <role> --to <role> --cert <cert>`, for the original demo roles.

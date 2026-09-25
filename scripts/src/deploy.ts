@@ -98,6 +98,7 @@ async function deployRegistry(key: 'nafudaRegistry' | 'psaRegistry', admin: Addr
     { args: { proxyAddress: Address } },
   ]
   state[key] = event.args.proxyAddress
+  state.startBlock ??= Number(receipt.blockNumber)
   saveState(state)
   return state[key]!
 }

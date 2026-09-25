@@ -88,6 +88,8 @@ export type DeploymentState = {
   nafudaRegistry?: Address
   psaRegistry?: Address
   titleController?: Address
+  /// Block of the first deployment transaction; clients read events (getLogs) from here.
+  startBlock?: number
   /// Set by lock.ts once the P7-4 final lock has been executed.
   locked?: boolean
   txs: Record<string, Hash>

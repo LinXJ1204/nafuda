@@ -19,5 +19,6 @@
   },
   "nafudaRegistry": "0xE82fa5f595C2EF9f5bf8BF779EC1f58E39Db4B43",
   "psaRegistry": "0x7c4De791AcF68E4fd9305770524f7F25a8cA646A",
-  "titleController": "0xf0f17d40df37257b3433acc273373f16d8d06c50"
+  "titleController": "0xf0f17d40df37257b3433acc273373f16d8d06c50",
+  "startBlock": 11779241
 }

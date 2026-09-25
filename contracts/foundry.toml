@@ -1,0 +1,16 @@
+# Nafuda contracts. Official ENSv2 (Sepolia Beta) sources come from the
+# contracts-v2 submodule, pinned at the Beta deploy commit 71a3b733.
+# Remappings are listed explicitly in remappings.txt (derived from the
+# upstream contracts-v2 remappings with the submodule prefix added).
+[profile.default]
+src = "src"
+test = "test"
+out = "out"
+libs = ["lib"]
+auto_detect_remappings = false
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+
+[fuzz]
+runs = 256

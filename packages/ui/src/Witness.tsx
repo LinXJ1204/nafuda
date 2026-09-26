@@ -32,9 +32,9 @@ export function WitnessBadge({ w, href }: { w: NonNullable<Status['witness']>; h
     <AppLink
       to={href}
       title="Second witness: Curvegrid MultiBaas indexes the same registries on its own infrastructure; the server checks that both indexes agree"
-      className={`hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold whitespace-nowrap no-underline md:inline-flex ${problems ? 'border-bad/40 text-bad' : 'border-ok/40 text-ok'}`}
+      className={`hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold whitespace-nowrap no-underline sm:inline-flex ${problems ? 'border-bad/40 text-bad' : 'border-ok/40 text-ok'}`}
     >
-      {problems ? '✕' : '✓'} Curvegrid witness
+      {problems ? '✕' : '✓'} Curvegrid
       <span className="font-normal tabular-nums">{problems ? `${problems} to check` : `${w.agreed}/${settled}`}</span>
     </AppLink>
   )

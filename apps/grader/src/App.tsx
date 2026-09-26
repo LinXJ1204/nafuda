@@ -37,7 +37,7 @@ export function App() {
           { to: '/', label: 'Dashboard', end: true },
           { to: '/intake', label: 'Intake' },
           { to: '/issue', label: 'Issue' },
-          { to: '/issued', label: 'Issued titles' },
+          { to: '/issued', label: 'Issued' },
           { to: '/trust', label: 'Trust' },
           { to: '/network', label: 'Name tree' },
           { to: '/join', label: 'Join as a grader' },

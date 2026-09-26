@@ -37,15 +37,14 @@ export function Shell({
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-line bg-card/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
-          <NavLink to="/" className="flex items-center gap-2.5 no-underline">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3">
+          <NavLink to="/" className="flex shrink-0 items-center gap-2.5 no-underline">
             <Seal size={38} />
-            <span className="leading-tight">
+            <span className="hidden leading-tight sm:block" title={t(tagline)}>
               <strong className="block text-[17px] whitespace-nowrap">{brand}</strong>
-              <small className="hidden text-xs text-muted 2xl:block">{t(tagline)}</small>
             </span>
           </NavLink>
-          <nav className={`${open ? 'flex' : 'hidden'} absolute top-full right-0 left-0 flex-col gap-1 border-b border-line bg-card p-3 lg:static lg:flex lg:flex-row lg:border-0 lg:bg-transparent lg:p-0`}>
+          <nav className={`${open ? 'flex' : 'hidden'} absolute top-full right-0 left-0 flex-col gap-1 xl:gap-0 border-b border-line bg-card p-3 xl:static xl:flex xl:min-w-0 xl:flex-row xl:overflow-x-auto xl:border-0 xl:bg-transparent xl:p-0`}>
             {nav.map((n) => (
               <NavLink
                 key={n.to}
@@ -53,25 +52,25 @@ export function Shell({
                 end={n.end}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap no-underline ${isActive ? 'bg-raised font-semibold text-accent' : 'text-muted hover:bg-raised hover:text-ink'}`
+                  `rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap no-underline xl:px-2 ${isActive ? 'bg-raised font-semibold text-accent' : 'text-muted hover:bg-raised hover:text-ink'}`
                 }
               >
                 {t(n.label)}
               </NavLink>
             ))}
-            <a href={cross.href} className="rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap text-muted italic no-underline hover:text-ink">
+            <a href={cross.href} className="rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap text-muted italic no-underline hover:text-ink xl:px-2">
               {t(cross.label)}
             </a>
           </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <span className="hidden items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs whitespace-nowrap text-muted xl:inline-flex" title={status.data?.indexedBlock ? `Indexed to block ${status.data.indexedBlock}` : 'Indexer status'}>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <span className="hidden items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs whitespace-nowrap text-muted 2xl:inline-flex" title={status.data?.indexedBlock ? `Indexed to block ${status.data.indexedBlock}` : 'Indexer status'}>
               <span className={`size-1.5 rounded-full ${status.isError ? 'bg-bad' : 'bg-ok'}`} />
               Sepolia · ENSv2
             </span>
             {witnessHref && status.data?.witness?.configured && <WitnessBadge w={status.data.witness} href={witnessHref} />}
             <LangToggle />
             <WalletButton label={t(walletLabel ?? 'Connect wallet')} />
-            <button className="rounded-lg border border-line px-2 py-1.5 lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu">
+            <button className="rounded-lg border border-line px-2 py-1.5 xl:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu">
               ☰
             </button>
           </div>

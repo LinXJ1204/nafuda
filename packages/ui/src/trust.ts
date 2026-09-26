@@ -34,7 +34,15 @@ export async function readGraderTrust(label: string): Promise<GraderTrust> {
       read<bigint>(NAFUDA_REGISTRY, 'roles', [graderNameId, g.grader]),
       read<bigint>(NAFUDA_REGISTRY, 'roles', [graderNameId, operator]),
       read<bigint>(ETH_REGISTRY, 'roles', [rootNameId, operator]),
-      Promise.all(titles.map(async (t) => ({ cert: t.cert, roles: await read<bigint>(g.registry, 'roles', [BigInt(labelhash(t.cert)), t.holder]) }))),
+      // The index only says which titles exist. Each holder is read from the registry, so a
+      // transfer the indexer has not caught up with yet is not mistaken for a missing role.
+      Promise.all(
+        titles.map(async (t) => {
+          const id = BigInt(labelhash(t.cert))
+          const holder = await read<Address>(g.registry, 'getOwner', [id])
+          return { cert: t.cert, roles: await read<bigint>(g.registry, 'roles', [id, holder]) }
+        }),
+      ),
     ])
   const facts: TrustFacts = {
     psaEmancipated,

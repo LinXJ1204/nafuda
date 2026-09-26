@@ -112,7 +112,7 @@ export function TitlePage() {
                 <dd>{t.grade}</dd>
                 {cardFields(t.attributes).length > 0 && (
                   <>
-                    <dt className="text-muted">Category</dt>
+                    <dt className="text-muted">Card records</dt>
                     <dd className="flex flex-wrap gap-2" title="card.* ENS text records, set by the grader at issuance and fixed">
                       {cardFields(t.attributes).map(([k, v]) => (
                         <span key={k} className="rounded-lg border border-line bg-raised px-2 py-0.5 text-xs">

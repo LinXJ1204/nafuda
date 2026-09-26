@@ -86,7 +86,11 @@ sequenceDiagram
    - `text`: `slab.chip`, `title.status`, `card`, `grade`, `issued_at`, `grader`
 
    The title page draws this path live, level by level.
-3. **Each grader brings its own record schema.** TitleControllerV2 stores grader-defined attributes and lists them in the `attributes` text record, so clients can discover them. BGS-Sim uses it for subgrades (`subgrade.centering` …), and any ENS client can read them.
+3. **Each grader brings its own record schema.** TitleControllerV2 stores grader-defined attributes and lists them in the `attributes` text record, so clients can discover them. BGS-Sim uses it for:
+   - subgrades (`subgrade.centering` …);
+   - the card's category, modeled on the fields of a PSA cert page: `card.category` (`tcg`, `sports`), `card.game` (`pokemon`, `yugioh`, `one-piece` …) or `card.sport`, `card.year`, `card.language`.
+
+   Any ENS client can read them. The collector app files titles by game or sport from these records. Try `getEnsText({ name: '1004827401.bgs-sim.nafuda.eth', key: 'card.game' })`.
 4. **Enhanced Access Control as the trust model.**
    - A holder gets exactly `ROLE_CAN_TRANSFER_ADMIN`.
    - Each grader registry is **emancipated**. The controller holds `ROLE_REGISTRAR` and enforces its rules (one title per cert, chip recorded, transfer-only holder).
@@ -167,7 +171,11 @@ flowchart LR
 
 Written down, not built yet ([docs/plan/upgrades.md](docs/plan/upgrades.md)):
 
-- **Card categories as ENS records.** Add `card.category` (`tcg`, `sports`, …), `card.game` or `card.sport`, `card.year`, `card.brand`, `card.number`, `card.subject` and `card.variety`, following the fields PSA shows on a cert page. Any `card.*` key is allowed. This needs a TitleControllerV3 that falls back to the old controller for titles already issued, so no issued title changes.
+- **Card categories for every grader.** A light version is live: BGS-Sim's controller (v2) records `card.category`, `card.game` or `card.sport`, `card.year` and `card.language` at issuance. Eight demo titles carry them, and Explore filters by them. Two gaps remain:
+  - PSA-Sim and CGC-Sim run v1 controllers, which have no extra records.
+  - Titles issued before this change have no category, and none can be added later.
+
+  Categories for every grader need a TitleControllerV3 with more fields (`card.brand`, `card.number`, `card.subject`, `card.variety` …) that falls back to the old controller for titles already issued, so no issued title changes.
 - **A client for card shops.** A counter mode (look up, tap, check the seller, take the title in), inventory with bulk asks, and a public storefront under `<shop>.nafuda.eth`.
 
 ## Repository

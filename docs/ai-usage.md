@@ -153,3 +153,14 @@ A new entry is appended at the end of each work session.
 - **A mistake:** checking the compose file with `docker compose config` printed two demo wallets' testnet keys (alice, bob) into the session log. Nothing was committed. The author was told.
 
 **Still with the author:** the MultiBaas feedback in the README (keep only what they ran into), the README team line, and rotating the MultiBaas API key that was pasted into the chat.
+
+## Card categories, light version (2026-09-26, 16:15–16:30 JST)
+
+**The author chose** the light version of planned upgrade U1, out of three options the AI laid out: the full version (V3 and a resolver swap), the light version, or skipping it.
+
+**What the AI did:**
+- Category rules and tests in `packages/core/src/categories.ts`.
+- The Issue page picker.
+- The slab label line, the title page, the Explore filter and `/api/categories`.
+- An idempotent script that issued eight categorized BGS-Sim titles. The market simulator was paused while the script signed with the grader key.
+- While testing the flow, it noticed that the intake board skipped the grade step, where subgrades and the category are set, for v2 graders, and changed that.

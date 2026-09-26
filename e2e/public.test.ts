@@ -46,6 +46,19 @@ const t = items[0]
   await page.close()
 }
 
+// Card categories (card.* text records on controller v2): the filter and a categorized title
+{
+  const cats = await api<{ items: { kind: string | null; n: number }[] }>('/categories')
+  const pokemon = await api<{ total: number; items: { cert: string; grader: string }[] }>('/titles?category=pokemon')
+  check(pokemon.total > 0 && pokemon.total === cats.items.find((c) => c.kind === 'pokemon')?.n, 'categories: the Pokémon filter matches its count', `${pokemon.total} titles`)
+  const first = pokemon.items[0]
+  const { page, errors } = await open(browser, `${COLLECTOR}/title/${first.grader}/${first.cert}`)
+  await waitFor(page, /Card records/, 45_000)
+  check(/Game\s*Pokémon/.test(await text(page)), `categories: title ${first.cert} shows its card.game record, read through ENS`)
+  check(errors.length === 0, 'categorized title page without errors', errors[0])
+  await page.close()
+}
+
 // A title that was never issued
 {
   const { page } = await open(browser, `${COLLECTOR}/title/psa-sim/99999999`)

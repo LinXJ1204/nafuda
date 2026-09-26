@@ -82,6 +82,23 @@ Found and fixed by the tests overnight:
 - **Market simulator:** running again on the Mac mini until 2026-09-30 00:00 JST. It trades once every 8–15 minutes, with a 0.1 ETH budget; a transfer costs about 0.0001 ETH. Stop it with `docker stop nafuda-market-1`.
 - **Keys.** The MultiBaas API key is only in your local `.env`, and it was pasted into the chat: **rotate it** (create a new key, delete the old one). The server only has the webhook secret, in the Mac mini's `hosting/.env`.
 
+## 3d. Card categories, light version (2026-09-26, 16:15–16:30)
+
+- **What it is.** BGS-Sim's controller (v2) now also records the card's category at issuance, as ENS text records: `card.category`, `card.game` or `card.sport`, `card.year` and `card.language`. There were no contract changes.
+- **Demo titles.** Eight BGS-Sim titles were issued with categories, 1004827401–408: Pokémon ×2, Yu-Gi-Oh! ×2, One Piece, Magic, baseball and basketball. 1004827402, Pokémon · ENG · PRISTINE 10, is **yours**.
+- **Where to look:**
+  - https://nafuda.sololin.xyz/explore?category=pokemon: the category row filters titles.
+  - https://nafuda.sololin.xyz/title/bgs-sim/1004827401: the label line "2025 POKÉMON JPN", and the "Card records" row.
+  - The grader console's Issue page, as BGS-Sim: a category picker at the grade step. Coming from the intake board, v2 graders now stop at that step.
+- **Checks:**
+  - core tests 41;
+  - server tests 25, including the category filter on Postgres;
+  - read through the Universal Resolver with viem: `card.game` = `pokemon`.
+- **Limits.**
+  - PSA-Sim and CGC-Sim (v1) cannot record categories.
+  - Older titles stay unclassified, since records are fixed at issuance.
+  - Game names are real; the cards are fictional demo cards.
+
 ## 4. Decisions that are yours
 
 1. **The final lock** (`scripts/src/lock.ts --execute`). It is irreversible. New graders and names can still be added after it: this was rehearsed on a fork. When it has run, the Trust page shows "Applied".

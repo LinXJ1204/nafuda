@@ -65,7 +65,9 @@ export function IssuePage() {
       const g = params.get('grade')
       if (g && grader.scale.includes(g)) setGrade(g)
       setHolder(params.get('holder') ?? '')
-      setStep(params.get('holder') ? 3 : 1)
+      // From the intake board the submitter is known. v2 graders still stop at the grade step:
+      // subgrades and the card category are recorded there.
+      setStep(params.get('holder') && grader.controllerVersion !== 2 ? 3 : 1)
     }
   }, [grader, params])
 

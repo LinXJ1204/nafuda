@@ -164,3 +164,21 @@ A new entry is appended at the end of each work session.
 - The slab label line, the title page, the Explore filter and `/api/categories`.
 - An idempotent script that issued eight categorized BGS-Sim titles. The market simulator was paused while the script signed with the grader key.
 - While testing the flow, it noticed that the intake board skipped the grade step, where subgrades and the category are set, for v2 graders, and changed that.
+
+## Curvegrid visibility, confirmed prices, Market page (2026-09-26, 16:40–17:45 JST)
+
+**The author** said Curvegrid was hard to see and asked what it does. The author then proposed using the webhook for price tracking.
+
+**The AI objected:**
+- declared prices are self-reported, because payment happens off chain;
+- our own index already has the price history;
+- so the webhook adds nothing to price tracking as such.
+
+It proposed two things instead:
+- **(A)** make the witness also confirm each declared price, from the calldata MultiBaas sends;
+- **(B)** a valuation dashboard built on our own index.
+
+**The author chose both.** The AI also:
+- made the witness visible across both apps;
+- found and fixed a header overflow, which was partly there before these changes;
+- fixed charts that drew no bars.

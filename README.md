@@ -230,7 +230,15 @@ The idea, the product decisions and the trade-offs are the author's. The code wa
 - **Settlement:** selling the card is a transfer of the name, with the seller's declared price written into the transfer.
 - **Programmable asset controls:** ENSv2 roles make the holder able to transfer and nothing else, and leave the grader no way to claw a title back. The registry enforces both ([docs/access-control.md](docs/access-control.md)).
 
-**Dashboard.** The collector app has a market map (who holds what, who traded with whom, declared volume), activity and volume charts, and per-grader stats. The grader console has an intake board of cards waiting for each next step.
+**Dashboard.**
+- **[Market page](https://nafuda.sololin.xyz/market)** (valuations):
+  - what a grade is worth: median declared price by grade;
+  - the median price by grader;
+  - a price guide for the most traded cards, by grader and grade;
+  - titles by category;
+  - the latest priced sales, each marked when Curvegrid confirmed its price.
+- **Elsewhere in the collector app:** the market map (ownership and liquidity flows), activity and volume charts, and per-grader stats.
+- **Grader console:** an intake board of cards waiting for each next step.
 
 ### How MultiBaas is used: a second witness
 
@@ -246,6 +254,7 @@ Nafuda's own server indexes chain events for lists and charts. **Curvegrid Multi
 - **Two-way comparison.** `GET /api/witness` checks:
   - every event Curvegrid saw is in Nafuda's index, with the same transaction, log position, title, sender and recipient;
   - every transfer Nafuda indexed inside Curvegrid's window was seen by Curvegrid. This direction catches a server that invents a record.
+- **Prices too.** MultiBaas sends each transaction's calldata along with the event, so the server reads the seller's declared price from Curvegrid's copy as well, and requires it to match the index. Prices stay self-reported, since payment happens off chain. What "✓ confirmed" guarantees is that the price the site shows is exactly the one written on chain.
 - **On screen:**
   - the [Second witness page](https://nafuda.sololin.xyz/witness): the full comparison, events per hour on each side, and agreement by grader
   - a "✓ Curvegrid witness" badge in the header of every page, in both apps

@@ -99,6 +99,26 @@ Found and fixed by the tests overnight:
   - Older titles stay unclassified, since records are fixed at issuance.
   - Game names are real; the cards are fictional demo cards.
 
+## 3e. Curvegrid made visible, prices confirmed, Market page (2026-09-26, 16:40–17:45)
+
+- **Visibility:**
+  - `/witness` is in the nav;
+  - both apps have a "✓ Curvegrid n/n" badge in the header;
+  - the home page has a status line;
+  - title pages show "Curvegrid witnessed ✓", and history rows carry per-event marks.
+- **Prices confirmed.** The witness reads the declared price from the calldata that MultiBaas sends with each event, and compares it with the index. The first live delivery after deploying carried ¥42,500 and matched. Feeds show "✓ confirmed" under such prices.
+- **Market page** (https://nafuda.sololin.xyz/market), for the Dashboard prize:
+  - what a grade is worth;
+  - median price by grader;
+  - a price guide for the 12 most traded cards;
+  - titles by category;
+  - the latest priced sales.
+
+  "Map" in the nav became "Market". The market map is linked from the Market page.
+- **Fixed:**
+  - The header overflowed at 1024–1600 px, and the grader console overflowed on phones. It was checked at 390, 1024, 1280, 1440 and 1600 px in both apps.
+  - The market charts drew no bars. The row fields `min`/`max` reached the SVG as animation attributes.
+
 ## 4. Decisions that are yours
 
 1. **The final lock** (`scripts/src/lock.ts --execute`). It is irreversible. New graders and names can still be added after it: this was rehearsed on a fork. When it has run, the Trust page shows "Applied".

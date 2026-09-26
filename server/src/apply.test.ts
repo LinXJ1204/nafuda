@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { labelhash, type Address, type Hash } from 'viem'
-import { applyBatch, type IssuedLog, type TransferLog } from './apply.ts'
+import { applyBatch, expandBatch, type IssuedLog, type TransferLog } from './apply.ts'
 
 const alice: Address = '0x92785192Bb6a16be1Ac305ab419e0F36F0216370'
 const bob: Address = '0x3565a2f62c8283d8d7F7261f969C893C566740e2'
@@ -61,4 +61,26 @@ test('titles indexed in an earlier batch are still found', () => {
   })
   assert.equal(transfers.length, 1)
   assert.deepEqual(attributes, [{ grader: 'cgc-sim', cert: '4000317201', key: 'subgrade.edges', value: '10' }])
+})
+
+test('a TransferBatch becomes one transfer per name, keyed by its position in the batch', () => {
+  const batchLog = {
+    grader: 'psa-sim',
+    blockNumber: 9n,
+    logIndex: 4,
+    transactionHash: tx(99),
+    args: { from: alice, to: bob, ids: [id('81234501'), id('81234502') | 2n] },
+  }
+  const { transfers } = applyBatch({
+    ...base,
+    issued: [issued('psa-sim', '81234501', 5), issued('psa-sim', '81234502', 6)],
+    transfers: expandBatch(batchLog),
+  })
+  assert.deepEqual(
+    transfers.map((t) => [t.cert, t.logIndex, t.batchIndex, t.to]),
+    [
+      ['81234501', 4, 0, bob.toLowerCase()],
+      ['81234502', 4, 1, bob.toLowerCase()],
+    ],
+  )
 })

@@ -36,6 +36,8 @@ export type Transfer = {
   tx: string
   time: string
   priceJpy: number | null
+  /// Curvegrid MultiBaas reported this same log (second witness)
+  witnessed?: boolean
 }
 export type Activity = Transfer & { kind: 'issue' | 'transfer' }
 export type TitleDetail = Title & { history: Transfer[] }
@@ -67,7 +69,49 @@ export type Holder = {
   stats: { bought: number; sold: number; spentJpy: number; earnedJpy: number }
 }
 export type Graph = { nodes: { id: string; name: string | null; titles: number }[]; edges: { from: string; to: string; count: number; volumeJpy: number }[] }
-export type Status = { indexedBlock: string | null; titles: number; transfers: number; graders: number }
+export type WitnessSummary = {
+  witnessed: number
+  agreed: number
+  mismatch: number
+  missing: number
+  pending: number
+  regeneration: number
+  unwitnessed: number
+  reorged: number
+}
+export type Status = {
+  indexedBlock: string | null
+  titles: number
+  transfers: number
+  graders: number
+  witness?: WitnessSummary & { configured: boolean; lastDeliveryAt: string | null }
+}
+export type WitnessVerdict = 'agreed' | 'mismatch' | 'missing' | 'pending' | 'regeneration'
+export type Witness = {
+  source: string
+  configured: boolean
+  deliveries: { count: number; first: string | null; last: string | null }
+  refused: Record<string, number>
+  summary: WitnessSummary & { fromBlock: string | null; toBlock: string | null }
+  byGrader: Record<string, { witnessed: number; agreed: number }>
+  recent: {
+    grader: string
+    cert: string | null
+    kind: 'transfer' | 'mint' | 'burn'
+    from: string
+    fromName: string | null
+    to: string
+    toName: string | null
+    tx: string
+    logIndex: number
+    batchIndex: number
+    block: string
+    verdict: WitnessVerdict
+    detail: string | null
+    triggeredAt: string | null
+  }[]
+  unwitnessed: { kind: 'transfer' | 'issue'; grader: string; cert: string; tx: string; block: string }[]
+}
 export type CollectorRow = { name: string; bio: string; address: string; source: string; titles: number }
 
 export class ApiError extends Error {
@@ -94,6 +138,7 @@ const qs = (params: Record<string, string | number | undefined | null>) => {
 const live = { refetchInterval: 15_000 }
 
 export const useStatus = () => useQuery({ queryKey: ['status'], queryFn: () => api<Status>('/status'), ...live })
+export const useWitness = () => useQuery({ queryKey: ['witness'], queryFn: () => api<Witness>('/witness'), ...live })
 export const useStats = () => useQuery({ queryKey: ['stats'], queryFn: () => api<Stats>('/stats'), ...live })
 export const useGraders = () => useQuery({ queryKey: ['graders'], queryFn: () => api<GraderSummary[]>('/graders'), ...live })
 export const useGrader = (label: string) => useQuery({ queryKey: ['grader', label], queryFn: () => api<GraderDetail>(`/graders/${label}`), ...live })

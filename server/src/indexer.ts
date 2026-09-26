@@ -4,10 +4,10 @@
 
 import { createPublicClient, decodeFunctionData, fallback, http, type Hash } from 'viem'
 import { sepolia } from 'viem/chains'
-import { canonicalId, registryAbi, titleAttributeEvent, titleIssuedEvent, transferSingleEvent } from '../../packages/core/src/abis.ts'
+import { canonicalId, registryAbi, titleAttributeEvent, titleIssuedEvent, transferBatchEvent, transferSingleEvent } from '../../packages/core/src/abis.ts'
 import { GRADERS, START_BLOCK, graderByController, graderByRegistry } from '../../packages/core/src/deployment.ts'
 import { decodePrice } from '../../packages/core/src/price.ts'
-import { applyBatch, type AttributeLog, type IssuedLog, type TransferLog } from './apply.ts'
+import { applyBatch, expandBatch, type AttributeLog, type IssuedLog, type TransferBatchLog, type TransferLog } from './apply.ts'
 import type { Sql } from './db.ts'
 import { env } from './env.ts'
 
@@ -36,8 +36,8 @@ export async function writeBatch(tx: Sql, batch: ReturnType<typeof applyBatch>, 
   }
   for (const t of batch.transfers) {
     await tx`
-      insert into transfers (grader, cert, from_addr, to_addr, block, log_index, tx, time, price_jpy)
-      values (${t.grader}, ${t.cert}, ${t.from}, ${t.to}, ${String(t.block)}, ${t.logIndex}, ${t.tx}, ${t.time}, ${t.priceJpy})
+      insert into transfers (grader, cert, from_addr, to_addr, block, log_index, batch_index, tx, time, price_jpy)
+      values (${t.grader}, ${t.cert}, ${t.from}, ${t.to}, ${String(t.block)}, ${t.logIndex}, ${t.batchIndex}, ${t.tx}, ${t.time}, ${t.priceJpy})
       on conflict do nothing`
   }
   for (const k of new Set(batch.transfers.map((t) => `${t.grader}|${t.cert}`))) {
@@ -75,14 +75,19 @@ export async function runIndexer(sql: Sql, { once = false } = {}) {
     const fromBlock = cursor + 1n
     const toBlock = cursor + env.batchBlocks < head ? cursor + env.batchBlocks : head
 
-    const [issuedRaw, attributesRaw, transfersRaw] = await Promise.all([
+    const [issuedRaw, attributesRaw, transfersRaw, batchesRaw] = await Promise.all([
       client.getLogs({ address: controllers, event: titleIssuedEvent, fromBlock, toBlock }),
       v2Controllers.length ? client.getLogs({ address: v2Controllers, event: titleAttributeEvent, fromBlock, toBlock }) : Promise.resolve([]),
       client.getLogs({ address: registries, event: transferSingleEvent, fromBlock, toBlock }),
+      client.getLogs({ address: registries, event: transferBatchEvent, fromBlock, toBlock }),
     ])
     const issued = issuedRaw.map((l) => ({ ...l, grader: graderByController(l.address)!.label })) as unknown as IssuedLog[]
     const attributes = attributesRaw.map((l) => ({ ...l, grader: graderByController(l.address)!.label })) as unknown as AttributeLog[]
-    const transfers = transfersRaw.map((l) => ({ ...l, grader: graderByRegistry(l.address)!.label })) as unknown as TransferLog[]
+    const batches = batchesRaw.map((l) => ({ ...l, grader: graderByRegistry(l.address)!.label })) as unknown as TransferBatchLog[]
+    const transfers = [
+      ...(transfersRaw.map((l) => ({ ...l, grader: graderByRegistry(l.address)!.label })) as unknown as TransferLog[]),
+      ...batches.flatMap(expandBatch),
+    ]
 
     // Block times (cached in the blocks table)
     const blocks = [...new Set([...issued, ...transfers].map((l) => l.blockNumber))]
@@ -97,8 +102,9 @@ export async function runIndexer(sql: Sql, { once = false } = {}) {
       known.set(n, new Date(Number(block.timestamp) * 1000))
     }
 
-    // Declared prices from the transfers' calldata
-    const prices = new Map<Hash, number | null>()
+    // Declared prices from the transfers' calldata. A batch declares one price for several names,
+    // which says nothing about each, so batches carry none.
+    const prices = new Map<Hash, number | null>(batches.map((b) => [b.transactionHash, null]))
     for (const t of transfers) {
       if (prices.has(t.transactionHash) || t.args.from === '0x0000000000000000000000000000000000000000') continue
       try {

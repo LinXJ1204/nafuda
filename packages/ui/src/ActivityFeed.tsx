@@ -31,6 +31,11 @@ export function ActivityFeed({ items, loading, compact = false }: { items?: Acti
                   <span aria-hidden>{a.kind === 'issue' ? '◆' : '⇄'}</span>
                   {a.kind === 'issue' ? 'Issued' : 'Transfer'}
                 </span>
+                {a.witnessed && (
+                  <div className="text-[11px] font-semibold text-ok" title="Curvegrid MultiBaas reported this same event (second witness)">
+                    ✓ Curvegrid
+                  </div>
+                )}
               </td>
               <td className="px-2 py-2.5">
                 <AppLink to={links.title(a.grader, a.cert)} className="font-medium no-underline hover:text-accent">

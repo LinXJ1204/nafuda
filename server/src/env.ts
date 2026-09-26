@@ -14,4 +14,6 @@ export const env = {
   confirmations: BigInt(process.env.CONFIRMATIONS ?? 2),
   pollMs: Number(process.env.POLL_MS ?? 6000),
   batchBlocks: BigInt(process.env.BATCH_BLOCKS ?? 1000),
+  /// Signing secret of the MultiBaas webhook (second witness). Unset: the witness is off.
+  webhookSecret: () => process.env.MULTIBAAS_WEBHOOK_SECRET || null,
 }

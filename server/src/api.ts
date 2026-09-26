@@ -7,6 +7,8 @@ import { COLLECTORS, GRADERS, collectorOf } from '../../packages/core/src/deploy
 import type { Sql } from './db.ts'
 import { writeLimits } from './limits.ts'
 import { signedRoutes } from './signed-api.ts'
+import { readWitness, witnessRoutes } from './witness-api.ts'
+import { env } from './env.ts'
 
 const SORTS = {
   newest: 'issued_block desc, cert',
@@ -57,6 +59,8 @@ function transferOut(r: Record<string, unknown>) {
     tx: r.tx,
     time: r.time,
     priceJpy: r.price_jpy,
+    /// Curvegrid MultiBaas reported this same log (second witness); false outside its window.
+    witnessed: r.witnessed ?? false,
   }
 }
 
@@ -67,7 +71,14 @@ export function api(sql: Sql) {
   app.get('/status', async (c) => {
     const [state] = await sql`select value from indexer_state where key = 'block'`
     const [counts] = await sql`select (select count(*) from titles)::int as titles, (select count(*) from transfers)::int as transfers`
-    return out(c, { indexedBlock: state ? String(state.value) : null, ...counts, graders: GRADERS.length })
+    const { result, deliveries } = await readWitness(sql)
+    const { fromBlock, toBlock, ...witness } = result.summary
+    return out(c, {
+      indexedBlock: state ? String(state.value) : null,
+      ...counts,
+      graders: GRADERS.length,
+      witness: { configured: env.webhookSecret() !== null, lastDeliveryAt: deliveries.last, ...witness },
+    })
   })
 
   app.get('/graders', async (c) => {
@@ -127,8 +138,10 @@ export function api(sql: Sql) {
     const [row] = await sql`select * from titles where grader = ${grader} and cert = ${cert}`
     if (!row) return out(c, { error: 'not indexed' }, 404)
     const history = await sql`
-      select t.*, ti.card, ti.grade from transfers t join titles ti using (grader, cert)
-      where t.grader = ${grader} and t.cert = ${cert} order by block, log_index`
+      select t.*, ti.card, ti.grade, exists(select 1 from witness_events w where w.tx = t.tx and w.log_index = t.log_index and w.batch_index = t.batch_index
+          and w.from_addr = t.from_addr and w.to_addr = t.to_addr and not w.removed) as witnessed
+      from transfers t join titles ti using (grader, cert)
+      where t.grader = ${grader} and t.cert = ${cert} order by block, log_index, batch_index`
     return out(c, { ...titleOut(row), history: history.map(transferOut) })
   })
 
@@ -140,14 +153,17 @@ export function api(sql: Sql) {
     const rows = await sql`
       select * from (
         select 'issue' as kind, grader, cert, card, grade, null as from_addr, holder as to_addr, issued_block as block, 0 as log_index,
-          issued_tx as tx, issued_at as time, null::int as price_jpy
+          0 as batch_index, issued_tx as tx, issued_at as time, null::int as price_jpy,
+          exists(select 1 from witness_events w where w.tx = titles.issued_tx and w.grader = titles.grader and w.kind = 'mint' and not w.removed) as witnessed
         from titles
         union all
-        select 'transfer', t.grader, t.cert, ti.card, ti.grade, t.from_addr, t.to_addr, t.block, t.log_index, t.tx, t.time, t.price_jpy
+        select 'transfer', t.grader, t.cert, ti.card, ti.grade, t.from_addr, t.to_addr, t.block, t.log_index, t.batch_index, t.tx, t.time, t.price_jpy,
+          exists(select 1 from witness_events w where w.tx = t.tx and w.log_index = t.log_index and w.batch_index = t.batch_index
+          and w.from_addr = t.from_addr and w.to_addr = t.to_addr and not w.removed)
         from transfers t join titles ti using (grader, cert)
       ) a
       where (${grader}::text is null or grader = ${grader}) and (${type}::text is null or kind = ${type})
-      order by block desc, log_index desc limit ${limit}`
+      order by block desc, log_index desc, batch_index desc limit ${limit}`
     return out(c, rows.map((r) => ({ kind: r.kind, ...transferOut(r) })))
   })
 
@@ -223,6 +239,7 @@ export function api(sql: Sql) {
   })
 
   signedRoutes(app, sql, out)
+  witnessRoutes(app, sql, out)
 
   app.notFound((c) => out(c, { error: 'not found' }, 404))
   app.onError((err, c) => {

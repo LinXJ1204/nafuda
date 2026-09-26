@@ -1,5 +1,8 @@
+import { useEffect } from 'react'
+import { useLocation } from 'react-router'
 import { GRADERS, NAFUDA_REGISTRY, UNIVERSAL_RESOLVER } from '@nafuda/core/deployment.ts'
 import { AddressLink, Card, ExtLink } from '@nafuda/ui/components.tsx'
+import { WitnessPanel } from '@nafuda/ui/Witness.tsx'
 
 const RECORDS = [
   ['addr (coin 60)', 'The current holder. Follows every transfer; computed from the registry, never stale.'],
@@ -14,6 +17,11 @@ const RECORDS = [
 ]
 
 export function DevelopersPage() {
+  const { hash } = useLocation()
+  // In-app links to /developers#witness: scroll to the panel once it is on screen.
+  useEffect(() => {
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ behavior: 'smooth' })
+  }, [hash])
   return (
     <div className="max-w-4xl">
       <h1 className="mt-8 text-3xl font-bold">For developers</h1>
@@ -36,6 +44,9 @@ const chip = await client.getEnsText({ name, key: 'slab.chip', universalResolver
 // Verify the slab: ask its chip to sign a fresh challenge, then
 // recoverMessageAddress({ message, signature }) === chip`}</pre>
       </Card>
+      <div id="witness" className="mt-6 scroll-mt-20">
+        <WitnessPanel />
+      </div>
       <Card className="mt-6 p-5">
         <h2 className="text-lg font-bold">Records</h2>
         <table className="mt-3 w-full text-sm">

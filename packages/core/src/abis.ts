@@ -9,6 +9,10 @@ export const titleAttributeEvent = parseAbiItem('event TitleAttribute(uint256 in
 export const transferSingleEvent = parseAbiItem(
   'event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)',
 )
+/// Emitted instead of TransferSingle when one safeBatchTransferFrom moves two or more names.
+export const transferBatchEvent = parseAbiItem(
+  'event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)',
+)
 
 export const controllerAbi = parseAbi([
   'function GRADER() view returns (address)',
@@ -29,6 +33,7 @@ export const controllerAbi = parseAbi([
 export const registryAbi = parseAbi([
   'function getTokenId(uint256 anyId) view returns (uint256)',
   'function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes data)',
+  'function safeBatchTransferFrom(address from, address to, uint256[] ids, uint256[] values, bytes data)',
   'function isEmancipated() view returns (bool)',
   'function roles(uint256 anyId, address account) view returns (uint256)',
   'function hasRootRoles(uint256 roleBitmap, address account) view returns (bool)',

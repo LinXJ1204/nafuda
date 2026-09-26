@@ -11,7 +11,8 @@ const hits = new Map<string, number[]>()
 export const clientIp = (h: (name: string) => string | undefined) => h('cf-connecting-ip') ?? h('x-forwarded-for')?.split(',')[0].trim() ?? 'local'
 
 export const writeLimits: MiddlewareHandler = async (c, next) => {
-  if (c.req.method !== 'POST') return next()
+  // Webhooks are signed and batch many events per request; their route sets its own limits.
+  if (c.req.method !== 'POST' || c.req.path.startsWith('/api/hooks/')) return next()
   const length = Number(c.req.header('content-length') ?? 0)
   if (length > MAX_BODY) return c.json({ error: 'request too large' }, 413)
   const ip = clientIp((n) => c.req.header(n))

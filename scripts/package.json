@@ -22,9 +22,11 @@
     "names": "node --env-file-if-exists=../.env src/names.ts",
     "roles": "node --env-file-if-exists=../.env src/roles.ts",
     "market": "node --env-file-if-exists=../.env src/market.ts",
-    "chips": "node src/chips.ts"
+    "chips": "node src/chips.ts",
+    "multibaas": "node --env-file-if-exists=../.env src/multibaas.ts"
   },
   "dependencies": {
+    "@curvegrid/multibaas-sdk": "1.1.1",
     "viem": "2.56.8"
   },
   "devDependencies": {

@@ -11,9 +11,11 @@ import { labelhash, type Address, type Hash } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { DOMAIN, TYPES, type Offer } from '../../packages/core/src/signed.ts'
 import { api } from './api.ts'
-import { applyBatch } from './apply.ts'
+import { applyBatch, expandBatch } from './apply.ts'
 import { migrate, type Sql } from './db.ts'
 import { syncGraders, writeBatch } from './indexer.ts'
+import { webhookItem } from './witness.fixtures.ts'
+import { signBody } from './witness.ts'
 
 const url = process.env.TEST_DATABASE_URL
 const opts = { skip: url ? false : 'TEST_DATABASE_URL not set' }
@@ -168,4 +170,76 @@ test('submissions: anyone submits; only the grader moves them', opts, async () =
   const notGrader = await A.signTypedData({ domain: DOMAIN, types: TYPES, primaryType: 'GraderAction', message: action })
   assert.equal((await post(`/submissions/${id}/actions`, { message: action, signature: notGrader })).status, 403)
   assert.equal((await get(`/submissions?submitter=${A.address}`)).length, 1)
+})
+
+// --- second witness (Curvegrid MultiBaas webhooks) --------------------------------------------
+
+const SECRET = 'test-webhook-secret'
+async function deliver(items: unknown[], opts: { secret?: string; timestamp?: number; tamper?: boolean } = {}) {
+  const body = JSON.stringify(items)
+  const timestamp = String(opts.timestamp ?? Math.floor(Date.now() / 1000))
+  const signature = signBody(body, timestamp, opts.secret ?? SECRET)
+  return app.request('/api/hooks/multibaas', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-multibaas-signature': signature, 'x-multibaas-timestamp': timestamp },
+    body: opts.tamper ? body.replace('"event.emitted"', '"event.emitted" ') : body,
+  })
+}
+
+test('witness: signed deliveries are stored once; unsigned, tampered or stale ones are refused; both directions are checked', opts, async () => {
+  const one = BigInt(labelhash('1'))
+  // Curvegrid saw A → B (block 110, which we indexed) and a transfer at block 130 that we did not;
+  // it did not report B → C at block 120, which we did index.
+  const seen = webhookItem({ n: 1100, from: A.address, to: B.address, ids: [one], block: 110, logIndex: 1 })
+  const extra = webhookItem({ n: 1300, from: C.address, to: A.address, ids: [one], block: 130, logIndex: 1 })
+
+  delete process.env.MULTIBAAS_WEBHOOK_SECRET
+  assert.equal((await deliver([seen])).status, 503, 'off until a secret is configured')
+  process.env.MULTIBAAS_WEBHOOK_SECRET = SECRET
+  assert.equal((await deliver([seen], { secret: 'wrong' })).status, 401)
+  assert.equal((await deliver([seen], { tamper: true })).status, 401)
+  assert.equal((await deliver([seen], { timestamp: Math.floor(Date.now() / 1000) - 3600 })).status, 401)
+  const unsigned = await app.request('/api/hooks/multibaas', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify([seen]) })
+  assert.equal(unsigned.status, 401)
+  assert.equal((await get('/witness')).summary.witnessed, 0, 'nothing refused was stored')
+
+  await sql`insert into indexer_state (key, value) values ('block', 200) on conflict (key) do update set value = excluded.value`
+  const res = await deliver([seen, extra])
+  assert.equal(res.status, 200)
+  assert.deepEqual(await res.json(), { accepted: 2, ignored: 0 })
+  assert.equal((await deliver([seen])).status, 200, 'a redelivery is accepted')
+
+  const w = await get('/witness')
+  assert.equal(w.summary.witnessed, 2, 'the redelivery did not add a row')
+  assert.equal(w.summary.agreed, 1)
+  assert.equal(w.summary.missing, 1, 'Curvegrid saw a transfer the index does not have')
+  assert.deepEqual(w.unwitnessed.map((u: { tx: string }) => u.tx), [tx(1200)], 'the index has a transfer Curvegrid did not report')
+  assert.equal(w.deliveries.count, 2)
+  assert.equal(w.recent[0].verdict, 'missing')
+  assert.equal(w.recent[1].cert, '1')
+  assert.ok(w.refused['bad-signature'] >= 2)
+
+  const history = (await get('/titles/psa-sim/1')).history
+  assert.deepEqual(history.map((h: { witnessed: boolean }) => h.witnessed), [true, false])
+  assert.equal((await get('/status')).witness.missing, 1)
+  assert.equal((await get('/titles/psa-sim/1')).holder, C.address.toLowerCase(), 'witness data never moves a title')
+})
+
+test('batches: two titles moved by one TransferBatch log are two transfers', opts, async () => {
+  const batch = applyBatch({
+    issued: [],
+    attributes: [],
+    // storage keys only: one log, same tx and log index, two names
+    transfers: expandBatch({ grader: 'psa-sim', blockNumber: 140n, logIndex: 2, transactionHash: tx(1400), args: { from: C.address, to: A.address, ids: [BigInt(labelhash('1')), BigInt(labelhash('2'))] } }),
+    knownCerts: new Map([
+      [`psa-sim:${BigInt(labelhash('1')) & ~0xffffffffn}`, '1'],
+      [`psa-sim:${BigInt(labelhash('2')) & ~0xffffffffn}`, '2'],
+    ]),
+    blockTime: () => new Date(140 * 60_000),
+    priceOf: () => null,
+  })
+  await sql.begin((t) => writeBatch(t as unknown as Sql, batch, new Map([[140n, new Date(140 * 60_000)]])))
+  const rows = await sql`select cert, batch_index from transfers where tx = ${tx(1400)} order by batch_index`
+  assert.deepEqual(rows.map((r) => [r.cert, r.batch_index]), [['1', 0], ['2', 1]], 'same tx and log index, both stored')
+  assert.equal((await get('/titles/psa-sim/2')).holder, A.address.toLowerCase())
 })

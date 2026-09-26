@@ -5,10 +5,11 @@ import { canonicalId } from '../../packages/core/src/abis.ts'
 import { gradeScore } from '../../packages/core/src/slab.ts'
 import type { Address, Hash } from 'viem'
 
-type Pos = { blockNumber: bigint; logIndex: number; transactionHash: Hash }
+type Pos = { blockNumber: bigint; logIndex: number; transactionHash: Hash; batchIndex?: number }
 export type IssuedLog = Pos & { grader: string; args: { labelId: bigint; cert: string; holder: Address; chip: Address; card: string; grade: string } }
 export type AttributeLog = Pos & { grader: string; args: { labelId: bigint; key: string; value: string } }
 export type TransferLog = Pos & { grader: string; args: { from: Address; to: Address; id: bigint } }
+export type TransferBatchLog = Omit<Pos, 'batchIndex'> & { grader: string; args: { from: Address; to: Address; ids: readonly bigint[] } }
 
 export type TitleRow = {
   grader: string
@@ -30,6 +31,8 @@ export type TransferRow = {
   to: string
   block: bigint
   logIndex: number
+  /// position within a TransferBatch log (0 for TransferSingle)
+  batchIndex: number
   tx: string
   time: Date
   priceJpy: number | null
@@ -38,7 +41,12 @@ export type AttributeRow = { grader: string; cert: string; key: string; value: s
 
 const ZERO = '0x0000000000000000000000000000000000000000'
 const lower = (a: string) => a.toLowerCase()
-const byPosition = (a: Pos, b: Pos) => (a.blockNumber === b.blockNumber ? a.logIndex - b.logIndex : a.blockNumber < b.blockNumber ? -1 : 1)
+const byPosition = (a: Pos, b: Pos) =>
+  a.blockNumber !== b.blockNumber ? (a.blockNumber < b.blockNumber ? -1 : 1) : a.logIndex !== b.logIndex ? a.logIndex - b.logIndex : (a.batchIndex ?? 0) - (b.batchIndex ?? 0)
+
+/// One TransferBatch log moves several names; give each its own transfer, keyed by its position.
+export const expandBatch = (log: TransferBatchLog): TransferLog[] =>
+  log.args.ids.map((id, batchIndex) => ({ ...log, batchIndex, args: { from: log.args.from, to: log.args.to, id } }))
 const key = (grader: string, id: bigint) => `${grader}:${canonicalId(id)}`
 
 export function applyBatch(input: {
@@ -48,7 +56,8 @@ export function applyBatch(input: {
   /// cert for label ids indexed in earlier batches, keyed `${grader}:${canonicalId}`
   knownCerts: Map<string, string>
   blockTime: (block: bigint) => Date
-  /// declared price by transaction hash (from the transfer's calldata), if any
+  /// declared price by transaction hash (from the transfer's calldata), if any. A batch declares
+  /// one price for all its names, so the caller returns null for batches.
   priceOf: (tx: Hash) => number | null
 }): { titles: TitleRow[]; attributes: AttributeRow[]; transfers: TransferRow[] } {
   const certs = new Map(input.knownCerts)
@@ -89,6 +98,7 @@ export function applyBatch(input: {
       to: lower(to),
       block: log.blockNumber,
       logIndex: log.logIndex,
+      batchIndex: log.batchIndex ?? 0,
       tx: log.transactionHash,
       time: input.blockTime(log.blockNumber),
       priceJpy: input.priceOf(log.transactionHash),

@@ -41,3 +41,29 @@ export const registryAbi = parseAbi([
 
 /// ENSv2 token ids carry a version in the low 32 bits; the canonical id zeroes them.
 export const canonicalId = (id: bigint) => id & ~0xffffffffn
+
+/// Calls the permissions panel simulates (eth_call from each actor), and every error the ENSv2
+/// registry can revert with, so a refusal shows its real reason.
+export const eacAbi = parseAbi([
+  'function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes data)',
+  'function setResolver(uint256 anyId, address resolver)',
+  'function setSubregistry(uint256 anyId, address registry)',
+  'function unregister(uint256 anyId)',
+  'function upgradeToAndCall(address newImplementation, bytes data)',
+  'function grantRootRoles(uint256 roleBitmap, address account)',
+  'error EACCannotGrantRoles(uint256 resource, uint256 roleBitmap, address account)',
+  'error EACCannotRevokeRoles(uint256 resource, uint256 roleBitmap, address account)',
+  'error EACUnauthorizedAccountRoles(uint256 resource, uint256 roleBitmap, address account)',
+  'error EACRootResourceNotAllowed()',
+  'error EACInvalidRoleBitmap(uint256 roleBitmap)',
+  'error EACMaxAssignees(uint256 resource, uint256 role)',
+  'error EACMinAssignees(uint256 resource, uint256 role)',
+  'error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId)',
+  'error ERC1155MissingApprovalForAll(address operator, address owner)',
+  'error ERC1155InvalidReceiver(address receiver)',
+  'error TransferDisallowed(uint256 tokenId, address from)',
+  'error TransferUnsafeUntilRegistryIsEmancipated()',
+  'error TransferUnsafeWithMultipleAssignees(uint256 tokenId, address from)',
+  'error UUPSUnauthorizedCallContext()',
+  'error LabelExpired(uint256 tokenId)',
+])

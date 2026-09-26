@@ -24,6 +24,11 @@ const t = items[0]
   await waitFor(page, /Resolver found here/, 45_000)
   check(true, 'resolution path: resolver found at the grader level')
   check(/Provenance/.test(await text(page)) && (await page.$$('.react-flow__node')).length >= 2 + t.transferCount, 'provenance flow has the grader and every holder')
+  await page.waitForFunction(() => document.querySelectorAll('table button').length >= 24, { timeout: 60_000 })
+  const rows = await page.$$eval('table tbody tr', (trs) => trs.map((r) => [...r.querySelectorAll('button')].map((b) => b.textContent?.trim())))
+  const holderRow = rows.find((r) => r.length === 6 && r[0] === '✓')
+  const strangerRow = rows[rows.length - 1]
+  check(!!holderRow && strangerRow.every((c) => c === '✕'), 'permissions (EAC, simulated live): holder can transfer; a stranger is refused everything')
   await waitFor(page, /All checks pass|Check failed/, 45_000)
   check(/All checks pass/.test(await text(page)), 'title integrity (EAC): resolver, controller record, holder roles, sole assignee, emancipated')
 

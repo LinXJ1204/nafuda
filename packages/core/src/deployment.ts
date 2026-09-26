@@ -16,6 +16,8 @@ export const ROOT_NAME = `${ROOT_LABEL}.eth`
 export const UNIVERSAL_RESOLVER: Address = '0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe'
 export const ETH_REGISTRY: Address = '0x657eA849311d3D5823348ddEd7C2AaAFb3EDE09E'
 export const NAFUDA_REGISTRY = getAddress(deployment.nafudaRegistry)
+/// ENSv2 Beta UserRegistry implementation (what every registry proxy points at)
+export const USER_REGISTRY_IMPL: Address = getAddress('0xa80338aaa8d23831cea25e858d1774534abb0263')
 
 export type Grader = {
   label: string

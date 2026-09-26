@@ -18,6 +18,7 @@ import { ProvenanceFlow } from '../components/ProvenanceFlow.tsx'
 import { QrCode } from '../components/QrCode.tsx'
 import { ResolutionPath } from '../components/ResolutionPath.tsx'
 import { TitleIntegrity } from '../components/TitleIntegrity.tsx'
+import { PermissionsPanel } from '../components/PermissionsPanel.tsx'
 import { useIntegrity } from '@nafuda/ui/integrity.ts'
 import { TradePanel } from '../components/TradePanel.tsx'
 import { TransferPanel } from '../components/TransferPanel.tsx'
@@ -201,6 +202,12 @@ export function TitlePage() {
       {t && (
         <div className="mt-10">
           <VerifyPanel grader={grader} cert={cert} title={t} onTapping={setTapping} integrity={integrity.data} />
+        </div>
+      )}
+
+      {issued && t?.holder && (
+        <div className="mt-10">
+          <PermissionsPanel grader={grader} cert={cert} holder={t.holder} />
         </div>
       )}
 

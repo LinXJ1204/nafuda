@@ -80,7 +80,7 @@ Found and fixed by the tests overnight:
   - the public e2e suite: three new checks.
 - **Found and fixed:** the indexer ignored `TransferBatch`, so a sale of two or more names in one call would have been missing from every list. No such transfer had happened on chain.
 - **Market simulator:** running again on the Mac mini until 2026-09-30 00:00 JST. It trades once every 8–15 minutes, with a 0.1 ETH budget; a transfer costs about 0.0001 ETH. Stop it with `docker stop nafuda-market-1`.
-- **Keys.** The MultiBaas API key is only in your local `.env`, and it was pasted into the chat: **rotate it** (create a new key, delete the old one). The server only has the webhook secret, in the Mac mini's `hosting/.env`.
+- **Keys.** The MultiBaas API key is only in your local `.env`. It was pasted into the chat, and the author chose to keep it. The server only has the webhook secret, in the Mac mini's `hosting/.env`.
 
 ## 3d. Card categories, light version (2026-09-26, 16:15–16:30)
 
@@ -121,9 +121,9 @@ Found and fixed by the tests overnight:
 
 ## 4. Decisions that are yours
 
-1. **The final lock** (`scripts/src/lock.ts --execute`). It is irreversible. New graders and names can still be added after it: this was rehearsed on a fork. When it has run, the Trust page shows "Applied".
+1. ~~**The final lock**~~ **Done, 2026-09-26, on the author's go-ahead.** Five transactions, listed in [deployments.md](deployments.md#transactions). `npm run verify` passes V9–V11, the Trust page shows "Applied", and the map shows 0 resources with powers left.
 2. **Your primary name**: `sololin.nafuda.eth` is registered to your wallet and waits for one `setName` transaction from you (the button is on your collector page).
-3. **README team line**: the `TODO(author)` in the Team section.
+3. ~~**README team line**~~ **Done:** solo builder, full-stack engineer. If you want a social handle besides GitHub (X, Farcaster…), add it there, because both Curvegrid prizes ask for social handles.
 4. **Demo script**: [docs/demo-script.md](demo-script.md) is rewritten for v3. The recording is yours.
 
 ## 5. Known gaps and honest notes

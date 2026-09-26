@@ -42,7 +42,10 @@ export function AccessMap() {
   const live = useEacMap()
   const [after, setAfter] = useState(false)
   if (!live.data) return <Skeleton className="h-[640px]" />
-  const nodesData = after ? projectLock(live.data) : live.data
+  const projected = projectLock(live.data)
+  // Once the lock is on chain, projecting it changes nothing: no toggle, just the live map.
+  const lockApplied = live.data.every((n, i) => riskOf(n) === riskOf(projected[i]))
+  const nodesData = after && !lockApplied ? projected : live.data
   const W = 310
   const x0 = ((GRADERS.length - 1) * W) / 2
   const pos: Record<string, { x: number; y: number }> = { eth: { x: x0, y: 0 }, root: { x: x0, y: 150 }, aiko: { x: x0 + (GRADERS.length / 2 + 0.6) * W, y: 150 } }
@@ -68,19 +71,27 @@ export function AccessMap() {
         <div>
           <h2 className="text-lg font-bold">Access-control map</h2>
           <p className="text-xs text-muted">
-            {after ? 'Projected: today’s live roles with the final lock’s revocations applied. Not on chain until the lock runs.' : 'Live: every role below was read from the registries just now.'}
+            {lockApplied
+              ? 'Live: every role below was read from the registries just now. The final lock is on chain, so what is left here is fixed for good.'
+              : after
+                ? 'Projected: today’s live roles with the final lock’s revocations applied. Not on chain until the lock runs.'
+                : 'Live: every role below was read from the registries just now.'}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted">
             <span className="font-bold text-bad">{counts.power ?? 0}</span> with powers left · <span className="font-bold text-ok">{counts.fixed ?? 0}</span> fixed
           </span>
-          <Button size="sm" variant={after ? 'secondary' : 'primary'} onClick={() => setAfter(false)}>
-            Today (live)
-          </Button>
-          <Button size="sm" variant={after ? 'primary' : 'secondary'} onClick={() => setAfter(true)}>
-            After the final lock
-          </Button>
+          {!lockApplied && (
+            <>
+              <Button size="sm" variant={after ? 'secondary' : 'primary'} onClick={() => setAfter(false)}>
+                Today (live)
+              </Button>
+              <Button size="sm" variant={after ? 'primary' : 'secondary'} onClick={() => setAfter(true)}>
+                After the final lock
+              </Button>
+            </>
+          )}
         </div>
       </div>
       <div className="h-[760px]">

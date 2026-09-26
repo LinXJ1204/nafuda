@@ -152,7 +152,7 @@ A new entry is appended at the end of each work session.
 - Restarted the market simulator at a slow pace for the judging period, as the author agreed.
 - **A mistake:** checking the compose file with `docker compose config` printed two demo wallets' testnet keys (alice, bob) into the session log. Nothing was committed. The author was told.
 
-**Still with the author:** the MultiBaas feedback in the README (keep only what they ran into), the README team line, and rotating the MultiBaas API key that was pasted into the chat.
+**Still with the author:** the MultiBaas feedback in the README (keep only what they ran into). The author later wrote the team line (solo, full-stack engineer) and chose to keep the MultiBaas API key.
 
 ## Card categories, light version (2026-09-26, 16:15–16:30 JST)
 
@@ -182,3 +182,15 @@ It proposed two things instead:
 - made the witness visible across both apps;
 - found and fixed a header overflow, which was partly there before these changes;
 - fixed charts that drew no bars.
+
+## Final lock (2026-09-26, about 17:50 JST)
+
+**The author gave the go-ahead** for the irreversible final lock.
+
+**What the AI did:**
+- Re-ran the dry run: all five steps would succeed.
+- Paused the market simulator.
+- Executed the lock: three graders each revoked their subtree and resolver roles; the operator emancipated `nafudaRegistry` and revoked its subregistry role on `nafuda.eth`.
+- Restarted the market.
+- Verified: `npm run verify` (V9–V11 pass), `npm run roles`, the Trust page (Applied, 0 powers left), the permissions matrix, and the public e2e suite.
+- Before running it, pointed out one consequence: the three demo graders' resolvers are now fixed, so the full version of card categories (V3) is only for graders that join later.

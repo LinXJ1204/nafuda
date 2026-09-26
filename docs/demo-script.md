@@ -5,7 +5,7 @@ ETHGlobal rules: 2–4 minutes, at least 720p, screen recording (no phone), **yo
 The story follows **one slab from the grader's bench to its second owner**, across both apps, and ends on why ENS makes it trustworthy.
 
 **Before recording**
-- [ ] Decide on the final lock. If it has run, scene 7 shows **Final lock: Applied**.
+- [x] The final lock has run (2026-09-26): scene 7 shows **Final lock: Applied**, the access-control map is all green, and on a title page every attack is refused by the contract (the grader's own `REGISTRAR` grant is the one kept on purpose, shown as !).
 - [ ] Two browser profiles (or two browsers), because the apps are two origins with separate wallet connections:
   - **Profile A**: MetaMask with **BGS-Sim's grader key** (`GRADER_BGS_SIM_PK`). Open https://nafuda-grader.sololin.xyz.
   - **Profile B**: MetaMask with your own wallet (`0x192F…8240`) and **kenji** (derive the key from `DEMO_MNEMONIC`, index 1). Open https://nafuda.sololin.xyz.

@@ -8,7 +8,7 @@ Nafuda's trust model is ENSv2 **Enhanced Access Control (EAC)**. This document c
 
 Everything here can be read live:
 - `cd scripts && npm run roles -- --network sepolia` prints the current map.
-- The grader console's **Trust** page draws the same map from live reads, with a toggle that projects what the final lock changes.
+- The grader console's **Trust** page draws the same map from live reads. Before the lock it had a toggle that projected what the lock would change; now that the lock is on chain, it shows the live map only.
 - Every title page has **"Who can do what"**: each cell simulates that actor's call against the contracts (`eth_call`, nothing changes) and shows the contract's own answer. Next to it are attack buttons and the role bitmaps.
 - Every title page also runs the per-title checks.
 
@@ -44,7 +44,7 @@ flowchart TB
   classDef ok fill:#e6f4ec,stroke:#2f7d4f
 ```
 
-Red means the operator holds power over it until the final lock. Amber means the grader holds power over it until the final lock. Green means it is fixed.
+The colors show who held power **before** the final lock: red for the operator, amber for the grader, green for fixed. **The final lock ran on Sepolia on 2026-09-26**, so every resource is now green, apart from the grader's `REGISTRAR_ADMIN` for future certs (see the caveat).
 
 | Resource | Account | Roles | Why | After the final lock |
 |---|---|---|---|---|
@@ -64,7 +64,7 @@ Red means the operator holds power over it until the final lock. Amber means the
 |---|---|---|
 | Holder | Transfer the title; sign asks | Change the title's resolver, subregistry or records; add a co-owner. It can grant only the base `CAN_TRANSFER`, which does nothing by itself, and while any other assignee exists, the title cannot be safe-transferred |
 | Grader | Issue new titles through its controller. Switch the issuing contract for future certs with `REGISTRAR_ADMIN` | Unregister, re-point or change any issued title, since its registry is emancipated. Re-point its own subtree after the lock |
-| Operator | Before the lock: replace a grader's subtree. After it: add new graders and names | After the lock: touch any existing grader or title |
+| Operator | Add new graders and names (before the lock it could also replace a grader's subtree) | Touch any existing grader or title |
 | Anyone | Read and verify all of this | — |
 
 ## The caveat, and the per-title checks that cover it
@@ -105,6 +105,6 @@ The same checks run as the last step of the buyer check ("Tap the slab and verif
 
 ## Known limits
 
-- **The final lock has not run on Sepolia yet.** Until it does, the first three rows of the map are live powers. The Trust page says so.
+- **The final lock ran on Sepolia on 2026-09-26** ([transactions](deployments.md#transactions); for example the emancipation of `nafudaRegistry`, [`0x1c43d4d6…`](https://sepolia.etherscan.io/tx/0x1c43d4d62a64d5dd1192476db91e1fe4e3f2f7887342504f5a7525014f9afbc3)). `npm run verify` passes V9–V11, and `npm run roles` shows no subtree or resolver power left on any grader name. The three demo graders' resolvers are now fixed for good.
 - **`nafuda.eth` is registered for 10 years** and must be renewed like any .eth name. Anyone can renew it.
 - **New graders added after the lock** start with `SET_SUBREGISTRY` / `SET_RESOLVER` on their own name, as the first three did. Each new grader should revoke them (`lock.ts` is re-runnable), or be registered without them.

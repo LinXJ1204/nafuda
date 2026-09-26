@@ -102,7 +102,7 @@ sequenceDiagram
 6. **Names for people, too.** Demo collectors hold `<name>.nafuda.eth` (addr records in an official `PermissionedResolver`) and set it as their primary name. The apps show `aiko.nafuda.eth` by reverse-resolving through the ENSv2 Universal Resolver, not from a table.
 7. **Any client can read it.** Titles are read with plain `viem.getEnsAddress` / `getEnsText` and the ENSv2 Universal Resolver ([packages/ui/src/ens.ts](packages/ui/src/ens.ts)). You don't need any Nafuda API.
 
-A final, irreversible lock ([scripts/src/lock.ts](scripts/src/lock.ts)) also revokes the operator's and graders' power to swap a grader subtree or its resolver. It has been rehearsed on forks of the live deployment: the post-lock checks V9–V11 pass, transfers still work, and new graders can still be added. It has not been run on Sepolia yet.
+A final, irreversible lock ([scripts/src/lock.ts](scripts/src/lock.ts)) also revokes the operator's and graders' power to swap a grader subtree or its resolver. It was rehearsed on forks of the live deployment first. **It was applied on Sepolia on 2026-09-26**, in five transactions listed in [docs/deployments.md](docs/deployments.md#transactions). `npm run verify` passes V9–V11 on Sepolia, the grader console's Trust page shows *Final lock: Applied*, and its access-control map shows no power left over any existing grader or title. Transfers still work, and new graders can still be added.
 
 ## Architecture
 
@@ -151,7 +151,7 @@ flowchart LR
 | Grader | Issue a title for a cert once, with its chip; switch the issuing contract for **future** certs (which also means it could issue new certs outside the controller's rules; the per-title checks flag those); move its intake board | Change or revoke an issued title, change a chip record, unregister names, move another grader's submissions |
 | Holder | Transfer the title; sign an asking price | Change the resolver or records; add delegates |
 | Anyone | Read and verify through any ENS client; sign offers and submissions | Ask a price for a title they do not hold |
-| Operator (us) | Before the final lock: replace a grader subtree. After it: add new graders and names only | After the lock: touch any existing grader subtree or title |
+| Operator (us) | Add new graders and names (the final lock has run) | Touch any existing grader subtree or title |
 | Nafuda server | Index events; store signed intents | Move a title; change what ENS says |
 
 **A chip signature is proof, never authorization.** Nothing changes state because a chip signed something.
@@ -175,7 +175,7 @@ Written down, not built yet ([docs/plan/upgrades.md](docs/plan/upgrades.md)):
   - PSA-Sim and CGC-Sim run v1 controllers, which have no extra records.
   - Titles issued before this change have no category, and none can be added later.
 
-  Categories for every grader need a TitleControllerV3 with more fields (`card.brand`, `card.number`, `card.subject`, `card.variety` …) that falls back to the old controller for titles already issued, so no issued title changes.
+  More fields (`card.brand`, `card.number`, `card.subject`, `card.variety` …) need a TitleControllerV3. Since the final lock, the three demo graders' resolvers are fixed, so a V3 is for graders that join from now on.
 - **A client for card shops.** A counter mode (look up, tap, check the seller, take the title in), inventory with bulk asks, and a public storefront under `<shop>.nafuda.eth`.
 
 ## Repository
@@ -217,7 +217,7 @@ To deploy your own copy, see [scripts/](scripts/) (`deploy`, `deploy-grader`, `s
 
 ## Team
 
-- **LinXJ1204**, solo builder. <!-- TODO(author): one or two lines about yourself -->
+- **LinXJ1204** ([GitHub](https://github.com/LinXJ1204)): solo builder, full-stack engineer.
 
 ## AI usage and planning artifacts
 

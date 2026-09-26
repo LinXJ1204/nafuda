@@ -63,7 +63,12 @@
     "grant SET_RESOLVER liam.nafuda.eth": "0xdd47cd018f46f9b5825c58f8007b89789ea76fe6404a5d9fdee4cb2b6b6ee88f",
     "grant SET_RESOLVER chen.nafuda.eth": "0xbce9644883d16c3c76a72e976bf5f023707cf27e37328ce1861d345d844ecbef",
     "grant SET_RESOLVER priya.nafuda.eth": "0xb6c0e28fbed2c9bd25bc8a5f146de1b1e2f28c83edca1ded45cdc5c458074d59",
-    "grant SET_RESOLVER sololin.nafuda.eth": "0xb6f2960303444fe71bcea721f47c47efb17f80569ff37a065592f154eba1f20b"
+    "grant SET_RESOLVER sololin.nafuda.eth": "0xb6f2960303444fe71bcea721f47c47efb17f80569ff37a065592f154eba1f20b",
+    "lock: psa-sim grader revokes subregistry/resolver roles on psa-sim": "0xacc92fe335c3a0f78f28e807167cc4557e3f9f7ccfbce36a1d9f6d09f24e01ee",
+    "lock: cgc-sim grader revokes subregistry/resolver roles on cgc-sim": "0x0eb10f349190d0d3b18722799848e1148c398a217eaf73e1064075b044cdc573",
+    "lock: bgs-sim grader revokes subregistry/resolver roles on bgs-sim": "0x6283baad0858aa0de7d144b5d79112ca13713d2738d63f1156c818c097e95158",
+    "lock: operator emancipates nafudaRegistry": "0x1c43d4d62a64d5dd1192476db91e1fe4e3f2f7887342504f5a7525014f9afbc3",
+    "lock: operator revokes subregistry role on nafuda.eth": "0xfe4027935c706b28104cefdf62ced0097d3e529adf2525a296d151749f40843b"
   },
   "nafudaRegistry": "0xE82fa5f595C2EF9f5bf8BF779EC1f58E39Db4B43",
   "psaRegistry": "0x7c4De791AcF68E4fd9305770524f7F25a8cA646A",
@@ -98,5 +103,6 @@
       "controller": "0xa652a0281487c2ddb877ed19428e25d47ae9826a"
     }
   },
-  "collectorResolver": "0x0d75D5269C9eB2EeC6Ef8243854aF235a7726A41"
+  "collectorResolver": "0x0d75D5269C9eB2EeC6Ef8243854aF235a7726A41",
+  "locked": true
 }

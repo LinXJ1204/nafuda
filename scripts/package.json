@@ -23,7 +23,8 @@
     "roles": "node --env-file-if-exists=../.env src/roles.ts",
     "market": "node --env-file-if-exists=../.env src/market.ts",
     "chips": "node src/chips.ts",
-    "multibaas": "node --env-file-if-exists=../.env src/multibaas.ts"
+    "multibaas": "node --env-file-if-exists=../.env src/multibaas.ts",
+    "categorized": "node --env-file-if-exists=../.env src/categorized.ts"
   },
   "dependencies": {
     "@curvegrid/multibaas-sdk": "1.1.1",

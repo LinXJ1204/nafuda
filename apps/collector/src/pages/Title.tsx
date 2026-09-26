@@ -2,6 +2,7 @@
 // index's view checked against it, provenance, the buyer check, how ENS resolves the name,
 // declared price history, and the transfer form for the holder.
 
+import { cardFields } from '@nafuda/core/categories.ts'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
@@ -109,11 +110,23 @@ export function TitlePage() {
                 </dd>
                 <dt className="text-muted">Grade</dt>
                 <dd>{t.grade}</dd>
-                {Object.entries(t.attributes).length > 0 && (
+                {cardFields(t.attributes).length > 0 && (
+                  <>
+                    <dt className="text-muted">Category</dt>
+                    <dd className="flex flex-wrap gap-2" title="card.* ENS text records, set by the grader at issuance and fixed">
+                      {cardFields(t.attributes).map(([k, v]) => (
+                        <span key={k} className="rounded-lg border border-line bg-raised px-2 py-0.5 text-xs">
+                          <span className="text-muted">{k}</span> <strong>{v}</strong>
+                        </span>
+                      ))}
+                    </dd>
+                  </>
+                )}
+                {Object.keys(t.attributes).some((k) => k.startsWith('subgrade.')) && (
                   <>
                     <dt className="text-muted">Subgrades</dt>
                     <dd className="flex flex-wrap gap-2">
-                      {Object.entries(t.attributes).map(([k, v]) => (
+                      {Object.entries(t.attributes).filter(([k]) => k.startsWith('subgrade.')).map(([k, v]) => (
                         <span key={k} className="rounded-lg border border-line bg-raised px-2 py-0.5 text-xs">
                           {k.replace('subgrade.', '')} <strong>{v}</strong>
                         </span>

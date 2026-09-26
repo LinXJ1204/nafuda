@@ -138,6 +138,8 @@ const qs = (params: Record<string, string | number | undefined | null>) => {
 const live = { refetchInterval: 15_000 }
 
 export const useStatus = () => useQuery({ queryKey: ['status'], queryFn: () => api<Status>('/status'), ...live })
+export type Categories = { items: { category: string; kind: string | null; n: number }[]; unclassified: number }
+export const useCategories = () => useQuery({ queryKey: ['categories'], queryFn: () => api<Categories>('/categories'), ...live })
 export const useWitness = () => useQuery({ queryKey: ['witness'], queryFn: () => api<Witness>('/witness'), ...live })
 export const useStats = () => useQuery({ queryKey: ['stats'], queryFn: () => api<Stats>('/stats'), ...live })
 export const useGraders = () => useQuery({ queryKey: ['graders'], queryFn: () => api<GraderSummary[]>('/graders'), ...live })
@@ -145,7 +147,7 @@ export const useGrader = (label: string) => useQuery({ queryKey: ['grader', labe
 export const useCollectors = () => useQuery({ queryKey: ['collectors'], queryFn: () => api<CollectorRow[]>('/collectors'), ...live })
 export const useGraph = () => useQuery({ queryKey: ['graph'], queryFn: () => api<Graph>('/graph'), ...live })
 
-export type TitleQuery = { grader?: string; holder?: string; q?: string; sort?: string; minGrade?: number; limit?: number; offset?: number; forTrade?: number }
+export type TitleQuery = { grader?: string; holder?: string; q?: string; sort?: string; minGrade?: number; limit?: number; offset?: number; forTrade?: number; category?: string }
 export const useTitles = (query: TitleQuery) =>
   useQuery({
     queryKey: ['titles', query],

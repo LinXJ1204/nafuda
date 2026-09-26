@@ -14,6 +14,7 @@ const RECORDS = [
   ['grader', 'Human-readable grader name.'],
   ['attributes', 'Controller v2 only: comma-separated list of extra keys, e.g. BGS-Sim subgrades.'],
   ['subgrade.centering …', 'Controller v2 only: one text record per attribute key.'],
+  ['card.category, card.game, card.sport, card.year, card.language …', 'Controller v2 only, optional: the card’s category, set by the grader at issuance (fields modeled on a PSA cert page). Game names are real; the demo cards are fictional.'],
 ]
 
 export function DevelopersPage() {

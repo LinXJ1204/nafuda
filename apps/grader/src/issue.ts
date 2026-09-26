@@ -5,7 +5,7 @@
 import type { Address, Hash, WalletClient } from 'viem'
 import { controllerAbi } from '@nafuda/core/abis.ts'
 import type { Grader } from '@nafuda/core/deployment.ts'
-import { precheck, type IssueForm } from '@nafuda/core/issue-rules.ts'
+import { attributesFor, precheck, type IssueForm } from '@nafuda/core/issue-rules.ts'
 import { publicClient } from '@nafuda/ui/ens.ts'
 
 export class NotSent extends Error {}
@@ -21,8 +21,7 @@ export async function issueTitle(
   const heldBy = (await publicClient.readContract({ address: grader.controller, abi: controllerAbi, functionName: 'holderOf', args: [form.cert] })) as Address
   const reason = precheck(form, grader, account, heldBy)
   if (reason) throw new NotSent(reason)
-  const keys = grader.subgrades.map((k) => `subgrade.${k}`)
-  const values = grader.subgrades.map((k) => form.subgrades[k])
+  const { keys, values } = attributesFor(form, grader)
   const base = [form.cert, form.holder as Address, form.chip, form.card.trim(), form.grade] as const
   const target = { address: grader.controller, abi: controllerAbi } as const
   const withAttributes = grader.controllerVersion === 2 && keys.length > 0

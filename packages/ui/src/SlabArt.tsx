@@ -2,6 +2,7 @@
 // from a hash of grader + cert. No real card art or real grader branding is used. React escapes
 // all text.
 
+import { classify } from '@nafuda/core/categories.ts'
 import { useId } from 'react'
 import { graderByLabel } from '@nafuda/core/deployment.ts'
 import { paletteOf, splitCard, splitGrade } from '@nafuda/core/slab.ts'
@@ -28,6 +29,9 @@ export function SlabArt({ grader, cert, card, grade, attributes = {}, className 
   const gr = splitGrade(grade)
   const c = splitCard(card)
   const subgrades = Object.entries(attributes).filter(([k]) => k.startsWith('subgrade.'))
+  // The grader's classification line, like the year-and-set line on a real label
+  const cls = classify(attributes)
+  const classLine = cls ? [attributes['card.year'], cls.label, attributes['card.language']].filter(Boolean).join(' ').toUpperCase() : null
   const isBgs = grader === 'bgs-sim'
   const labelFill = isBgs ? '#f4f1ea' : '#fbf8f1'
   const sans = 'system-ui, sans-serif'
@@ -73,12 +77,28 @@ export function SlabArt({ grader, cert, card, grade, attributes = {}, className 
       <text x="26" y="33" fontSize="11" fontWeight="800" fill={color} letterSpacing="1.5" fontFamily={sans}>
         {short}
       </text>
-      <text x="26" y="52" fontSize="13" fontWeight="700" fill="#1d1b19" fontFamily={sans}>
-        {clip(c.name.toUpperCase(), isBgs ? 13 : 22)}
-      </text>
-      <text x="26" y="67" fontSize="10" fill="#4a453e" fontFamily={sans}>
-        {clip(c.detail.toUpperCase(), 26)}
-      </text>
+      {classLine ? (
+        <>
+          <text x="26" y="47" fontSize="9" fontWeight="700" fill="#4a453e" letterSpacing="0.5" fontFamily={sans}>
+            {clip(classLine, isBgs ? 22 : 36)}
+          </text>
+          <text x="26" y="62" fontSize="12" fontWeight="700" fill="#1d1b19" fontFamily={sans}>
+            {clip(c.name.toUpperCase(), isBgs ? 14 : 24)}
+          </text>
+          <text x="26" y="75" fontSize="9" fill="#4a453e" fontFamily={sans}>
+            {clip(c.detail.toUpperCase(), 26)}
+          </text>
+        </>
+      ) : (
+        <>
+          <text x="26" y="52" fontSize="13" fontWeight="700" fill="#1d1b19" fontFamily={sans}>
+            {clip(c.name.toUpperCase(), isBgs ? 13 : 22)}
+          </text>
+          <text x="26" y="67" fontSize="10" fill="#4a453e" fontFamily={sans}>
+            {clip(c.detail.toUpperCase(), 26)}
+          </text>
+        </>
+      )}
       <text x="26" y="87" fontSize="10" fill="#1d1b19" fontFamily="ui-monospace, Menlo, monospace">
         {`CERT #${cert}`}
       </text>

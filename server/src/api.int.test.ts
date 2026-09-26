@@ -243,3 +243,12 @@ test('batches: two titles moved by one TransferBatch log are two transfers', opt
   assert.deepEqual(rows.map((r) => [r.cert, r.batch_index]), [['1', 0], ['2', 1]], 'same tx and log index, both stored')
   assert.equal((await get('/titles/psa-sim/2')).holder, A.address.toLowerCase())
 })
+
+test('categories: card.* records filter titles and are counted', opts, async () => {
+  await sql`update titles set attributes = attributes || ${sql.json({ 'card.category': 'tcg', 'card.game': 'pokemon', 'card.year': '2025' })} where cert = '2'`
+  assert.deepEqual((await get('/titles?category=pokemon')).items.map((t: { cert: string }) => t.cert), ['2'])
+  assert.equal((await get('/titles?category=tcg')).total, 1)
+  assert.equal((await get('/titles?category=baseball')).total, 0)
+  assert.equal((await get('/titles')).total, 2, 'no category filter: everything')
+  assert.deepEqual(await get('/categories'), { items: [{ category: 'tcg', kind: 'pokemon', n: 1 }], unclassified: 1 })
+})

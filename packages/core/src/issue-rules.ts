@@ -6,15 +6,27 @@ import { isCanonicalCert, type Grader } from './deployment.ts'
 import { chipKey } from './chips.ts'
 import { privateKeyToAddress } from 'viem/accounts'
 import { CATALOG } from './deployment.ts'
+import { MAX_ATTRIBUTES, categoryAttributes, checkCategory, type CategoryForm } from './categories.ts'
 
 export const MAX_CARD_LENGTH = 64
 export const SUBGRADE_VALUES = ['10', '9.5', '9', '8.5', '8', '7.5', '7']
 
-export type IssueForm = { cert: string; card: string; grade: string; holder: string; chip: Address; subgrades: Record<string, string> }
+export type IssueForm = { cert: string; card: string; grade: string; holder: string; chip: Address; subgrades: Record<string, string>; category?: CategoryForm }
+
+type GraderRules = Pick<Grader, 'grader' | 'scale' | 'subgrades' | 'short'> & { controllerVersion?: number }
+
+/// Extra text records for issueWithAttributes: subgrades, then the card's category fields.
+export function attributesFor(form: IssueForm, grader: Pick<Grader, 'subgrades'>): { keys: string[]; values: string[] } {
+  const entries: [string, string][] = [
+    ...grader.subgrades.map((k): [string, string] => [`subgrade.${k}`, form.subgrades[k] ?? '']),
+    ...Object.entries(form.category ? categoryAttributes(form.category) : {}),
+  ]
+  return { keys: entries.map(([k]) => k), values: entries.map(([, v]) => v) }
+}
 
 const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`
 
-export function precheck(form: IssueForm, grader: Pick<Grader, 'grader' | 'scale' | 'subgrades' | 'short'>, account: Address | null, alreadyHeldBy: Address): string | null {
+export function precheck(form: IssueForm, grader: GraderRules, account: Address | null, alreadyHeldBy: Address, thisYear = new Date().getFullYear()): string | null {
   if (!account) return `Connect the ${grader.short} grader wallet first.`
   if (!isAddressEqual(account, grader.grader)) return `Connected as ${short(account)}, which is not ${grader.short}. Only ${short(grader.grader)} can issue its titles.`
   if (!isCanonicalCert(form.cert)) return 'A cert number is 1–10 digits with no leading zero.'
@@ -25,6 +37,12 @@ export function precheck(form: IssueForm, grader: Pick<Grader, 'grader' | 'scale
   if (card.length > MAX_CARD_LENGTH) return `Keep the card name under ${MAX_CARD_LENGTH} characters.`
   if (!grader.scale.includes(form.grade)) return `Pick a grade on the ${grader.short} scale.`
   for (const k of grader.subgrades) if (!SUBGRADE_VALUES.includes(form.subgrades[k] ?? '')) return `Pick the ${k} subgrade.`
+  if (form.category?.group) {
+    if (grader.controllerVersion !== 2) return `${grader.short}'s controller (v1) has no extra records, so it cannot record a category.`
+    const problem = checkCategory(form.category, thisYear)
+    if (problem) return problem
+    if (attributesFor(form, grader).keys.length > MAX_ATTRIBUTES) return `At most ${MAX_ATTRIBUTES} extra records per title.`
+  }
   return null
 }
 

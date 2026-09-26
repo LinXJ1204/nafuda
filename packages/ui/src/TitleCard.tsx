@@ -1,3 +1,4 @@
+import { classify } from '@nafuda/core/categories.ts'
 import { splitCard } from '@nafuda/core/slab.ts'
 import { useOpenAsks, type Title } from './api.ts'
 import { AppLink, Avatar, GraderBadge, Skeleton, useLinks } from './components.tsx'
@@ -9,6 +10,7 @@ export function TitleCard({ t }: { t: Title }) {
   const asks = useOpenAsks()
   const ask = asks.data?.find((o) => o.grader === t.grader && o.cert === t.cert)
   const c = splitCard(t.card)
+  const cls = classify(t.attributes)
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-card transition hover:-translate-y-0.5 hover:border-accent hover:shadow-lg">
       <AppLink to={links.title(t.grader, t.cert)} className="block bg-raised px-6 pt-5 pb-3 no-underline">
@@ -25,6 +27,15 @@ export function TitleCard({ t }: { t: Title }) {
         <div className="text-[13px] text-muted">
           {c.detail} · {t.grade}
         </div>
+        {cls && (
+          <div className="flex flex-wrap gap-1">
+            <span className="rounded-full border border-line bg-raised px-2 py-0.5 text-[11px] font-semibold" title="card.* ENS text records, set by the grader at issuance">
+              {cls.label}
+              {t.attributes['card.language'] ? ` · ${t.attributes['card.language']}` : ''}
+              {t.attributes['card.year'] ? ` · ${t.attributes['card.year']}` : ''}
+            </span>
+          </div>
+        )}
         <div className="font-mono text-[12px] text-faint">#{t.cert}</div>
         <div className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-2 text-xs text-muted">
           <span className="inline-flex items-center gap-1.5">

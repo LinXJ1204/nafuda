@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { GRADERS } from '@nafuda/core/deployment.ts'
-import { useTitles } from '@nafuda/ui/api.ts'
+import { useCategories, useTitles } from '@nafuda/ui/api.ts'
+import { GROUPS, type Group } from '@nafuda/core/categories.ts'
 import { Button, Empty } from '@nafuda/ui/components.tsx'
 import { TitleGrid } from '@nafuda/ui/TitleCard.tsx'
 
@@ -20,8 +21,10 @@ export function ExplorePage() {
   const minGrade = params.get('minGrade') ?? ''
   const q = params.get('q') ?? ''
   const forTrade = params.get('forTrade') ?? ''
+  const category = params.get('category') ?? ''
   const [limit, setLimit] = useState(40)
-  const titles = useTitles({ grader, sort, minGrade: minGrade ? Number(minGrade) : undefined, q, limit, forTrade: forTrade ? 1 : undefined })
+  const titles = useTitles({ grader, sort, minGrade: minGrade ? Number(minGrade) : undefined, q, limit, forTrade: forTrade ? 1 : undefined, category })
+  const categories = useCategories()
   const set = (k: string, v: string) => {
     const next = new URLSearchParams(params)
     if (v) next.set(k, v)
@@ -72,6 +75,27 @@ export function ExplorePage() {
           ))}
         </select>
       </div>
+      {!!categories.data?.items.length && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted" title="card.* ENS text records. Only graders on controller v2 can record a category, and only at issuance">
+            Category
+          </span>
+          <Button size="sm" variant={category === '' ? 'primary' : 'secondary'} onClick={() => set('category', '')}>
+            All
+          </Button>
+          {categories.data.items.map((c) => {
+            const value = c.kind ?? c.category
+            const group = GROUPS[c.category as Group]
+            const label = (c.kind && (group?.options as Record<string, string> | undefined)?.[c.kind]) || c.kind || group?.label || c.category
+            return (
+              <Button key={value} size="sm" variant={category === value ? 'primary' : 'secondary'} onClick={() => set('category', category === value ? '' : value)}>
+                {label} <span className="text-faint">{c.n}</span>
+              </Button>
+            )
+          })}
+          <span className="text-xs text-faint">{categories.data.unclassified} titles issued without a category</span>
+        </div>
+      )}
       <div className="mt-6">
         {titles.data && titles.data.items.length === 0 ? <Empty>No titles match.</Empty> : <TitleGrid items={titles.data?.items} loading={titles.isLoading} />}
       </div>

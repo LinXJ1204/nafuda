@@ -121,8 +121,12 @@ export function api(sql: Sql) {
     const minGrade = q.minGrade ? Number(q.minGrade) : null
     const search = q.q?.trim().toLowerCase() || null
     const forTrade = q.forTrade === '1'
+    // A category (tcg, sports, …) or a game or sport (pokemon, baseball, …): card.* text records
+    const category = q.category?.trim().toLowerCase() || null
     const where = sql`
       where (${grader}::text is null or grader = ${grader})
+        and (${category}::text is null or attributes->>'card.category' = ${category}
+          or attributes->>'card.game' = ${category} or attributes->>'card.sport' = ${category})
         and (not ${forTrade} or exists (select 1 from offers o where o.grader = titles.grader and o.cert = titles.cert and o.kind = 'ask'
           and o.status = 'open' and o.expiry > now() and o.from_addr = titles.holder))
         and (${holder}::text is null or holder = ${holder})
@@ -131,6 +135,15 @@ export function api(sql: Sql) {
     const rows = await sql`select * from titles ${where} order by ${sql.unsafe(sort)} limit ${limit} offset ${offset}`
     const [{ total }] = await sql`select count(*)::int as total from titles ${where}`
     return out(c, { total, items: rows.map(titleOut) })
+  })
+
+  /// Titles per category and per game or sport (card.* text records), for filters and charts.
+  app.get('/categories', async (c) => {
+    const rows = await sql`
+      select attributes->>'card.category' as category, coalesce(attributes->>'card.game', attributes->>'card.sport') as kind, count(*)::int as n
+      from titles where attributes ? 'card.category' group by 1, 2 order by n desc, 2`
+    const [{ unclassified }] = await sql`select count(*)::int as unclassified from titles where not attributes ? 'card.category'`
+    return out(c, { items: rows, unclassified })
   })
 
   app.get('/titles/:grader/:cert', async (c) => {

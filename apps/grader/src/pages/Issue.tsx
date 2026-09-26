@@ -10,13 +10,15 @@ import { chipKey } from '@nafuda/core/chips.ts'
 import { signGraderAction } from '@nafuda/ui/sign.ts'
 import { isAddress, zeroAddress, type Hash } from 'viem'
 import { COLLECTORS, titleName } from '@nafuda/core/deployment.ts'
-import { SUBGRADE_VALUES, bench, type IssueForm } from '@nafuda/core/issue-rules.ts'
+import { SUBGRADE_VALUES, attributesFor, bench, type IssueForm } from '@nafuda/core/issue-rules.ts'
+import { NO_CATEGORY, cardFields, checkCategory, type CategoryForm } from '@nafuda/core/categories.ts'
 import { useTitles } from '@nafuda/ui/api.ts'
 import { AppLink, Avatar, Button, Card, Pill, TxLink, useLinks } from '@nafuda/ui/components.tsx'
 import { short, who } from '@nafuda/ui/format.ts'
 import { SlabArt } from '@nafuda/ui/SlabArt.tsx'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
 import { WalletButton } from '@nafuda/ui/WalletButton.tsx'
+import { CategoryPicker } from '../components/CategoryPicker.tsx'
 import { issueTitle } from '../issue.ts'
 import { revertName } from '../revert.ts'
 import { useConsole } from '../console.tsx'
@@ -45,6 +47,7 @@ export function IssuePage() {
   const [card, setCard] = useState('')
   const [grade, setGrade] = useState(grader.scale[1] ?? grader.scale[0])
   const [subgrades, setSubgrades] = useState<Record<string, string>>({})
+  const [category, setCategory] = useState<CategoryForm>(NO_CATEGORY)
   const [holder, setHolder] = useState('')
   const [result, setResult] = useState<{ kind: 'error' | 'busy' | 'done'; text: string; tx?: Hash } | null>(null)
 
@@ -53,6 +56,7 @@ export function IssuePage() {
     setCert(null)
     setGrade(grader.scale[1] ?? grader.scale[0])
     setSubgrades(Object.fromEntries(grader.subgrades.map((k) => [k, '9.5'])))
+    setCategory(NO_CATEGORY)
     setResult(null)
     const c = params.get('cert')
     if (c) {
@@ -66,7 +70,7 @@ export function IssuePage() {
   }, [grader, params])
 
   const slab = slabs.find((s) => s.cert === cert)
-  const form: IssueForm | null = slab ? { cert: slab.cert, card, grade, holder: holder.trim(), chip: slab.chip, subgrades } : null
+  const form: IssueForm | null = slab ? { cert: slab.cert, card, grade, holder: holder.trim(), chip: slab.chip, subgrades, category } : null
 
   function pick(c: string) {
     const s = slabs.find((x) => x.cert === c)!
@@ -98,7 +102,9 @@ export function IssuePage() {
   }
 
   const holderOk = isAddress(holder.trim()) && holder.trim().toLowerCase() !== zeroAddress
-  const attrs = Object.fromEntries(grader.subgrades.map((k) => [`subgrade.${k}`, subgrades[k] ?? '']))
+  const extra = form ? attributesFor(form, grader) : { keys: [], values: [] }
+  const attrs = Object.fromEntries(extra.keys.map((k, i) => [k, extra.values[i]]))
+  const categoryProblem = checkCategory(category, new Date().getFullYear())
 
   return (
     <>
@@ -188,8 +194,9 @@ export function IssuePage() {
                   </div>
                 </>
               )}
+              <CategoryPicker grader={grader} value={category} onChange={setCategory} problem={categoryProblem} />
               <div className="mt-6 text-right">
-                <Button variant="primary" onClick={() => setStep(2)}>
+                <Button variant="primary" disabled={!!categoryProblem} onClick={() => setStep(2)}>
                   Next: submitter
                 </Button>
               </div>
@@ -229,12 +236,18 @@ export function IssuePage() {
                 <dd>
                   {grade} {grader.subgrades.length > 0 && <span className="text-muted">({grader.subgrades.map((k) => `${k} ${subgrades[k]}`).join(', ')})</span>}
                 </dd>
+                {cardFields(attrs).length > 0 && (
+                  <>
+                    <dt className="text-muted">Category</dt>
+                    <dd>{cardFields(attrs).map(([k, v]) => `${k} ${v}`).join(' · ')}</dd>
+                  </>
+                )}
                 <dt className="text-muted">Holder</dt>
                 <dd>{who(form.holder)} <span className="font-mono text-xs text-muted">{form.holder}</span></dd>
                 <dt className="text-muted">slab.chip</dt>
                 <dd className="font-mono text-xs">{slab.chip}</dd>
                 <dt className="text-muted">Call</dt>
-                <dd className="font-mono text-xs">{grader.controllerVersion === 2 && grader.subgrades.length ? 'issueWithAttributes' : 'issue'} on {short(grader.controller)}</dd>
+                <dd className="font-mono text-xs">{grader.controllerVersion === 2 && extra.keys.length ? `issueWithAttributes (${extra.keys.length} extra records)` : 'issue'} on {short(grader.controller)}</dd>
               </dl>
               <Button variant="primary" size="lg" className="mt-6 w-full" disabled={result?.kind === 'busy'} onClick={issue}>
                 {canIssue ? 'Issue title' : 'Check and issue (needs the grader wallet)'}

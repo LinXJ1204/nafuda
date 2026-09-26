@@ -71,5 +71,17 @@ for (const path of ['/', '/intake', '/issue', '/issued', '/trust', '/network', '
 const status = await api<{ titles: number; transfers: number }>('/status')
 check(status.titles > 0 && status.transfers > 0, 'indexer has titles and transfers', `${status.titles} titles, ${status.transfers} transfers`)
 
+// Second witness (Curvegrid MultiBaas): once connected, both indexes must agree both ways
+type WitnessApi = { configured: boolean; summary: { witnessed: number; agreed: number; mismatch: number; missing: number; unwitnessed: number } }
+const witness = await api<WitnessApi>('/witness')
+if (!witness.configured) console.log('  (second witness not connected: skipped)')
+else {
+  const s = witness.summary
+  check(s.mismatch === 0 && s.missing === 0, 'second witness: every event Curvegrid saw is in the index', `${s.agreed}/${s.witnessed} agree, ${s.mismatch} differ, ${s.missing} missing`)
+  check(s.unwitnessed === 0, 'second witness: every indexed transfer in its window was seen by Curvegrid', `${s.unwitnessed} unwitnessed`)
+  const hook = await fetch(`${COLLECTOR}/api/hooks/multibaas`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '[]' })
+  check(hook.status === 401, 'second witness: an unsigned delivery is refused', `HTTP ${hook.status}`)
+}
+
 await browser.close()
 done()

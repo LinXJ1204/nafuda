@@ -83,7 +83,9 @@ async function link() {
     console.log(`contract ${CONTRACT}: in the library`)
   } catch (e) {
     if (!notFound(e)) throw e
-    await contracts.createContract(CONTRACT, { label: CONTRACT, contractName: 'NafudaTitleRegistry', version: '1.0', rawAbi })
+    // `bin` is optional in the OpenAPI spec, but the server rejects a contract without it. We only
+    // link deployed contracts, so an empty bytecode will do.
+    await contracts.createContract(CONTRACT, { label: CONTRACT, contractName: 'NafudaTitleRegistry', version: '1.0', rawAbi, bin: '' })
     console.log(`contract ${CONTRACT}: added (${[transferSingleEvent, transferBatchEvent].map((e) => formatAbiItem(e)).join(', ')})`)
   }
   for (const g of GRADERS) {

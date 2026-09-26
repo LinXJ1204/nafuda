@@ -131,10 +131,13 @@ flowchart LR
   IDX -- getLogs --> T
   IDX --> DB
   M -- "demo trades" --> T
+  MB[Curvegrid MultiBaas<br/>second witness] -- "event sync" --> T
+  MB -- "signed webhook" --> N
 ```
 
 - **ENS is the source of truth.** Title pages resolve through ENS in the browser and flag the server's index if it disagrees. The server holds an index (lists, stats, history), which can be rebuilt from the chain, and a store for signed off-chain intents, which cannot.
 - **The two apps run on separate origins,** so the grader wallet and the collector wallet never share a connection in MetaMask.
+- **A second, independent index.** Curvegrid MultiBaas indexes the same registries and pushes every event through a signed webhook. The server publicly compares the two indexes, both ways ([Curvegrid](#curvegrid)).
 - **The server holds no keys** except the market simulator's demo keys, which are testnet only ([docs/hosting.md](docs/hosting.md)).
 
 ## Trust model: who can do what
@@ -214,4 +217,50 @@ The idea, the product decisions and the trade-offs are the author's. The code wa
 
 ## Curvegrid
 
-Nafuda turns a physical collectible into a programmable, transferable on-chain title with built-in access control. MultiBaas was not used.
+**RWA tokenization.** A graded card is a real-world asset held in a sealed slab, and Nafuda is its on-chain title:
+- **Custody and provenance:** the grader seals a chip into the slab and records it in the title; every transfer is on chain.
+- **Settlement:** selling the card is a transfer of the name, with the seller's declared price written into the transfer.
+- **Programmable asset controls:** ENSv2 roles make the holder able to transfer and nothing else, and leave the grader no way to claw a title back. The registry enforces both ([docs/access-control.md](docs/access-control.md)).
+
+**Dashboard.** The collector app has a market map (who holds what, who traded with whom, declared volume), activity and volume charts, and per-grader stats. The grader console has an intake board of cards waiting for each next step.
+
+### How MultiBaas is used: a second witness
+
+Nafuda's own server indexes chain events for lists and charts. **Curvegrid MultiBaas runs a second, independent index of the same contracts, and Nafuda publicly checks that the two agree.**
+
+- **Linked contracts.** The three grader registries are linked in a MultiBaas deployment on Ethereum Sepolia, with a minimal ABI (`TransferSingle`, `TransferBatch`) and event sync on.
+- **Webhook.** An `event.emitted` webhook pushes every event to `POST /api/hooks/multibaas`. The server:
+  - checks the HMAC-SHA256 signature over body and timestamp, in constant time, and refuses deliveries more than 5 minutes old;
+  - decodes the raw log itself;
+  - stores it apart from the index. Redeliveries change nothing, and logs later reported as reorged are marked. Witness data is never copied into the index.
+- **Two-way comparison.** `GET /api/witness` checks:
+  - every event Curvegrid saw is in Nafuda's index, with the same transaction, log position, title, sender and recipient;
+  - every transfer Nafuda indexed inside Curvegrid's window was seen by Curvegrid. This direction catches a server that invents a record.
+- **On screen:**
+  - the panel on the [Developers page](https://nafuda.sololin.xyz/developers#witness)
+  - a status line on the Activity page, and a "✓ Curvegrid" mark on each witnessed event
+  - a line on the grader console's Trust page
+
+  The public e2e suite fails if the two indexes disagree.
+- **Setup.** [scripts/src/multibaas.ts](scripts/src/multibaas.ts) uses the MultiBaas TypeScript SDK. Its commands are `plan`, `webhook`, `link` and `status`, and each can be re-run safely. The Administrator API key stays on the author's machine; the server only holds the webhook secret.
+- **Why not more.** On the free plan, event indexing starts at most 100 blocks before a contract is linked, so MultiBaas cannot hold the history of titles issued earlier. Nor should one index be the only one. Its value here is that it is independent.
+
+**Found along the way.** While choosing the events to link, we saw that ENSv2 registries emit `TransferBatch` when one call moves two or more names. Nafuda's indexer only read `TransferSingle`, so such a sale would have been missing from every list. The indexer now reads both. No batch transfer had happened yet, so no data was lost.
+
+**In production:**
+- a grader's issuing key belongs in an HSM (MultiBaas Cloud Wallets);
+- its `REGISTRAR_ADMIN` role belongs behind a Safe (MultiBaas Safe Accounts).
+
+### Feedback on MultiBaas
+
+<!-- TODO(author): keep only what you ran into yourself while setting it up -->
+- **What worked:**
+  - From a new deployment to the first verified event took about 15 minutes. The webhook reached our server through Cloudflare on the first try, and the first three events all matched the index.
+  - The full OpenAPI spec is public (`/api/v0/openapi.yaml`), so the API can be explored before signing up.
+  - `startingBlock` accepts relative values such as `-100`.
+  - `GET /plan` reports the real limits of the deployment.
+- **What was hard:**
+  - `POST /contracts/{label}` refuses a contract without `bin` (a database not-null error), although the OpenAPI spec and the SDK type mark it optional. Linking an already-deployed contract needs no bytecode; we pass an empty string.
+  - The free plan's 100-block lookback is stated only in the pricing FAQ, not on the Event Indexing page. A team that deploys first and adds MultiBaas later cannot backfill.
+  - The webhook page shows how the sender signs, but has no receiver-side example. It does not mention constant-time comparison or a replay window.
+  - The Supported Networks table and the API reference render only in a browser, so scripts and LLM tools cannot read them.

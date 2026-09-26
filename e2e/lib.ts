@@ -31,7 +31,7 @@ export async function launch(): Promise<Browser> {
 
 export type Opened = { page: Page; errors: string[] }
 
-const RPC_HOSTS = ['ethereum-sepolia-rpc.publicnode.com', '1rpc.io', 'sepolia.gateway.tenderly.co']
+const RPC_HOSTS = ['ethereum-sepolia-rpc.publicnode.com', 'sepolia.gateway.tenderly.co', 'rpc.sepolia.ethpandaops.io', '1rpc.io']
 /// RPC 429s absorbed by the app's fallback during this run (reported by done()).
 let rateLimited = 0
 

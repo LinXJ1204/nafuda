@@ -13,8 +13,9 @@ import { UNIVERSAL_RESOLVER, titleName } from '@nafuda/core/deployment.ts'
 const RPCS = [
   import.meta.env?.VITE_SEPOLIA_RPC_URL as string | undefined,
   'https://ethereum-sepolia-rpc.publicnode.com',
-  'https://1rpc.io/sepolia',
   'https://sepolia.gateway.tenderly.co',
+  'https://rpc.sepolia.ethpandaops.io',
+  'https://1rpc.io/sepolia', // free tier sometimes refuses Sepolia: last resort
 ].filter((u): u is string => !!u)
 export const publicClient = createPublicClient({
   chain: sepolia,

@@ -124,7 +124,7 @@ Found and fixed by the tests overnight:
 1. ~~**The final lock**~~ **Done, 2026-09-26, on the author's go-ahead.** Five transactions, listed in [deployments.md](deployments.md#transactions). `npm run verify` passes V9–V11, the Trust page shows "Applied", and the map shows 0 resources with powers left.
 2. **Your primary name**: `sololin.nafuda.eth` is registered to your wallet and waits for one `setName` transaction from you (the button is on your collector page).
 3. ~~**README team line**~~ **Done:** solo builder, full-stack engineer. If you want a social handle besides GitHub (X, Farcaster…), add it there, because both Curvegrid prizes ask for social handles.
-4. **Demo script**: [docs/demo-script.md](demo-script.md) is rewritten for v3. The recording is yours.
+4. **Demo script**: `docs/demo-script.md` is kept on your machine only (git-ignored). The recording is yours.
 
 ## 5. Known gaps and honest notes
 

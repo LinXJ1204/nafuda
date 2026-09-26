@@ -69,6 +69,19 @@ Found and fixed by the tests overnight:
   - The grader console's Trust page has an **access-control map** with a "Today (live)" / "After the final lock (projected)" toggle: 5 resources with powers left today, 0 after.
 - **`lock.ts` now locks every grader.** It used to lock only psa-sim. Dry run on Sepolia: all 5 steps would succeed.
 
+## 3c. Curvegrid MultiBaas: second witness (2026-09-26, 15:30–16:15)
+
+- **What it is.** MultiBaas indexes the three grader registries on its own infrastructure and pushes every transfer to `POST /api/hooks/multibaas` through a signed webhook. The server compares that with its own index, both ways. Open https://nafuda.sololin.xyz/developers#witness: at 16:10 it showed 4 witnessed events, 4 agreeing and 0 unwitnessed.
+- **Where else it shows:**
+  - the Activity page: a status line, and "✓ Curvegrid" on each witnessed event;
+  - the grader console's Trust page: one line.
+- **Tests:**
+  - server: 24/24, including signed, tampered, stale and replayed deliveries, both directions of the comparison, and batch transfers on Postgres;
+  - the public e2e suite: three new checks.
+- **Found and fixed:** the indexer ignored `TransferBatch`, so a sale of two or more names in one call would have been missing from every list. No such transfer had happened on chain.
+- **Market simulator:** running again on the Mac mini until 2026-09-30 00:00 JST. It trades once every 8–15 minutes, with a 0.1 ETH budget; a transfer costs about 0.0001 ETH. Stop it with `docker stop nafuda-market-1`.
+- **Keys.** The MultiBaas API key is only in your local `.env`, and it was pasted into the chat: **rotate it** (create a new key, delete the old one). The server only has the webhook secret, in the Mac mini's `hosting/.env`.
+
 ## 4. Decisions that are yours
 
 1. **The final lock** (`scripts/src/lock.ts --execute`). It is irreversible. New graders and names can still be added after it: this was rehearsed on a fork. When it has run, the Trust page shows "Applied".

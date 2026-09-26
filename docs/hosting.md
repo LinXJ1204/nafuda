@@ -38,7 +38,8 @@ The compose project is named `nafuda`, and every host port is bound to loopback,
 | `DB_PASSWORD` | db, api, indexer | Any random string |
 | `INDEXER_RPC_URL` | indexer, api | Sepolia RPC for the server side. It stays on the server; publicnode is the fallback |
 | `WEB_PORT`, `GRADER_PORT` | apps | Default 8088 and 8089 |
-| `MARKET_UNTIL` | market | ISO time to stop, e.g. `2026-09-26T08:00:00+09:00` |
+| `MARKET_UNTIL`, `MARKET_BUDGET`, `MARKET_MIN`, `MARKET_MAX`, `MARKET_BURST` | market | When to stop (default `2026-09-30T00:00:00+09:00`), the gas budget in ETH (0.1), seconds between actions (480–900), quick trades at start (0) |
+| `MULTIBAAS_WEBHOOK_SECRET` | api | Signing secret of the Curvegrid MultiBaas webhook (second witness). `npm run multibaas -- webhook --secret-out <file>` writes it to a file; append that file here. Unset, the witness is off. The MultiBaas API key is **not** needed on the server |
 | `TUNNEL_TOKEN` | tunnel | Only with the `tunnel` profile |
 
 The market simulator also reads the repo's root `.env` (demo keys: `ALICE_PK` …, `GRADER_*_PK`, `DEMO_MNEMONIC`). These are **testnet** keys, and they stay on the host: they are never copied into an image.

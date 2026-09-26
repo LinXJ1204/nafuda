@@ -120,3 +120,36 @@ A new entry is appended at the end of each work session.
   - A dev Postgres container was briefly started on the Mac mini by mistake (the local docker context points there). It was removed within minutes, and the mistake is reported in the review guide.
 
 **Still with the author**: the review, the final lock, the author's own primary name, the README team line, and the video.
+
+## Enhanced Access Control pass (2026-09-26 afternoon)
+
+**The author asked** how well Nafuda uses ENSv2 Enhanced Access Control, then chose four follow-ups (A–D) and asked for EAC to be shown better in the apps.
+
+**What the AI did:**
+- Read the EAC rules from the pinned ENSv2 Beta source and found an overstated claim: the grader holds `REGISTRAR_ADMIN`, so it could grant itself `REGISTRAR` for new certs. The claim was corrected (A).
+- Added per-title EAC checks on every title page (B), [docs/access-control.md](access-control.md) and `npm run roles` (C), and gave collectors `SET_RESOLVER` on their own names (D, 16 transactions). A first attempt failed because admin roles cannot be granted on a name; only the base role can.
+- Found that `lock.ts` locked only one of the three graders, and fixed it (dry run on Sepolia).
+- Built the "who can do what" matrix (each cell a live `eth_call`), the attack buttons, the role bitmaps, and the grader console's access-control map.
+
+## Curvegrid MultiBaas: second witness (2026-09-26, 15:30–16:15 JST)
+
+**The author decided** to go for the Curvegrid prizes. Another Claude session had digested the MultiBaas docs into [plan/curvegrid-plan.md](plan/curvegrid-plan.md). The author created the MultiBaas deployment and its API key.
+
+**What the AI did:**
+- Reviewed the plan and changed it in three ways:
+  - compare the indexes in both directions, not only Curvegrid → Nafuda;
+  - decode the raw log instead of MultiBaas' display values;
+  - keep the API key off the server.
+- Built:
+  - the webhook receiver (HMAC check, replay window, idempotent storage);
+  - the reconciliation, with unit and Postgres integration tests;
+  - the panels and the setup script (MultiBaas TypeScript SDK).
+- Found that the indexer ignored `TransferBatch`, which ENSv2 registries emit when one call moves several names. Fixed it and checked on chain that no batch transfer had happened.
+- Connected the deployment:
+  - first signature probes against the live endpoint;
+  - linking the three registries, which hit a server-side `bin` requirement;
+  - two demo trades to watch the first deliveries arrive and agree.
+- Restarted the market simulator at a slow pace for the judging period, as the author agreed.
+- **A mistake:** checking the compose file with `docker compose config` printed two demo wallets' testnet keys (alice, bob) into the session log. Nothing was committed. The author was told.
+
+**Still with the author:** the MultiBaas feedback in the README (keep only what they ran into), the README team line, and rotating the MultiBaas API key that was pasted into the chat.

@@ -228,6 +228,8 @@ The idea, the product decisions and the trade-offs are the author's. The code wa
 
 Nafuda's own server indexes chain events for lists and charts. **Curvegrid MultiBaas runs a second, independent index of the same contracts, and Nafuda publicly checks that the two agree.**
 
+![Second witness panel](docs/img/witness.png)
+
 - **Linked contracts.** The three grader registries are linked in a MultiBaas deployment on Ethereum Sepolia, with a minimal ABI (`TransferSingle`, `TransferBatch`) and event sync on.
 - **Webhook.** An `event.emitted` webhook pushes every event to `POST /api/hooks/multibaas`. The server:
   - checks the HMAC-SHA256 signature over body and timestamp, in constant time, and refuses deliveries more than 5 minutes old;

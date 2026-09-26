@@ -38,15 +38,15 @@ export function evaluateTrust(f: TrustFacts): TrustCheck[] {
       id: 'issuer',
       group: 'titles',
       ok: f.controllerIsRegistrar && (f.graderRootRoles & ROLE.REGISTRAR) === 0n,
-      title: 'Only the TitleController can issue',
-      body: 'The controller holds ROLE_REGISTRAR, so every title goes through its rules: one title per cert, holder can only transfer. The grader does not hold ROLE_REGISTRAR itself, so it cannot bypass them.',
+      title: 'The TitleController issues; the grader does not hold ROLE_REGISTRAR',
+      body: 'The controller holds ROLE_REGISTRAR and enforces its rules: one title per cert, chip recorded, holder can only transfer. The grader keeps REGISTRAR admin to switch issuing contracts, so it could grant itself ROLE_REGISTRAR for new certs. A title made that way fails the per-title checks every buyer runs on the title page.',
     },
     {
       id: 'grader',
       group: 'titles',
       ok: f.graderRootRoles === GRADER_FINAL_ROOT_ROLES && (f.graderRootRoles & DANGEROUS_ROOT_ROLES) === 0n,
       title: 'PSA-Sim cannot touch issued titles',
-      body: 'It keeps only the admin of REGISTRAR (to swap the issuing contract for future certs), SET_PARENT and CAN_NAME. It cannot unregister, re-point, or change the chip record of an issued title.',
+      body: 'It keeps only REGISTRAR admin (to switch the issuing contract for future certs), SET_PARENT and CAN_NAME. It cannot unregister, re-point, or change the chip record of an issued title.',
     },
     {
       id: 'holders',

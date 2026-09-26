@@ -89,10 +89,11 @@ sequenceDiagram
 3. **Each grader brings its own record schema.** TitleControllerV2 stores grader-defined attributes and lists them in the `attributes` text record, so clients can discover them. BGS-Sim uses it for subgrades (`subgrade.centering` …), and any ENS client can read them.
 4. **Enhanced Access Control as the trust model.**
    - A holder gets exactly `ROLE_CAN_TRANSFER_ADMIN`.
-   - Each grader registry is **emancipated**, and the only issuer is the controller (`ROLE_REGISTRAR`).
+   - Each grader registry is **emancipated**. The controller holds `ROLE_REGISTRAR` and enforces its rules (one title per cert, chip recorded, transfer-only holder).
    - The grader keeps only `REGISTRAR_ADMIN`, `SET_PARENT` and `CAN_NAME`, so it cannot unregister, re-point or upgrade issued titles.
+   - **Caveat:** in EAC an admin can grant its own role, so the grader could grant itself `ROLE_REGISTRAR` and register new certs outside the controller's rules. Titles already issued are unaffected. A title made that way fails the **per-title EAC checks** that the title page runs for every buyer: the resolver is found at the grader level and is the grader's controller, the controller has a record for the cert, and the holder is the sole assignee with only `CAN_TRANSFER_ADMIN`.
 
-   The trust panel reads all of this live.
+   The trust panel reads the registry-level roles live; [docs/access-control.md](docs/access-control.md) maps every resource and role.
 5. **Safe transfers protect buyers.** `safeTransferFrom` only works on emancipated registries, and only when the holder is the sole assignee. So a buyer who receives a title knows nobody can claw it back. ENSv2 provides this; we did not have to write it.
 6. **Names for people, too.** Demo collectors hold `<name>.nafuda.eth` (addr records in an official `PermissionedResolver`) and set it as their primary name. The apps show `aiko.nafuda.eth` by reverse-resolving through the ENSv2 Universal Resolver, not from a table.
 7. **Any client can read it.** Titles are read with plain `viem.getEnsAddress` / `getEnsText` and the ENSv2 Universal Resolver ([packages/ui/src/ens.ts](packages/ui/src/ens.ts)). You don't need any Nafuda API.
@@ -140,7 +141,7 @@ flowchart LR
 
 | Actor | Can | Cannot |
 |---|---|---|
-| Grader | Issue a title for a cert once, with its chip; swap the issuing contract for **future** certs; move its intake board | Change or revoke an issued title, change a chip record, unregister names, move another grader's submissions |
+| Grader | Issue a title for a cert once, with its chip; switch the issuing contract for **future** certs (which also means it could issue new certs outside the controller's rules; the per-title checks flag those); move its intake board | Change or revoke an issued title, change a chip record, unregister names, move another grader's submissions |
 | Holder | Transfer the title; sign an asking price | Change the resolver or records; add delegates |
 | Anyone | Read and verify through any ENS client; sign offers and submissions | Ask a price for a title they do not hold |
 | Operator (us) | Before the final lock: replace a grader subtree. After it: add new graders and names only | After the lock: touch any existing grader subtree or title |

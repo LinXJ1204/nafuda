@@ -7,6 +7,7 @@ import { COLLECTORS, GRADERS, collectorOf } from '../../packages/core/src/deploy
 import type { Sql } from './db.ts'
 import { writeLimits } from './limits.ts'
 import { signedRoutes } from './signed-api.ts'
+import { marketRoutes } from './market-api.ts'
 import { readWitness, witnessRoutes } from './witness-api.ts'
 import { env } from './env.ts'
 
@@ -61,6 +62,8 @@ function transferOut(r: Record<string, unknown>) {
     priceJpy: r.price_jpy,
     /// Curvegrid MultiBaas reported this same log (second witness); false outside its window.
     witnessed: r.witnessed ?? false,
+    /// Curvegrid's copy of the transaction carries the same declared price
+    priceWitnessed: r.price_witnessed ?? false,
   }
 }
 
@@ -152,7 +155,8 @@ export function api(sql: Sql) {
     if (!row) return out(c, { error: 'not indexed' }, 404)
     const history = await sql`
       select t.*, ti.card, ti.grade, exists(select 1 from witness_events w where w.tx = t.tx and w.log_index = t.log_index and w.batch_index = t.batch_index
-          and w.from_addr = t.from_addr and w.to_addr = t.to_addr and not w.removed) as witnessed
+          and w.from_addr = t.from_addr and w.to_addr = t.to_addr and not w.removed) as witnessed, exists(select 1 from witness_events w where w.tx = t.tx and w.log_index = t.log_index and w.batch_index = t.batch_index
+          and not w.removed and w.price_seen and w.price_jpy is not distinct from t.price_jpy) as price_witnessed
       from transfers t join titles ti using (grader, cert)
       where t.grader = ${grader} and t.cert = ${cert} order by block, log_index, batch_index`
     const [{ issued_witnessed }] = await sql`
@@ -169,12 +173,15 @@ export function api(sql: Sql) {
       select * from (
         select 'issue' as kind, grader, cert, card, grade, null as from_addr, holder as to_addr, issued_block as block, 0 as log_index,
           0 as batch_index, issued_tx as tx, issued_at as time, null::int as price_jpy,
-          exists(select 1 from witness_events w where w.tx = titles.issued_tx and w.grader = titles.grader and w.kind = 'mint' and not w.removed) as witnessed
+          exists(select 1 from witness_events w where w.tx = titles.issued_tx and w.grader = titles.grader and w.kind = 'mint' and not w.removed) as witnessed,
+          false as price_witnessed
         from titles
         union all
         select 'transfer', t.grader, t.cert, ti.card, ti.grade, t.from_addr, t.to_addr, t.block, t.log_index, t.batch_index, t.tx, t.time, t.price_jpy,
           exists(select 1 from witness_events w where w.tx = t.tx and w.log_index = t.log_index and w.batch_index = t.batch_index
-          and w.from_addr = t.from_addr and w.to_addr = t.to_addr and not w.removed)
+          and w.from_addr = t.from_addr and w.to_addr = t.to_addr and not w.removed),
+          exists(select 1 from witness_events w where w.tx = t.tx and w.log_index = t.log_index and w.batch_index = t.batch_index
+          and not w.removed and w.price_seen and w.price_jpy is not distinct from t.price_jpy)
         from transfers t join titles ti using (grader, cert)
       ) a
       where (${grader}::text is null or grader = ${grader}) and (${type}::text is null or kind = ${type})
@@ -255,6 +262,7 @@ export function api(sql: Sql) {
 
   signedRoutes(app, sql, out)
   witnessRoutes(app, sql, out)
+  marketRoutes(app, sql, out)
 
   app.notFound((c) => out(c, { error: 'not found' }, 404))
   app.onError((err, c) => {

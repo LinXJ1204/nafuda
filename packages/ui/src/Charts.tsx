@@ -86,3 +86,46 @@ export function WitnessChart({ data }: { data: { hour: string; witnessed: number
     </div>
   )
 }
+
+/// Median declared price by grade score (all graders), with the number of sales and the range.
+export function GradeValueChart({ data }: { data: { grade_score: number; n: number; median: number; min: number; max: number }[] }) {
+  const rows = [...data].sort((a, b) => a.grade_score - b.grade_score).map((d) => ({ ...d, grade: String(d.grade_score) }))
+  return (
+    <div className="h-60">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={rows}>
+          <CartesianGrid vertical={false} stroke="var(--line)" />
+          <XAxis dataKey="grade" {...axis} />
+          <YAxis tickFormatter={(v) => compactJpy(v as number)} width={52} {...axis} />
+          <Tooltip
+            formatter={(v, _n, p) => [`${jpy(v as number)} median · ${p.payload.n} sales · ${jpy(p.payload.min)}–${jpy(p.payload.max)}`, 'Grade ' + p.payload.grade]}
+            labelFormatter={() => ''}
+            {...tooltip}
+          />
+          <Bar dataKey="median" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+/// Median declared price per grader.
+export function GraderValueChart({ data }: { data: { label: string; color: string; n: number; median: number }[] }) {
+  return (
+    <div className="h-60">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data}>
+          <CartesianGrid vertical={false} stroke="var(--line)" />
+          <XAxis dataKey="label" {...axis} />
+          <YAxis tickFormatter={(v) => compactJpy(v as number)} width={52} {...axis} />
+          <Tooltip formatter={(v, _n, p) => [`${jpy(v as number)} median · ${p.payload.n} sales`, p.payload.label]} labelFormatter={() => ''} {...tooltip} />
+          <Bar dataKey="median" radius={[4, 4, 0, 0]}>
+            {data.map((d) => (
+              <Cell key={d.label} fill={d.color} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}

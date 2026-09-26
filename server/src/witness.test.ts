@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { labelhash, type Address, type Hash } from 'viem'
 import { PSA_REGISTRY, webhookItem } from './witness.fixtures.ts'
-import { checkSignature, parseDelivery, reconcile, signBody, type IndexIssue, type IndexTransfer, type WitnessRow } from './witness.ts'
+import { checkSignature, declaredPrice, parseDelivery, reconcile, signBody, type IndexIssue, type IndexTransfer, type WitnessRow } from './witness.ts'
 
 const REGISTRY = PSA_REGISTRY
 const graderOf = (a: string) => (a.toLowerCase() === REGISTRY ? 'psa-sim' : null)
@@ -71,6 +71,8 @@ test('parse: other contracts, other event types and malformed items are ignored'
 
 const w = (o: Partial<WitnessRow> & Pick<WitnessRow, 'tx' | 'logIndex' | 'block' | 'kind' | 'from' | 'to' | 'tokenId'>): WitnessRow => ({
   deliveryId: 'd',
+  priceSeen: false,
+  priceJpy: null,
   grader: 'psa-sim',
   registry: REGISTRY,
   batchIndex: 0,
@@ -80,7 +82,7 @@ const w = (o: Partial<WitnessRow> & Pick<WitnessRow, 'tx' | 'logIndex' | 'block'
   ...o,
 })
 const issue = (cert: string, n: number, block: bigint): IndexIssue => ({ grader: 'psa-sim', cert, labelId: id(cert), tx: tx(n), block, holder: alice })
-const transfer = (cert: string, n: number, block: bigint, logIndex = 1, from: string = alice, to: string = bob): IndexTransfer => ({
+const transfer = (cert: string, n: number, block: bigint, logIndex = 1, from: string = alice, to: string = bob, priceJpy: number | null = null): IndexTransfer => ({
   grader: 'psa-sim',
   cert,
   tx: tx(n),
@@ -89,6 +91,7 @@ const transfer = (cert: string, n: number, block: bigint, logIndex = 1, from: st
   block,
   from,
   to,
+  priceJpy,
 })
 
 test('reconcile: matching issuance and transfer agree; token versions do not matter', () => {
@@ -173,4 +176,33 @@ test('reconcile: reorged events are left out', () => {
   })
   assert.equal(summary.witnessed, 0)
   assert.equal(summary.reorged, 1)
+})
+
+// --- declared prices -------------------------------------------------------------------------
+
+test('parse: the declared price is read from the calldata MultiBaas sends with the event', () => {
+  const [priced] = parseDelivery([webhookItem({ n: 1, from: alice, to: bob, ids: [id('A')], block: 1, logIndex: 0, priceJpy: 42000 })], graderOf).rows
+  assert.deepEqual([priced.priceSeen, priced.priceJpy], [true, 42000])
+  const [unpriced] = parseDelivery([webhookItem({ n: 2, from: alice, to: bob, ids: [id('A')], block: 1, logIndex: 1, priceJpy: null })], graderOf).rows
+  assert.deepEqual([unpriced.priceSeen, unpriced.priceJpy], [true, null], 'a transfer without a declared price')
+  const [noCalldata] = parseDelivery([webhookItem({ n: 3, from: alice, to: bob, ids: [id('A')], block: 1, logIndex: 2 })], graderOf).rows
+  assert.equal(noCalldata.priceSeen, false, 'nothing to compare')
+  assert.deepEqual(declaredPrice('0xdeadbeef'), { seen: false, jpy: null }, 'not a registry call')
+})
+
+test('reconcile: a different declared price is a mismatch; the same price is confirmed', () => {
+  const { events, summary } = reconcile({
+    witnessed: [
+      w({ tx: tx(2), logIndex: 1, block: 11n, kind: 'transfer', from: alice, to: bob, tokenId: id('A'), priceSeen: true, priceJpy: 42000 }),
+      w({ tx: tx(3), logIndex: 1, block: 12n, kind: 'transfer', from: bob, to: alice, tokenId: id('A'), priceSeen: true, priceJpy: 50000 }),
+      w({ tx: tx(4), logIndex: 1, block: 13n, kind: 'transfer', from: alice, to: bob, tokenId: id('A') }),
+    ],
+    issues: [issue('A', 1, 10n)],
+    transfers: [transfer('A', 2, 11n, 1, alice, bob, 42000), transfer('A', 3, 12n, 1, bob, alice, 5000), transfer('A', 4, 13n, 1, alice, bob, 1)],
+    indexedThrough: 20n,
+  })
+  assert.deepEqual(events.map((e) => e.verdict), ['agreed', 'mismatch', 'agreed'])
+  assert.match(events[1].detail!, /declared price ¥5,000 ≠ ¥50,000/)
+  assert.equal(summary.pricesChecked, 2)
+  assert.equal(summary.pricesConfirmed, 1)
 })

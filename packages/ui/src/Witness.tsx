@@ -116,16 +116,18 @@ export function WitnessPanel() {
         The Nafuda server indexes chain events for lists and charts. Title pages already re-check each title through ENS, but a list could still leave a transfer out, or show one
         that never happened. So a second, independent indexer watches the same three registries: <b className="text-ink">Curvegrid MultiBaas</b> syncs their events on its
         own infrastructure and pushes each one here through a webhook signed with HMAC-SHA256. The server checks both directions: every event Curvegrid saw must be in our
-        index, and every transfer we indexed in Curvegrid&apos;s window must have been seen by Curvegrid. Its data is only compared, never copied into our index.
+        index, and every transfer we indexed in Curvegrid&apos;s window must have been seen by Curvegrid. MultiBaas also sends each transaction&apos;s calldata, so the
+        seller&apos;s declared price is read from Curvegrid&apos;s copy too, and must match the price shown here. Its data is only compared, never copied into our index.
       </p>
       <Flow />
       {q.isLoading && <Skeleton className="mt-4 h-40" />}
       {w && !w.configured && <p className="mt-4 text-sm text-muted">Not connected yet.</p>}
       {w?.configured && (
         <>
-          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-5">
+          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-6">
             <Tile label="Witnessed events" value={w.summary.witnessed} />
             <Tile label="Agree" value={w.summary.agreed} tone="ok" />
+            <Tile label="Prices confirmed" value={w.summary.pricesConfirmed} tone="ok" sub={`of ${w.summary.pricesChecked} with calldata`} />
             <Tile label="Differ or missing" value={w.summary.mismatch + w.summary.missing} tone={w.summary.mismatch + w.summary.missing ? 'bad' : undefined} />
             <Tile label="Indexed, not witnessed" value={w.summary.unwitnessed} tone={w.summary.unwitnessed ? 'bad' : undefined} />
             <Tile label="Deliveries" value={w.deliveries.count} sub={w.deliveries.last ? <TimeAgo date={w.deliveries.last} /> : 'none yet'} />
@@ -170,6 +172,7 @@ export function WitnessPanel() {
                     <th className="px-3 py-2 font-semibold">Event</th>
                     <th className="px-2 py-2 font-semibold">Title</th>
                     <th className="px-2 py-2 font-semibold">From → to</th>
+                    <th className="px-2 py-2 text-right font-semibold">Declared</th>
                     <th className="px-2 py-2 font-semibold">Verdict</th>
                     <th className="px-3 py-2 font-semibold">Tx · log</th>
                   </tr>
@@ -192,6 +195,15 @@ export function WitnessPanel() {
                         <td className="px-2 py-2 whitespace-nowrap">
                           {e.kind === 'mint' ? <span className="text-muted">mint</span> : <Addr address={e.from} />} <span className="text-faint">→</span>{' '}
                           {e.kind === 'burn' ? <span className="text-muted">burn</span> : <Addr address={e.to} />}
+                        </td>
+                        <td className="px-2 py-2 text-right whitespace-nowrap tabular-nums">
+                          {!e.priceSeen ? (
+                            <span className="text-faint" title="No calldata in this delivery: price not compared">·</span>
+                          ) : e.priceJpy === null ? (
+                            <span className="text-faint">none</span>
+                          ) : (
+                            <span title="The declared price in Curvegrid's copy of the transaction">¥{e.priceJpy.toLocaleString('en-US')}</span>
+                          )}
                         </td>
                         <td className="px-2 py-2" title={e.detail ?? v.help}>
                           <Pill tone={v.tone}>{v.label}</Pill>

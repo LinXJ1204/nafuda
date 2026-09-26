@@ -16,6 +16,7 @@ const MarketMapPage = lazy(() => import('./pages/MarketMap.tsx').then((m) => ({ 
 const ActivityPage = lazy(() => import('./pages/Activity.tsx').then((m) => ({ default: m.ActivityPage })))
 const GraderPage = lazy(() => import('./pages/Grader.tsx').then((m) => ({ default: m.GraderPage })))
 const DevelopersPage = lazy(() => import('./pages/Developers.tsx').then((m) => ({ default: m.DevelopersPage })))
+const MarketPage = lazy(() => import('./pages/Market.tsx').then((m) => ({ default: m.MarketPage })))
 const WitnessPage = lazy(() => import('./pages/Witness.tsx').then((m) => ({ default: m.WitnessPage })))
 const SubmitPage = lazy(() => import('./pages/Submit.tsx').then((m) => ({ default: m.SubmitPage })))
 
@@ -38,7 +39,7 @@ export function App() {
         { to: '/activity', label: 'Activity' },
         { to: '/graders', label: 'Graders' },
         { to: '/collectors', label: 'Collectors' },
-        { to: '/map', label: 'Map' },
+        { to: '/market', label: 'Market' },
         { to: '/witness', label: 'Witness' },
         { to: '/submit', label: 'Submit' },
         { to: '/me', label: 'My titles' },
@@ -58,6 +59,7 @@ export function App() {
         <Route path="/collectors" element={<CollectorsPage />} />
         <Route path="/collector/:address" element={<CollectorPage />} />
         <Route path="/map" element={<MarketMapPage />} />
+        <Route path="/market" element={<MarketPage />} />
         <Route path="/developers" element={<DevelopersPage />} />
         <Route path="/witness" element={<WitnessPage />} />
         <Route path="/submit" element={<SubmitPage />} />

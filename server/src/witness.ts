@@ -4,8 +4,9 @@
 // Witness rows are never written into titles or transfers; they are only compared against them.
 
 import { createHmac, timingSafeEqual } from 'node:crypto'
-import { decodeEventLog, type Hex } from 'viem'
-import { canonicalId, transferBatchEvent, transferSingleEvent } from '../../packages/core/src/abis.ts'
+import { decodeEventLog, decodeFunctionData, type Hex } from 'viem'
+import { canonicalId, registryAbi, transferBatchEvent, transferSingleEvent } from '../../packages/core/src/abis.ts'
+import { decodePrice } from '../../packages/core/src/price.ts'
 
 const ZERO = '0x0000000000000000000000000000000000000000'
 export const MAX_SKEW_SEC = 300
@@ -56,6 +57,24 @@ export type WitnessRow = {
   tokenId: bigint
   removed: boolean
   triggeredAt: Date | null
+  /// The declared price, read from the transaction's calldata that MultiBaas sends along.
+  /// priceSeen is false when there was no calldata to read (then nothing is compared).
+  priceSeen: boolean
+  priceJpy: number | null
+}
+
+/// Same rule as the indexer: a direct safeTransferFrom carries the seller's declared price in
+/// `data`; a batch declares one price for several names, which says nothing about each.
+export function declaredPrice(txData: unknown): { seen: boolean; jpy: number | null } {
+  if (typeof txData !== 'string' || !/^0x[0-9a-fA-F]*$/.test(txData)) return { seen: false, jpy: null }
+  try {
+    const { functionName, args } = decodeFunctionData({ abi: registryAbi, data: txData as Hex })
+    if (functionName === 'safeTransferFrom') return { seen: true, jpy: decodePrice(args[4] as string) }
+    if (functionName === 'safeBatchTransferFrom') return { seen: true, jpy: null }
+  } catch {
+    // not a direct call to the registry (e.g. through a contract wallet)
+  }
+  return { seen: false, jpy: null }
 }
 
 type RawLog = { address: string; topics: Hex[]; data: Hex; blockNumber: string; transactionHash: string; blockHash: string; logIndex: string; removed?: boolean }
@@ -106,6 +125,8 @@ export function parseDelivery(body: unknown, graderOfRegistry: (address: string)
     const to = decoded.args.to.toLowerCase()
     const ids = decoded.eventName === 'TransferSingle' ? [decoded.args.id] : decoded.args.ids
     const triggeredAt = isObj(item.data) && typeof item.data.triggeredAt === 'string' ? new Date(item.data.triggeredAt) : null
+    const kind: WitnessKind = from === ZERO ? 'mint' : to === ZERO ? 'burn' : 'transfer'
+    const price = kind === 'transfer' && isObj(item.data) && isObj(item.data.transaction) ? declaredPrice(item.data.transaction.txData) : { seen: false, jpy: null }
     ids.forEach((tokenId, batchIndex) =>
       rows.push({
         deliveryId: item.id as string,
@@ -116,12 +137,14 @@ export function parseDelivery(body: unknown, graderOfRegistry: (address: string)
         batchIndex,
         block: quantity(raw.blockNumber)!,
         blockHash: raw.blockHash.toLowerCase(),
-        kind: from === ZERO ? 'mint' : to === ZERO ? 'burn' : 'transfer',
+        kind,
         from,
         to,
         tokenId,
         removed: raw.removed === true,
         triggeredAt: triggeredAt && !Number.isNaN(triggeredAt.getTime()) ? triggeredAt : null,
+        priceSeen: price.seen,
+        priceJpy: price.jpy,
       }),
     )
   }
@@ -137,7 +160,7 @@ export function parseDelivery(body: unknown, graderOfRegistry: (address: string)
 //     server inventing a record.
 
 export type Verdict = 'agreed' | 'mismatch' | 'missing' | 'pending' | 'regeneration'
-export type IndexTransfer = { grader: string; cert: string; tx: string; logIndex: number; batchIndex: number; block: bigint; from: string; to: string }
+export type IndexTransfer = { grader: string; cert: string; tx: string; logIndex: number; batchIndex: number; block: bigint; from: string; to: string; priceJpy: number | null }
 export type IndexIssue = { grader: string; cert: string; labelId: bigint; tx: string; block: bigint; holder: string }
 
 export type Judged = WitnessRow & { cert: string | null; verdict: Verdict; detail: string | null }
@@ -151,10 +174,15 @@ export type Summary = {
   regeneration: number
   unwitnessed: number
   reorged: number
+  /// transfers whose declared price Curvegrid's copy of the transaction also carries, and how
+  /// many of those match the price the index shows
+  pricesChecked: number
+  pricesConfirmed: number
   fromBlock: bigint | null
   toBlock: bigint | null
 }
 
+const yen = (v: number | null) => (v === null ? 'none' : `¥${v.toLocaleString('en-US')}`)
 const tkey = (tx: string, logIndex: number, batchIndex: number) => `${tx}:${logIndex}:${batchIndex}`
 const ckey = (grader: string, id: bigint) => `${grader}:${canonicalId(id)}`
 
@@ -194,6 +222,7 @@ export function reconcile(input: {
       mine.from !== w.from && `from ${mine.from} ≠ ${w.from}`,
       mine.to !== w.to && `to ${mine.to} ≠ ${w.to}`,
       cert !== null && mine.cert !== cert && `cert ${mine.cert} ≠ ${cert}`,
+      w.priceSeen && (mine.priceJpy ?? null) !== w.priceJpy && `declared price ${yen(mine.priceJpy)} ≠ ${yen(w.priceJpy)}`,
     ].filter(Boolean)
     return diffs.length ? judged('mismatch', diffs.join('; ')) : judged('agreed')
   })
@@ -216,6 +245,7 @@ export function reconcile(input: {
   }
 
   const count = (v: Verdict) => events.filter((e) => e.verdict === v).length
+  const priced = events.filter((e) => e.kind === 'transfer' && e.priceSeen && (e.verdict === 'agreed' || e.verdict === 'mismatch'))
   return {
     events,
     unwitnessed,
@@ -228,6 +258,8 @@ export function reconcile(input: {
       regeneration: count('regeneration'),
       unwitnessed: unwitnessed.length,
       reorged,
+      pricesChecked: priced.length,
+      pricesConfirmed: priced.filter((e) => e.verdict === 'agreed').length,
       fromBlock,
       toBlock,
     },

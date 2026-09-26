@@ -40,12 +40,14 @@ export async function readWitness(sql: Sql) {
     tokenId: BigInt(r.token_id),
     removed: r.removed,
     triggeredAt: r.triggered_at,
+    priceSeen: r.price_seen,
+    priceJpy: r.price_jpy,
   }))
   const from = witnessed.length ? witnessed[0].block : null
   const transfers: IndexTransfer[] =
     from === null
       ? []
-      : (await sql`select grader, cert, tx, log_index, batch_index, block, from_addr, to_addr from transfers where block >= ${String(from)}`).map((r) => ({
+      : (await sql`select grader, cert, tx, log_index, batch_index, block, from_addr, to_addr, price_jpy from transfers where block >= ${String(from)}`).map((r) => ({
           grader: r.grader,
           cert: r.cert,
           tx: r.tx,
@@ -54,6 +56,7 @@ export async function readWitness(sql: Sql) {
           block: BigInt(r.block),
           from: r.from_addr,
           to: r.to_addr,
+          priceJpy: r.price_jpy,
         }))
   const issues: IndexIssue[] = (await sql`select grader, cert, label_id::text, issued_tx, issued_block, holder from titles`).map((r) => ({
     grader: r.grader,
@@ -95,9 +98,9 @@ export function witnessRoutes(app: Hono, sql: Sql, out: Out) {
       for (const r of rows) {
         // A redelivery is a no-op; a later delivery of the same log marked removed (reorg) sticks.
         await tx`
-          insert into witness_events (tx, log_index, batch_index, block_hash, block, delivery_id, grader, registry, kind, from_addr, to_addr, token_id, removed, triggered_at)
+          insert into witness_events (tx, log_index, batch_index, block_hash, block, delivery_id, grader, registry, kind, from_addr, to_addr, token_id, removed, triggered_at, price_seen, price_jpy)
           values (${r.tx}, ${r.logIndex}, ${r.batchIndex}, ${r.blockHash}, ${String(r.block)}, ${r.deliveryId}, ${r.grader}, ${r.registry}, ${r.kind},
-            ${r.from}, ${r.to}, ${r.tokenId.toString()}, ${r.removed}, ${r.triggeredAt})
+            ${r.from}, ${r.to}, ${r.tokenId.toString()}, ${r.removed}, ${r.triggeredAt}, ${r.priceSeen}, ${r.priceJpy})
           on conflict (tx, log_index, batch_index, block_hash) do update set removed = witness_events.removed or excluded.removed`
       }
       await tx`insert into witness_deliveries (events, ignored) values (${rows.length}, ${ignored})`
@@ -152,6 +155,8 @@ export function witnessRoutes(app: Hono, sql: Sql, out: Out) {
           tokenId: canonicalId(e.tokenId).toString(),
           verdict: e.verdict,
           detail: e.detail,
+          priceSeen: e.priceSeen,
+          priceJpy: e.priceJpy,
           triggeredAt: e.triggeredAt,
         })),
       unwitnessed: unwitnessed.slice(0, 50).map((u) => ({ ...u, block: u.block.toString() })),

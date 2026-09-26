@@ -38,6 +38,8 @@ export type Transfer = {
   priceJpy: number | null
   /// Curvegrid MultiBaas reported this same log (second witness)
   witnessed?: boolean
+  /// Curvegrid's copy of the transaction carries the same declared price
+  priceWitnessed?: boolean
 }
 export type Activity = Transfer & { kind: 'issue' | 'transfer' }
 export type TitleDetail = Title & { history: Transfer[]; issuedWitnessed?: boolean }
@@ -78,6 +80,8 @@ export type WitnessSummary = {
   regeneration: number
   unwitnessed: number
   reorged: number
+  pricesChecked: number
+  pricesConfirmed: number
 }
 export type Status = {
   indexedBlock: string | null
@@ -109,6 +113,8 @@ export type Witness = {
     verdict: WitnessVerdict
     detail: string | null
     triggeredAt: string | null
+    priceSeen: boolean
+    priceJpy: number | null
   }[]
   unwitnessed: { kind: 'transfer' | 'issue'; grader: string; cert: string; tx: string; block: string }[]
   perHour: { hour: string; witnessed: number; indexed: number }[]
@@ -139,6 +145,15 @@ const qs = (params: Record<string, string | number | undefined | null>) => {
 const live = { refetchInterval: 15_000 }
 
 export const useStatus = () => useQuery({ queryKey: ['status'], queryFn: () => api<Status>('/status'), ...live })
+export type Market = {
+  totals: { sales: number; median: number; volume: number; confirmed: number; witnessChecked: number }
+  byGrade: { grade_score: number; n: number; median: number; min: number; max: number }[]
+  byGrader: { grader: string; n: number; median: number; volume: number }[]
+  byCategory: { category: string; kind: string | null; titles: number; sales: number; median: number | null }[]
+  guide: { card: string; grader: string; grade: string; grade_score: number; n: number; median: number; last: number; last_at: string }[]
+  recent: { grader: string; cert: string; card: string; grade: string; priceJpy: number; time: string; tx: string; from: string; to: string; confirmed: boolean }[]
+}
+export const useMarket = () => useQuery({ queryKey: ['market'], queryFn: () => api<Market>('/market'), ...live })
 export type Categories = { items: { category: string; kind: string | null; n: number }[]; unclassified: number }
 export const useCategories = () => useQuery({ queryKey: ['categories'], queryFn: () => api<Categories>('/categories'), ...live })
 export const useWitness = () => useQuery({ queryKey: ['witness'], queryFn: () => api<Witness>('/witness'), ...live })

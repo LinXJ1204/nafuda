@@ -190,7 +190,7 @@ test('witness: signed deliveries are stored once; unsigned, tampered or stale on
   const one = BigInt(labelhash('1'))
   // Curvegrid saw A → B (block 110, which we indexed) and a transfer at block 130 that we did not;
   // it did not report B → C at block 120, which we did index.
-  const seen = webhookItem({ n: 1100, from: A.address, to: B.address, ids: [one], block: 110, logIndex: 1 })
+  const seen = webhookItem({ n: 1100, from: A.address, to: B.address, ids: [one], block: 110, logIndex: 1, priceJpy: 42000 })
   const extra = webhookItem({ n: 1300, from: C.address, to: A.address, ids: [one], block: 130, logIndex: 1 })
 
   delete process.env.MULTIBAAS_WEBHOOK_SECRET
@@ -221,6 +221,8 @@ test('witness: signed deliveries are stored once; unsigned, tampered or stale on
 
   const history = (await get('/titles/psa-sim/1')).history
   assert.deepEqual(history.map((h: { witnessed: boolean }) => h.witnessed), [true, false])
+  assert.deepEqual(history.map((h: { priceWitnessed: boolean }) => h.priceWitnessed), [true, false], 'Curvegrid read the same ¥42,000 from the calldata')
+  assert.equal(w.summary.pricesConfirmed, 1)
   assert.equal((await get('/status')).witness.missing, 1)
   assert.equal((await get('/titles/psa-sim/1')).holder, C.address.toLowerCase(), 'witness data never moves a title')
 })
@@ -251,4 +253,13 @@ test('categories: card.* records filter titles and are counted', opts, async () 
   assert.equal((await get('/titles?category=baseball')).total, 0)
   assert.equal((await get('/titles')).total, 2, 'no category filter: everything')
   assert.deepEqual(await get('/categories'), { items: [{ category: 'tcg', kind: 'pokemon', n: 1 }], unclassified: 1 })
+})
+
+test('market: sales by grade and grader, price guide, confirmed prices', opts, async () => {
+  const m = await get('/market')
+  assert.ok(m.totals.sales >= 1)
+  assert.equal(m.byGrade[0].grade_score, 10)
+  assert.ok(m.guide.some((g: { card: string; median: number }) => g.card.startsWith('Card 1') && g.median === 42000))
+  const sale = m.recent.find((r: { priceJpy: number }) => r.priceJpy === 42000)
+  assert.equal(sale.confirmed, true, 'Curvegrid carried the same price (witness test above)')
 })

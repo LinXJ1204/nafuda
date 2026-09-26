@@ -193,7 +193,14 @@ export function TitlePage() {
                     <td className="px-2 py-2">
                       <Addr address={h.to} />
                     </td>
-                    <td className="px-2 py-2 text-right tabular-nums">{jpy(h.priceJpy)}</td>
+                    <td className="px-2 py-2 text-right tabular-nums">
+                      {jpy(h.priceJpy)}
+                      {h.priceJpy && h.priceWitnessed ? (
+                        <div className="text-[11px] font-semibold text-ok" title="Curvegrid's copy of the transaction carries the same declared price">
+                          ✓ confirmed
+                        </div>
+                      ) : null}
+                    </td>
                     <td className="px-2 py-2 text-muted">
                       <TimeAgo date={h.time} />
                     </td>

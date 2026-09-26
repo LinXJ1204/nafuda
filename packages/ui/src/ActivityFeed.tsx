@@ -52,7 +52,14 @@ export function ActivityFeed({ items, loading, compact = false }: { items?: Acti
               <td className="px-2 py-2.5">
                 <Addr address={a.to} />
               </td>
-              <td className="px-2 py-2.5 text-right tabular-nums">{a.priceJpy ? jpy(a.priceJpy) : <span className="text-faint">—</span>}</td>
+              <td className="px-2 py-2.5 text-right tabular-nums">
+                {a.priceJpy ? jpy(a.priceJpy) : <span className="text-faint">—</span>}
+                {a.priceJpy && a.priceWitnessed ? (
+                  <div className="text-[11px] font-semibold text-ok" title="Curvegrid's copy of the transaction carries the same declared price">
+                    ✓ confirmed
+                  </div>
+                ) : null}
+              </td>
               <td className="px-2 py-2.5 text-muted">
                 <TimeAgo date={a.time} />
               </td>

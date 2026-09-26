@@ -159,6 +159,13 @@ flowchart LR
 - **NFC relay attacks** are a general limit of NFC verification and out of scope.
 - **Titles are public.** A high-value card's holder address is visible, so holders should use a dedicated address.
 
+## Planned upgrades
+
+Written down, not built yet ([docs/plan/upgrades.md](docs/plan/upgrades.md)):
+
+- **Card categories as ENS records.** Add `card.category` (`tcg`, `sports`, …), `card.game` or `card.sport`, `card.year`, `card.brand`, `card.number`, `card.subject` and `card.variety`, following the fields PSA shows on a cert page. Any `card.*` key is allowed. This needs a TitleControllerV3 that falls back to the old controller for titles already issued, so no issued title changes.
+- **A client for card shops.** A counter mode (look up, tap, check the seller, take the title in), inventory with bulk asks, and a public storefront under `<shop>.nafuda.eth`.
+
 ## Repository
 
 ```

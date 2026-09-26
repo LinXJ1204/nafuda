@@ -36,6 +36,7 @@ export const registryAbi = parseAbi([
   'function getOwner(uint256 anyId) view returns (address)',
   'function getResolver(string label) view returns (address)',
   'function getSubregistry(string label) view returns (address)',
+  'function getAssigneeCount(uint256 anyId, uint256 roleBitmap) view returns (uint256 counts, uint256 mask)',
 ])
 
 /// ENSv2 token ids carry a version in the low 32 bits; the canonical id zeroes them.

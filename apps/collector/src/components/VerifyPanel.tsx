@@ -14,6 +14,7 @@ import { short, who } from '@nafuda/ui/format.ts'
 import { useT } from '@nafuda/ui/i18n.tsx'
 import { useWallet } from '@nafuda/ui/wallet.tsx'
 import { recoverMessageAddress } from 'viem'
+import type { IntegrityCheck } from '@nafuda/core/integrity.ts'
 
 type Run = {
   challenge: Challenge
@@ -26,7 +27,7 @@ type Run = {
 
 const STEP_MS = 450
 
-export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string; cert: string; title: ResolvedTitle; onTapping?: (on: boolean) => void }) {
+export function VerifyPanel({ grader, cert, title, onTapping, integrity }: { grader: string; cert: string; title: ResolvedTitle; onTapping?: (on: boolean) => void; integrity?: IntegrityCheck[] }) {
   const [variant, setVariant] = useState<ChipVariant>('genuine')
   const [seller, setSeller] = useState('')
   const [sellerNote, setSellerNote] = useState<string | null>(null)
@@ -52,8 +53,8 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
     setRun(r)
     setShown(0)
     onTapping?.(true)
-    for (let i = 1; i <= 6; i++) timers.current.push(window.setTimeout(() => setShown(i), i * STEP_MS))
-    timers.current.push(window.setTimeout(() => onTapping?.(false), 6 * STEP_MS))
+    for (let i = 1; i <= 7; i++) timers.current.push(window.setTimeout(() => setShown(i), i * STEP_MS))
+    timers.current.push(window.setTimeout(() => onTapping?.(false), 7 * STEP_MS))
   }
 
   async function tap() {
@@ -91,6 +92,7 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
   const recovered = run && 'signer' in run.check ? run.check.signer : null
   const holderMatch = run?.seller && title.holder ? isAddressEqual(run.seller, title.holder) : null
   const text = run ? outcome(run.outcome, OUTCOME_TEXT[run.outcome]) : null
+  const integrityOk = integrity?.every((c) => c.ok)
   const tone = { ok: 'border-ok text-ok', warn: 'border-warn text-warn', bad: 'border-bad text-bad', none: 'border-line text-muted' }
 
   const steps = run
@@ -100,6 +102,16 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
         { title: 'Recover the signer', detail: 'EIP-191 ecrecover over this challenge', mono: recovered ?? '—', ok: true },
         { title: 'Compare with slab.chip on ENS', detail: title.chip ? `ENS says ${short(title.chip)}` : 'no title on ENS', mono: run.check.ok ? 'match' : `mismatch (${'reason' in run.check ? run.check.reason : ''})`, ok: run.check.ok },
         { title: 'Compare seller with the holder on ENS', detail: title.holder ? `holder is ${who(title.holder)}` : 'no holder', mono: run.seller ? (holderMatch ? `${who(run.seller)} is the holder` : `${who(run.seller)} is not the holder`) : 'no seller given', ok: !!holderMatch },
+        ...(title.status === 'ISSUED'
+          ? [
+              {
+                title: "The title follows the grader's rules (EAC)",
+                detail: 'resolver is the grader\'s controller · holder can only transfer · sole assignee · registry emancipated',
+                mono: integrity ? (integrityOk ? 'all 5 checks pass' : `failed: ${integrity.filter((c) => !c.ok).map((c) => c.title).join('; ')}`) : 'reading…',
+                ok: !!integrityOk,
+              },
+            ]
+          : []),
       ]
     : []
 
@@ -184,11 +196,16 @@ export function VerifyPanel({ grader, cert, title, onTapping }: { grader: string
             ))}
           </ol>
           {text && (
-            <div className={`rounded-2xl border-2 p-5 transition-opacity duration-500 ${shown >= 6 ? 'opacity-100' : 'opacity-0'} ${tone[text.tone]}`}>
+            <div className={`rounded-2xl border-2 p-5 transition-opacity duration-500 ${shown >= steps.length + 1 ? 'opacity-100' : 'opacity-0'} ${tone[text.tone]}`}>
               <div className="text-[11px] font-bold tracking-widest uppercase">{t('Result')}</div>
               <h3 className="mt-1 text-lg font-bold">{text.title}</h3>
               <p className="mt-2 text-sm text-ink">{text.body}</p>
               {run.replay && <p className="mt-2 text-xs text-muted">Replayed an earlier signature against a new challenge: it no longer proves anything.</p>}
+              {integrity && !integrityOk && (
+                <p className="mt-2 rounded-lg border border-bad bg-bad/5 px-2 py-1 text-xs font-semibold text-bad">
+                  Warning: this title does not follow the grader's rules (see Title integrity). Its records could be changed; do not rely on it.
+                </p>
+              )}
               {!run.replay && title.chip && (
                 <Button size="sm" className="mt-4" onClick={replay}>
                   Attack: replay this signature

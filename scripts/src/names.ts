@@ -9,6 +9,10 @@
 //   3. <name>.nafuda.eth registered in nafudaRegistry to the collector (transfer-only), with that resolver
 //   4. each collector with a key sets its primary name (v1 addr.reverse, which ENSv2 reads through
 //      its ReverseRegistrarAdapter / ENSV1Resolver)
+//   5. each collector gets SET_RESOLVER on their own name: an identity name is the owner's to point
+//      anywhere, unlike a title, which is transfer-only. On a name token ENSv2 lets a root admin
+//      grant only the base role (never the admin), so this is exactly SET_RESOLVER. Must run
+//      before the final lock, which revokes the operator's root SET_RESOLVER admin.
 // The author's wallet gets its name too; setting its primary name is up to the author.
 
 import { encodeAbiParameters, encodeFunctionData, keccak256, labelhash, parseAbi, parseEventLogs, zeroAddress, type Address, type Hex } from 'viem'
@@ -102,6 +106,21 @@ for (const c of list) {
   }
   const hash = await cfg.walletFor(account).writeContract({ address: REVERSE_REGISTRAR, abi: reverseAbi, functionName: 'setName', args: [nameOf(c.name)] })
   await confirm(client, `primary name ${nameOf(c.name)}`, hash)
+}
+
+// 5. Owners control their identity names' resolver
+const OWNER_NAME_ROLES = ROLE.SET_RESOLVER
+for (const c of list) {
+  const id = BigInt(labelhash(c.name))
+  const roles = (await client.readContract({ address: nafudaRegistry, abi: registryAbi, functionName: 'roles', args: [id, c.address] })) as bigint
+  if ((roles & OWNER_NAME_ROLES) === OWNER_NAME_ROLES) {
+    skip(`SET_RESOLVER for ${nameOf(c.name)}`, 'already granted')
+    continue
+  }
+  const hash = await operator.writeContract({ address: nafudaRegistry, abi: registryAbi, functionName: 'grantRoles', args: [id, OWNER_NAME_ROLES, c.address] })
+  state.txs[`grant SET_RESOLVER ${nameOf(c.name)}`] = hash
+  saveState(state)
+  await confirm(client, `SET_RESOLVER for ${nameOf(c.name)}`, hash)
 }
 
 // Check: reverse resolution through the ENSv2 Universal Resolver

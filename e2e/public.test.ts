@@ -24,6 +24,8 @@ const t = items[0]
   await waitFor(page, /Resolver found here/, 45_000)
   check(true, 'resolution path: resolver found at the grader level')
   check(/Provenance/.test(await text(page)) && (await page.$$('.react-flow__node')).length >= 2 + t.transferCount, 'provenance flow has the grader and every holder')
+  await waitFor(page, /All checks pass|Check failed/, 45_000)
+  check(/All checks pass/.test(await text(page)), 'title integrity (EAC): resolver, controller record, holder roles, sole assignee, emancipated')
 
   // Buyer check S1, S2, S5
   await page.evaluate(() => document.querySelector('#verify, h2')?.scrollIntoView())

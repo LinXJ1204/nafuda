@@ -18,6 +18,9 @@ export const ROLE = {
   admin,
 } as const
 
+/// Every role and every admin role (`0x1111…1`).
+export const ALL_ROLES = BigInt('0x' + '1'.repeat(64))
+
 type RoleName = Exclude<keyof typeof ROLE, 'admin'>
 const NAMES = Object.entries(ROLE).filter(([, v]) => typeof v === 'bigint') as [RoleName, bigint][]
 

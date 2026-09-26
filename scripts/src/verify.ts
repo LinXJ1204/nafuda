@@ -117,24 +117,26 @@ async function reverts(request: Parameters<typeof client.simulateContract>[0]) {
 
 if (state.locked) {
   const nafudaRegistry = state.nafudaRegistry
-  const graderNameId = BigInt(labelhash(GRADER_LABEL))
   const rootNameId = BigInt(labelhash(nameLabel))
   const lockedRootRoles = ROLE.SET_SUBREGISTRY | ROLE.admin(ROLE.SET_SUBREGISTRY)
 
   const nafudaEmancipated = await client.readContract({ address: nafudaRegistry, abi: registryAbi, functionName: 'isEmancipated' })
   check('V9', nafudaEmancipated === true, 'nafudaRegistry.isEmancipated()')
 
-  const graderTokenRoles = (await client.readContract({
-    address: nafudaRegistry,
-    abi: registryAbi,
-    functionName: 'roles',
-    args: [graderNameId, accounts.grader.address],
-  })) as bigint
-  const repointBlocked =
-    (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setResolver', args: [graderNameId, accounts.grader.address], account: accounts.grader })) &&
-    (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setResolver', args: [graderNameId, accounts.operator.address], account: accounts.operator })) &&
-    (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setSubregistry', args: [graderNameId, accounts.operator.address], account: accounts.operator }))
-  check('V10', (graderTokenRoles & GRADER_NAME_TOKEN_ROLES) === 0n && repointBlocked, `nobody can re-point ${GRADER_LABEL}.${nameLabel}.eth`)
+  // V10: every grader's name, not only psa-sim
+  const graderLabels = Object.keys(state.graders ?? { [GRADER_LABEL]: true })
+  let v10 = true
+  for (const label of graderLabels) {
+    const nameId = BigInt(labelhash(label))
+    const grader = cfg.graderAccount(label)
+    const tokenRoles = (await client.readContract({ address: nafudaRegistry, abi: registryAbi, functionName: 'roles', args: [nameId, grader.address] })) as bigint
+    const blocked =
+      (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setResolver', args: [nameId, grader.address], account: grader })) &&
+      (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setResolver', args: [nameId, accounts.operator.address], account: accounts.operator })) &&
+      (await reverts({ address: nafudaRegistry, abi: registryAbi, functionName: 'setSubregistry', args: [nameId, accounts.operator.address], account: accounts.operator }))
+    if ((tokenRoles & GRADER_NAME_TOKEN_ROLES) !== 0n || !blocked) v10 = false
+  }
+  check('V10', v10, `nobody can re-point ${graderLabels.map((l) => `${l}.${nameLabel}.eth`).join(', ')}`)
 
   const operatorRootRoles = (await client.readContract({
     address: ethRegistry.address,

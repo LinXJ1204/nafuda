@@ -17,6 +17,8 @@ import { PriceChart } from '@nafuda/ui/Charts.tsx'
 import { ProvenanceFlow } from '../components/ProvenanceFlow.tsx'
 import { QrCode } from '../components/QrCode.tsx'
 import { ResolutionPath } from '../components/ResolutionPath.tsx'
+import { TitleIntegrity } from '../components/TitleIntegrity.tsx'
+import { useIntegrity } from '@nafuda/ui/integrity.ts'
 import { TradePanel } from '../components/TradePanel.tsx'
 import { TransferPanel } from '../components/TransferPanel.tsx'
 import { VerifyPanel } from '../components/VerifyPanel.tsx'
@@ -30,6 +32,7 @@ export function TitlePage() {
   const { t: tr } = useT()
   const ens = useQuery({ queryKey: ['ens', grader, cert], queryFn: () => resolveTitle(grader, cert), enabled: !!g && isCanonicalCert(cert), staleTime: 15_000 })
   const indexed = useTitle(grader, cert)
+  const integrity = useIntegrity(grader, cert, ens.data?.holder ?? null, ens.data?.status === 'ISSUED')
 
   if (!g) return <NotFound />
   if (!isCanonicalCert(cert))
@@ -197,13 +200,16 @@ export function TitlePage() {
 
       {t && (
         <div className="mt-10">
-          <VerifyPanel grader={grader} cert={cert} title={t} onTapping={setTapping} />
+          <VerifyPanel grader={grader} cert={cert} title={t} onTapping={setTapping} integrity={integrity.data} />
         </div>
       )}
 
       {t && (
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-          <ResolutionPath grader={grader} cert={cert} title={t} />
+          <div className="grid content-start gap-6">
+            {issued && <TitleIntegrity checks={integrity.data} loading={integrity.isLoading} />}
+            <ResolutionPath grader={grader} cert={cert} title={t} />
+          </div>
           <div className="grid content-start gap-6">
             <Card className="p-5">
               <h2 className="text-lg font-bold">{tr('Declared price history')}</h2>

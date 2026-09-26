@@ -7,8 +7,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     fs: { allow: ['../..'] },
-    proxy: { '/api': process.env.API_URL ?? 'http://localhost:3310' },
+    proxy: { '/api': { target: process.env.API_URL ?? 'http://localhost:3310', changeOrigin: true } },
   },
-  preview: { proxy: { '/api': process.env.API_URL ?? 'http://localhost:3310' } },
+  preview: { proxy: { '/api': { target: process.env.API_URL ?? 'http://localhost:3310', changeOrigin: true } } },
   build: { chunkSizeWarningLimit: 1500 },
 })

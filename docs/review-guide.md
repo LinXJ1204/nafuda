@@ -58,6 +58,14 @@ Found and fixed by the tests overnight:
 - Two containers starting at once could both run a migration. Fixed with a transaction-level advisory lock; tested by starting 3 processes at once.
 - A grader's "issued" step accepted any well-formed tx hash. It is now checked against the receipt.
 
+## 3b. Enhanced Access Control pass (2026-09-26 afternoon)
+
+- [docs/access-control.md](access-control.md) maps every resource and role, and what the lock changes. `npm run roles -- --network sepolia` prints the live map.
+- **Corrected claim:** the grader holds `REGISTRAR_ADMIN`, so it could grant itself `REGISTRAR` for new certs. The README and the trust panel no longer say it "cannot bypass" the controller.
+- **Per-title EAC checks** on every title page and as the last step of the buyer check: resolver at the grader level is its controller; the controller issued it; the holder has only `CAN_TRANSFER_ADMIN`; the holder is the sole assignee; the registry is emancipated.
+- **Collectors own their identity names:** each got `SET_RESOLVER` on `<name>.nafuda.eth` (16 transactions). Titles stay transfer-only.
+- **`lock.ts` now locks every grader.** It used to lock only psa-sim. Dry run on Sepolia: all 5 steps would succeed.
+
 ## 4. Decisions that are yours
 
 1. **The final lock** (`scripts/src/lock.ts --execute`). It is irreversible. New graders and names can still be added after it: this was rehearsed on a fork. When it has run, the Trust page shows "Applied".

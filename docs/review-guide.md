@@ -64,6 +64,9 @@ Found and fixed by the tests overnight:
 - **Corrected claim:** the grader holds `REGISTRAR_ADMIN`, so it could grant itself `REGISTRAR` for new certs. The README and the trust panel no longer say it "cannot bypass" the controller.
 - **Per-title EAC checks** on every title page and as the last step of the buyer check: resolver at the grader level is its controller; the controller issued it; the holder has only `CAN_TRANSFER_ADMIN`; the holder is the sole assignee; the registry is emancipated.
 - **Collectors own their identity names:** each got `SET_RESOLVER` on `<name>.nafuda.eth` (16 transactions). Titles stay transfer-only.
+- **EAC on screen:**
+  - The title page has **"Who can do what"**: a live matrix where each cell is that actor's call simulated against the contracts, **attack buttons** that replay attacks and show the contract's own revert, and the **role bitmaps**.
+  - The grader console's Trust page has an **access-control map** with a "Today (live)" / "After the final lock (projected)" toggle: 5 resources with powers left today, 0 after.
 - **`lock.ts` now locks every grader.** It used to lock only psa-sim. Dry run on Sepolia: all 5 steps would succeed.
 
 ## 4. Decisions that are yours

@@ -6,7 +6,11 @@ Nafuda's trust model is ENSv2 **Enhanced Access Control (EAC)**. This document c
 - what the final lock changes
 - the per-title checks any buyer can run
 
-Everything here can be read live: `cd scripts && npm run roles -- --network sepolia` prints the current map, the grader console's **Trust** page reads the registry-level roles, and every title page runs the per-title checks.
+Everything here can be read live:
+- `cd scripts && npm run roles -- --network sepolia` prints the current map.
+- The grader console's **Trust** page draws the same map from live reads, with a toggle that projects what the final lock changes.
+- Every title page has **"Who can do what"**: each cell simulates that actor's call against the contracts (`eth_call`, nothing changes) and shows the contract's own answer. Next to it are attack buttons and the role bitmaps.
+- Every title page also runs the per-title checks.
 
 ## EAC in six rules (from the pinned ENSv2 Beta source)
 

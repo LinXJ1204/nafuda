@@ -4,6 +4,7 @@ import { useGraderTrust } from '@nafuda/ui/trust.ts'
 import { TrustList } from '@nafuda/ui/TrustList.tsx'
 import { NAFUDA_REGISTRY } from '@nafuda/core/deployment.ts'
 import { useConsole } from '../console.tsx'
+import { AccessMap } from '../components/AccessMap.tsx'
 
 const roles = (b: bigint) => decodeRoles(b).join(', ') || 'none'
 
@@ -16,6 +17,9 @@ export function TrustPage() {
     <>
       <h1 className="mt-8 text-3xl font-bold">What {grader.short} can and cannot do</h1>
       <p className="mt-1 text-sm text-muted">Every line is read from Sepolia when this page loads. Nothing here is a claim you have to take on trust.</p>
+      <div className="mt-6">
+        <AccessMap />
+      </div>
       {!d ? (
         <Skeleton className="mt-6 h-96" />
       ) : (

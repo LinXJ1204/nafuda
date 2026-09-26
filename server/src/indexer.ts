@@ -53,15 +53,13 @@ export async function writeBatch(tx: Sql, batch: ReturnType<typeof applyBatch>, 
 }
 
 export async function runIndexer(sql: Sql, { once = false } = {}) {
-  const retry = { retryCount: 6, retryDelay: 1500 }
+  // A rate limit moves the request to the next RPC right away (no long retry on the same one).
   const client = createPublicClient({
     chain: sepolia,
-    transport: fallback([http(env.rpcUrl(), retry), http('https://ethereum-sepolia-rpc.publicnode.com', retry)]),
+    transport: fallback(env.rpcUrls().map((u) => http(u, { retryCount: 1, retryDelay: 1000 }))),
   })
   await syncGraders(sql)
-  const controllers = GRADERS.map((g) => g.controller)
-  const registries = GRADERS.map((g) => g.registry)
-  const v2Controllers = GRADERS.filter((g) => g.controllerVersion === 2).map((g) => g.controller)
+  const addresses = GRADERS.flatMap((g) => [g.controller, g.registry])
 
   for (;;) {
     const [row] = await sql<{ value: bigint }[]>`select value from indexer_state where key = 'block'`
@@ -75,12 +73,14 @@ export async function runIndexer(sql: Sql, { once = false } = {}) {
     const fromBlock = cursor + 1n
     const toBlock = cursor + env.batchBlocks < head ? cursor + env.batchBlocks : head
 
-    const [issuedRaw, attributesRaw, transfersRaw, batchesRaw] = await Promise.all([
-      client.getLogs({ address: controllers, event: titleIssuedEvent, fromBlock, toBlock }),
-      v2Controllers.length ? client.getLogs({ address: v2Controllers, event: titleAttributeEvent, fromBlock, toBlock }) : Promise.resolve([]),
-      client.getLogs({ address: registries, event: transferSingleEvent, fromBlock, toBlock }),
-      client.getLogs({ address: registries, event: transferBatchEvent, fromBlock, toBlock }),
-    ])
+    // One eth_getLogs for all four events over every grader's controller and registry
+    const logs = await client.getLogs({ address: addresses, events: [titleIssuedEvent, titleAttributeEvent, transferSingleEvent, transferBatchEvent], fromBlock, toBlock })
+    const fromController = (l: (typeof logs)[number]) => !!graderByController(l.address)
+    const fromRegistry = (l: (typeof logs)[number]) => !!graderByRegistry(l.address)
+    const issuedRaw = logs.filter((l) => l.eventName === 'TitleIssued' && fromController(l))
+    const attributesRaw = logs.filter((l) => l.eventName === 'TitleAttribute' && fromController(l))
+    const transfersRaw = logs.filter((l) => l.eventName === 'TransferSingle' && fromRegistry(l))
+    const batchesRaw = logs.filter((l) => l.eventName === 'TransferBatch' && fromRegistry(l))
     const issued = issuedRaw.map((l) => ({ ...l, grader: graderByController(l.address)!.label })) as unknown as IssuedLog[]
     const attributes = attributesRaw.map((l) => ({ ...l, grader: graderByController(l.address)!.label })) as unknown as AttributeLog[]
     const batches = batchesRaw.map((l) => ({ ...l, grader: graderByRegistry(l.address)!.label })) as unknown as TransferBatchLog[]

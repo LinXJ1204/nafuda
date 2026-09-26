@@ -29,7 +29,7 @@ let chain: ReturnType<typeof createPublicClient> | null = null
 const client = () =>
   (chain ??= createPublicClient({
     chain: sepolia,
-    transport: fallback([http(env.rpcUrl(), { retryCount: 3 }), http('https://ethereum-sepolia-rpc.publicnode.com', { retryCount: 3 })]),
+    transport: fallback(env.rpcUrls().map((u) => http(u, { retryCount: 1, retryDelay: 1000 }))),
   }))
 
 /// The "issued" step must point at a real, successful issuance of this cert by this grader.

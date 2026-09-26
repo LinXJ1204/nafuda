@@ -40,11 +40,15 @@ function required(key: string): string {
 
 export function loadConfig(network: Network) {
   const rpcUrl = network === 'fork' ? (process.env.FORK_RPC_URL ?? 'http://127.0.0.1:8545') : required('SEPOLIA_RPC_URL')
-  // Retries with backoff, and on Sepolia a public RPC as fallback: a 429 from the main RPC must
-  // not kill a long-running seed or market run.
-  const retry = { retryCount: 6, retryDelay: 1500 }
+  // On Sepolia, public RPCs first and the keyed one (SEPOLIA_RPC_URL) last, so long runs like
+  // the market simulator don't exhaust a provider's daily quota; a rate limit fails over at once.
+  const retry = { retryCount: 1, retryDelay: 1000 }
   const transport =
-    network === 'fork' ? http(rpcUrl, retry) : fallback([http(rpcUrl, retry), http('https://ethereum-sepolia-rpc.publicnode.com', retry)])
+    network === 'fork'
+      ? http(rpcUrl, { retryCount: 6, retryDelay: 1500 })
+      : fallback(
+          ['https://ethereum-sepolia-rpc.publicnode.com', 'https://sepolia.gateway.tenderly.co', 'https://rpc.sepolia.ethpandaops.io', rpcUrl].map((u) => http(u, retry)),
+        )
   const publicClient = createPublicClient({ chain: sepolia, transport, batch: { multicall: true } })
 
   const accounts = Object.fromEntries(

@@ -4,7 +4,7 @@
 
 import type { ReactNode } from 'react'
 import { graderByLabel } from '@nafuda/core/deployment.ts'
-import { useWitness, type Witness, type WitnessVerdict } from './api.ts'
+import { useWitness, type Status, type Witness, type WitnessVerdict } from './api.ts'
 import { Addr, AppLink, Card, Empty, GraderBadge, Pill, Skeleton, TimeAgo, TxLink, useLinks } from './components.tsx'
 
 const VERDICT: Record<WitnessVerdict, { label: string; tone: 'ok' | 'bad' | 'muted'; help: string }> = {
@@ -22,6 +22,22 @@ export function WitnessStatus({ w }: { w: Witness }) {
   if (!w.summary.witnessed) return <Pill tone="muted">waiting for the first event</Pill>
   const n = findings(w)
   return n ? <Pill tone="bad">{n} to look at</Pill> : <Pill tone="ok">✓ indexes agree</Pill>
+}
+
+/// Header badge on every page (both apps): the witness's verdict at a glance.
+export function WitnessBadge({ w, href }: { w: NonNullable<Status['witness']>; href: string }) {
+  const settled = w.witnessed - w.pending - w.regeneration
+  const problems = w.mismatch + w.missing + w.unwitnessed
+  return (
+    <AppLink
+      to={href}
+      title="Second witness: Curvegrid MultiBaas indexes the same registries on its own infrastructure; the server checks that both indexes agree"
+      className={`hidden items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold whitespace-nowrap no-underline md:inline-flex ${problems ? 'border-bad/40 text-bad' : 'border-ok/40 text-ok'}`}
+    >
+      {problems ? '✕' : '✓'} Curvegrid witness
+      <span className="font-normal tabular-nums">{problems ? `${problems} to check` : `${w.agreed}/${settled}`}</span>
+    </AppLink>
+  )
 }
 
 /// One line for busy pages (Activity, the grader Trust page). Hidden until the witness is connected.

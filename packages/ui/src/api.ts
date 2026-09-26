@@ -40,7 +40,7 @@ export type Transfer = {
   witnessed?: boolean
 }
 export type Activity = Transfer & { kind: 'issue' | 'transfer' }
-export type TitleDetail = Title & { history: Transfer[] }
+export type TitleDetail = Title & { history: Transfer[]; issuedWitnessed?: boolean }
 export type GraderSummary = Grader & { titles: number; transfers: number; holders: number; avgGrade: number | null }
 export type GraderDetail = Grader & {
   titles: number
@@ -111,6 +111,7 @@ export type Witness = {
     triggeredAt: string | null
   }[]
   unwitnessed: { kind: 'transfer' | 'issue'; grader: string; cert: string; tx: string; block: string }[]
+  perHour: { hour: string; witnessed: number; indexed: number }[]
 }
 export type CollectorRow = { name: string; bio: string; address: string; source: string; titles: number }
 

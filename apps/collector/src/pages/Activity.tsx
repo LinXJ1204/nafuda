@@ -16,7 +16,7 @@ export function ActivityPage() {
       <h1 className="mt-8 text-3xl font-bold">Activity</h1>
       <p className="mt-1 text-sm text-muted">Every issuance and every transfer, straight from chain events. Declared prices are what sellers wrote into the transfer; nobody verifies them.</p>
       <div className="mt-4">
-        <WitnessBanner href="/developers#witness" />
+        <WitnessBanner href="/witness" />
       </div>
       <div className="mt-6 rounded-2xl border border-line bg-card p-4">{stats.data && <ActivityChart data={stats.data.perHour} />}</div>
       <div className="mt-6 flex flex-wrap gap-2">

@@ -8,6 +8,7 @@ import { AddressLink, ExtLink, Seal } from './components.tsx'
 import { useStatus } from './api.ts'
 import { LangToggle, useT } from './i18n.tsx'
 import { WalletButton } from './WalletButton.tsx'
+import { WitnessBadge } from './Witness.tsx'
 
 export type NavItem = { to: string; label: string; end?: boolean }
 
@@ -17,6 +18,7 @@ export function Shell({
   nav,
   cross,
   walletLabel,
+  witnessHref,
   children,
 }: {
   brand: ReactNode
@@ -24,6 +26,8 @@ export function Shell({
   nav: NavItem[]
   cross: { href: string; label: string }
   walletLabel?: string
+  /// where the Curvegrid witness badge links (the collector app's /witness page)
+  witnessHref?: string
   children: ReactNode
 }) {
   const [open, setOpen] = useState(false)
@@ -64,6 +68,7 @@ export function Shell({
               <span className={`size-1.5 rounded-full ${status.isError ? 'bg-bad' : 'bg-ok'}`} />
               Sepolia · ENSv2
             </span>
+            {witnessHref && status.data?.witness?.configured && <WitnessBadge w={status.data.witness} href={witnessHref} />}
             <LangToggle />
             <WalletButton label={t(walletLabel ?? 'Connect wallet')} />
             <button className="rounded-lg border border-line px-2 py-1.5 lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu">

@@ -7,7 +7,7 @@ const browser = await launch()
 const api = async <T>(path: string): Promise<T> => (await fetch(`${COLLECTOR}/api${path}`)).json() as Promise<T>
 
 // Collector app pages load without errors
-for (const path of ['/', '/explore', '/verify', '/activity', '/graders', '/graders/bgs-sim', '/collectors', '/map', '/developers', '/submit']) {
+for (const path of ['/', '/explore', '/verify', '/activity', '/graders', '/graders/bgs-sim', '/collectors', '/map', '/witness', '/developers', '/submit']) {
   const { page, errors } = await open(browser, COLLECTOR + path)
   await page.waitForSelector('h1', { timeout: 30_000 })
   check(errors.length === 0, `collector ${path} loads`, errors[0])

@@ -10,7 +10,7 @@ import { isAddressEqual } from 'viem'
 import { UNIVERSAL_RESOLVER, graderByLabel, isCanonicalCert, titleName } from '@nafuda/core/deployment.ts'
 import { splitCard } from '@nafuda/core/slab.ts'
 import { useTitle } from '@nafuda/ui/api.ts'
-import { Addr, AddressLink, Card, ExtLink, GraderBadge, Pill, Section, Skeleton, TimeAgo, TxLink } from '@nafuda/ui/components.tsx'
+import { Addr, AddressLink, AppLink, Card, ExtLink, GraderBadge, Pill, Section, Skeleton, TimeAgo, TxLink } from '@nafuda/ui/components.tsx'
 import { resolveTitle } from '@nafuda/ui/ens.ts'
 import { formatTime, jpy, scan } from '@nafuda/ui/format.ts'
 import { SlabArt } from '@nafuda/ui/SlabArt.tsx'
@@ -49,6 +49,8 @@ export function TitlePage() {
   const idx = indexed.data
   const issued = t?.status === 'ISSUED'
   const card = splitCard(t?.card ?? idx?.card ?? '')
+  // Curvegrid (second witness) reported this title's latest event: its last transfer, or its issuance
+  const lastWitnessed = idx ? (idx.history.length ? idx.history[idx.history.length - 1].witnessed : idx.issuedWitnessed) : false
   const consistent = t && idx ? !!t.holder && isAddressEqual(t.holder, idx.holder as `0x${string}`) && !!t.chip && t.chip.toLowerCase() === idx.chip.toLowerCase() : null
   const pageUrl = `${location.origin}/title/${grader}/${cert}`
   const prices = (idx?.history ?? []).filter((h) => h.priceJpy).map((h) => ({ time: h.time, priceJpy: h.priceJpy! }))
@@ -79,6 +81,11 @@ export function TitlePage() {
             <Pill tone="accent">resolved via ENS</Pill>
             {consistent === true && <Pill tone="ok">index matches ENS ✓</Pill>}
             {consistent === false && <Pill tone="warn">index is behind ENS</Pill>}
+            {lastWitnessed && (
+              <AppLink to="/witness" className="no-underline" title="Curvegrid MultiBaas, an independent indexer, reported this title's latest event, and it matches the Nafuda index">
+                <Pill tone="ok">Curvegrid witnessed ✓</Pill>
+              </AppLink>
+            )}
           </div>
           <p className="mt-2 font-mono text-sm break-all text-muted">{titleName(grader, cert)}</p>
           <h1 className="mt-1 text-3xl font-bold md:text-4xl">{issued ? card.name : `Cert #${cert}`}</h1>
@@ -176,7 +183,10 @@ export function TitlePage() {
               <tbody>
                 {[...idx.history].reverse().map((h) => (
                   <tr key={h.tx} className="border-t border-line">
-                    <td className="px-4 py-2 font-semibold">⇄ Transfer</td>
+                    <td className="px-4 py-2 font-semibold">
+                      ⇄ Transfer
+                      {h.witnessed && <div className="text-[11px] font-semibold text-ok" title="Curvegrid MultiBaas reported this same event">✓ Curvegrid</div>}
+                    </td>
                     <td className="px-2 py-2">
                       <Addr address={h.from} />
                     </td>
@@ -193,7 +203,10 @@ export function TitlePage() {
                   </tr>
                 ))}
                 <tr className="border-t border-line">
-                  <td className="px-4 py-2 font-semibold text-accent">◆ Issued</td>
+                  <td className="px-4 py-2 font-semibold text-accent">
+                    ◆ Issued
+                    {idx.issuedWitnessed && <div className="text-[11px] font-semibold text-ok" title="Curvegrid MultiBaas reported this same event">✓ Curvegrid</div>}
+                  </td>
                   <td className="px-2 py-2 text-muted">{g.short}</td>
                   <td className="px-2 py-2">
                     <Addr address={idx.history[0]?.from ?? idx.holder} />

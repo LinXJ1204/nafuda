@@ -44,6 +44,7 @@ export function App() {
         ]}
         cross={{ href: COLLECTOR_URL, label: 'Collector app ↗' }}
         walletLabel="Connect grader wallet"
+        witnessHref={`${COLLECTOR_URL}/witness`}
       >
         <GraderBar />
         <Suspense fallback={<div className="skeleton mt-8 h-96" />}>

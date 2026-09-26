@@ -71,7 +71,7 @@ Found and fixed by the tests overnight:
 
 ## 3c. Curvegrid MultiBaas: second witness (2026-09-26, 15:30–16:15)
 
-- **What it is.** MultiBaas indexes the three grader registries on its own infrastructure and pushes every transfer to `POST /api/hooks/multibaas` through a signed webhook. The server compares that with its own index, both ways. Open https://nafuda.sololin.xyz/developers#witness: at 16:10 it showed 4 witnessed events, 4 agreeing and 0 unwitnessed.
+- **What it is.** MultiBaas indexes the three grader registries on its own infrastructure and pushes every transfer to `POST /api/hooks/multibaas` through a signed webhook. The server compares that with its own index, both ways. Open https://nafuda.sololin.xyz/witness: at 16:10 it showed 4 witnessed events, 4 agreeing and 0 unwitnessed.
 - **Where else it shows:**
   - the Activity page: a status line, and "✓ Curvegrid" on each witnessed event;
   - the grader console's Trust page: one line.

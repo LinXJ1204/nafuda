@@ -247,9 +247,10 @@ Nafuda's own server indexes chain events for lists and charts. **Curvegrid Multi
   - every event Curvegrid saw is in Nafuda's index, with the same transaction, log position, title, sender and recipient;
   - every transfer Nafuda indexed inside Curvegrid's window was seen by Curvegrid. This direction catches a server that invents a record.
 - **On screen:**
-  - the panel on the [Developers page](https://nafuda.sololin.xyz/developers#witness)
-  - a status line on the Activity page, and a "✓ Curvegrid" mark on each witnessed event
-  - a line on the grader console's Trust page
+  - the [Second witness page](https://nafuda.sololin.xyz/witness): the full comparison, events per hour on each side, and agreement by grader
+  - a "✓ Curvegrid witness" badge in the header of every page, in both apps
+  - a status line on the home and Activity pages
+  - "Curvegrid witnessed ✓" on title pages, and a "✓ Curvegrid" mark on each witnessed event in feeds and title histories
 
   The public e2e suite fails if the two indexes disagree.
 - **Setup.** [scripts/src/multibaas.ts](scripts/src/multibaas.ts) uses the MultiBaas TypeScript SDK. Its commands are `plan`, `webhook`, `link` and `status`, and each can be re-run safely. The Administrator API key stays on the author's machine; the server only holds the webhook secret.

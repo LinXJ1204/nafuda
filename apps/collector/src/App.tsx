@@ -16,6 +16,7 @@ const MarketMapPage = lazy(() => import('./pages/MarketMap.tsx').then((m) => ({ 
 const ActivityPage = lazy(() => import('./pages/Activity.tsx').then((m) => ({ default: m.ActivityPage })))
 const GraderPage = lazy(() => import('./pages/Grader.tsx').then((m) => ({ default: m.GraderPage })))
 const DevelopersPage = lazy(() => import('./pages/Developers.tsx').then((m) => ({ default: m.DevelopersPage })))
+const WitnessPage = lazy(() => import('./pages/Witness.tsx').then((m) => ({ default: m.WitnessPage })))
 const SubmitPage = lazy(() => import('./pages/Submit.tsx').then((m) => ({ default: m.SubmitPage })))
 
 export const GRADER_CONSOLE_URL: string = (import.meta.env.VITE_GRADER_URL as string | undefined) || 'https://nafuda-grader.sololin.xyz'
@@ -38,10 +39,12 @@ export function App() {
         { to: '/graders', label: 'Graders' },
         { to: '/collectors', label: 'Collectors' },
         { to: '/map', label: 'Map' },
+        { to: '/witness', label: 'Witness' },
         { to: '/submit', label: 'Submit' },
         { to: '/me', label: 'My titles' },
       ]}
       cross={{ href: GRADER_CONSOLE_URL, label: 'Grader console ↗' }}
+      witnessHref="/witness"
     >
       <Suspense fallback={<div className="skeleton mt-8 h-96" />}>
       <Routes>
@@ -56,6 +59,7 @@ export function App() {
         <Route path="/collector/:address" element={<CollectorPage />} />
         <Route path="/map" element={<MarketMapPage />} />
         <Route path="/developers" element={<DevelopersPage />} />
+        <Route path="/witness" element={<WitnessPage />} />
         <Route path="/submit" element={<SubmitPage />} />
         <Route path="/me" element={<Me />} />
         <Route path="*" element={<NotFound />} />

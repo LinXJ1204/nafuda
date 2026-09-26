@@ -63,3 +63,26 @@ export function PriceChart({ data }: { data: { time: string; priceJpy: number }[
     </div>
   )
 }
+
+/// Second witness: events per hour as the Nafuda index and Curvegrid MultiBaas each saw them.
+export function WitnessChart({ data }: { data: { hour: string; witnessed: number; indexed: number }[] }) {
+  return (
+    <div className="h-56">
+      <div className="mb-2 flex gap-4 text-xs text-muted">
+        <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-sm bg-ink" /> Nafuda index</span>
+        <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-sm bg-ok" /> Curvegrid MultiBaas</span>
+        <span className="ml-auto">issuances and transfers per hour</span>
+      </div>
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart data={data}>
+          <CartesianGrid vertical={false} stroke="var(--line)" />
+          <XAxis dataKey="hour" tickFormatter={hourLabel} {...axis} />
+          <YAxis allowDecimals={false} width={28} {...axis} />
+          <Tooltip labelFormatter={(h) => formatTime(h as string)} {...tooltip} />
+          <Bar dataKey="indexed" name="Nafuda index" fill="var(--ink)" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="witnessed" name="Curvegrid" fill="var(--ok)" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}

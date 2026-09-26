@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { GRADERS, NAFUDA_REGISTRY, UNIVERSAL_RESOLVER } from '@nafuda/core/deployment.ts'
 import { AddressLink, Card, ExtLink } from '@nafuda/ui/components.tsx'
-import { WitnessPanel } from '@nafuda/ui/Witness.tsx'
+import { WitnessBanner } from '@nafuda/ui/Witness.tsx'
 
 const RECORDS = [
   ['addr (coin 60)', 'The current holder. Follows every transfer; computed from the registry, never stale.'],
@@ -46,7 +46,7 @@ const chip = await client.getEnsText({ name, key: 'slab.chip', universalResolver
 // recoverMessageAddress({ message, signature }) === chip`}</pre>
       </Card>
       <div id="witness" className="mt-6 scroll-mt-20">
-        <WitnessPanel />
+        <WitnessBanner href="/witness" />
       </div>
       <Card className="mt-6 p-5">
         <h2 className="text-lg font-bold">Records</h2>

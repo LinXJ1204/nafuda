@@ -155,7 +155,9 @@ export function api(sql: Sql) {
           and w.from_addr = t.from_addr and w.to_addr = t.to_addr and not w.removed) as witnessed
       from transfers t join titles ti using (grader, cert)
       where t.grader = ${grader} and t.cert = ${cert} order by block, log_index, batch_index`
-    return out(c, { ...titleOut(row), history: history.map(transferOut) })
+    const [{ issued_witnessed }] = await sql`
+      select exists(select 1 from witness_events w where w.tx = ${row.issued_tx} and w.grader = ${grader} and w.kind = 'mint' and not w.removed) as issued_witnessed`
+    return out(c, { ...titleOut(row), history: history.map(transferOut), issuedWitnessed: issued_witnessed })
   })
 
   app.get('/activity', async (c) => {

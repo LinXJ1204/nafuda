@@ -115,8 +115,20 @@ export function witnessRoutes(app: Hono, sql: Sql, out: Out) {
         return [g, { witnessed: mine.length, agreed: mine.filter((e) => e.verdict === 'agreed').length }]
       }),
     )
+    // Events per hour inside the window, as each side saw them: issuances and transfers
+    const from = summary.fromBlock === null ? null : String(summary.fromBlock)
+    const perHour =
+      from === null
+        ? []
+        : await sql`
+          select hour, sum(w)::int as witnessed, sum(i)::int as indexed from (
+            select date_trunc('hour', coalesce(triggered_at, received_at)) as hour, 1 as w, 0 as i from witness_events where not removed
+            union all select date_trunc('hour', time), 0, 1 from transfers where block >= ${from}
+            union all select date_trunc('hour', issued_at), 0, 1 from titles where issued_block >= ${from}
+          ) x group by hour order by hour`
     return out(c, {
       source: 'Curvegrid MultiBaas',
+      perHour,
       configured,
       deliveries,
       refused,

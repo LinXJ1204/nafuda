@@ -7,6 +7,7 @@ import { SlabArt } from '@nafuda/ui/SlabArt.tsx'
 import { TitleGrid } from '@nafuda/ui/TitleCard.tsx'
 import { useT } from '@nafuda/ui/i18n.tsx'
 import { Lifecycle } from '../components/Lifecycle.tsx'
+import { WitnessBanner } from '@nafuda/ui/Witness.tsx'
 import { GraderCards } from './Graders.tsx'
 
 export function HomePage() {
@@ -62,6 +63,9 @@ export function HomePage() {
         <Stat label={t('Collectors')} value={stats.data?.holders ?? '…'} sub="current holders" />
         <Stat label={t('Transfers')} value={stats.data?.transfers ?? '…'} sub="title changed hands" />
         <Stat label={t('Declared volume')} value={stats.data ? compactJpy(stats.data.volumeJpy) : '…'} sub="self-reported by sellers" />
+      </div>
+      <div className="mt-3">
+        <WitnessBanner href="/witness" />
       </div>
 
       <Section title={t('How a slab title works')} sub={t('From the grading bench to a card show, every step checkable by anyone.')}>

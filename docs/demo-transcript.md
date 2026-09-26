@@ -2,7 +2,7 @@
 
 This is the narration for [demo-script.md](demo-script.md).
 - `[ ]` = what to do on screen (in Chinese); quotes = what to say.
-- **Core:** 550 words, about 4:40 at 150 words a minute and 4:56 at 140. Talk while you click, and cut out block waits.
+- **Core:** 550 words, about 3:40 at 150 words a minute and 3:56 at 140. Talk while you click, and cut out block waits.
 - ***(optional)*** sentences add 98 words. Record the core first, check the length, then add back only the optional lines that fit under 4:00.
 
 Pronunciation: Nafuda = nah-FOO-dah · ENS = E-N-S · MultiBaas = multi-bass · HMAC = H-mac.

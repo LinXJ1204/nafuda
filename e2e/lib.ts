@@ -19,6 +19,7 @@ export function check(ok: boolean, label: string, detail = '') {
   console.log(`${ok ? '✓' : '✗'} ${label}${detail ? `  (${detail})` : ''}`)
 }
 export function done(): never {
+  if (rateLimited) console.log(`\n(${rateLimited} public-RPC 429s were absorbed by the app's RPC fallback)`)
   console.log(failed ? `\n${failed} failed` : '\nall passed')
   process.exit(failed ? 1 : 0)
 }
@@ -30,12 +31,22 @@ export async function launch(): Promise<Browser> {
 
 export type Opened = { page: Page; errors: string[] }
 
+const RPC_HOSTS = ['ethereum-sepolia-rpc.publicnode.com', '1rpc.io', 'sepolia.gateway.tenderly.co']
+/// RPC 429s absorbed by the app's fallback during this run (reported by done()).
+let rateLimited = 0
+
 /// A page, optionally with a wallet that signs with `key`.
 export async function open(browser: Browser, url: string, key?: Hex): Promise<Opened> {
   const page = await browser.newPage()
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(`pageerror: ${(e as Error).message}`))
   page.on('console', (m) => {
+    // A public RPC answering 429 is handled by the app's RPC fallback (packages/ui/src/ens.ts):
+    // Chrome still logs the failed request, so it is counted apart, not as a page error.
+    if (m.type() === 'error' && / 429 /.test(m.text()) && RPC_HOSTS.some((h) => m.location().url?.includes(h))) {
+      rateLimited++
+      return
+    }
     if (m.type() === 'error') errors.push(m.text().slice(0, 200))
   })
   await page.setViewport({ width: 1280, height: 900 })

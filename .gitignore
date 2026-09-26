@@ -23,3 +23,6 @@ deployments/.secret-*
 docs/demo-script.md
 docs/demo-transcript.md
 docs/demo-subtitles.srt
+docs/demo-clips/
+e2e/demo-clips.ts
+e2e/demo-slides.ts

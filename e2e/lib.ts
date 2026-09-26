@@ -55,7 +55,7 @@ export async function open(browser: Browser, url: string, key?: Hex): Promise<Op
   return { page, errors }
 }
 
-async function attachWallet(page: Page, account: PrivateKeyAccount) {
+export async function attachWallet(page: Page, account: PrivateKeyAccount) {
   const wallet = createWalletClient({ account, chain: sepolia, transport: RPC })
   await page.exposeFunction('__nafudaWallet', async (method: string, params: unknown[] = []) => {
     switch (method) {

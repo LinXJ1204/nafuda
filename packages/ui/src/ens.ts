@@ -2,14 +2,25 @@
 // resolution path (which registry answers each label, where the resolver is found), for the
 // title page's diagram. Browser-side, public RPC: no Nafuda server involved.
 
-import { createPublicClient, getAddress, http, parseAbi, toHex, zeroAddress, type Address } from 'viem'
+import { createPublicClient, fallback, getAddress, http, parseAbi, toHex, zeroAddress, type Address } from 'viem'
 import { sepolia } from 'viem/chains'
 import { normalize, packetToBytes } from 'viem/ens'
 import { registryAbi } from '@nafuda/core/abis.ts'
 import { UNIVERSAL_RESOLVER, titleName } from '@nafuda/core/deployment.ts'
 
-const RPC: string = (import.meta.env?.VITE_SEPOLIA_RPC_URL as string | undefined) || 'https://ethereum-sepolia-rpc.publicnode.com'
-export const publicClient = createPublicClient({ chain: sepolia, transport: http(RPC, { retryCount: 3 }), batch: { multicall: true } })
+// Public RPCs (CORS-enabled, checked to resolve titles through the Universal Resolver). A rate
+// limit or outage on one moves the request to the next; a contract revert is final and does not.
+const RPCS = [
+  import.meta.env?.VITE_SEPOLIA_RPC_URL as string | undefined,
+  'https://ethereum-sepolia-rpc.publicnode.com',
+  'https://1rpc.io/sepolia',
+  'https://sepolia.gateway.tenderly.co',
+].filter((u): u is string => !!u)
+export const publicClient = createPublicClient({
+  chain: sepolia,
+  transport: fallback(RPCS.map((u) => http(u, { retryCount: 1 }))),
+  batch: { multicall: true },
+})
 
 export const UNIVERSAL_HELPER: Address = getAddress('0x33f571aa8a160a21b877cf6e0fb8806692b97df5')
 

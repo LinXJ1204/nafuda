@@ -89,7 +89,9 @@ export function WitnessChart({ data }: { data: { hour: string; witnessed: number
 
 /// Median declared price by grade score (all graders), with the number of sales and the range.
 export function GradeValueChart({ data }: { data: { grade_score: number; n: number; median: number; min: number; max: number }[] }) {
-  const rows = [...data].sort((a, b) => a.grade_score - b.grade_score).map((d) => ({ ...d, grade: String(d.grade_score) }))
+  // Only plain fields reach the SVG: Recharts passes a row's fields on to each bar's <path>, and
+  // `min`/`max` there are SVG animation-timing attributes that keep the bars from being drawn.
+  const rows = [...data].sort((a, b) => a.grade_score - b.grade_score).map((d) => ({ grade: String(d.grade_score), median: d.median, n: d.n, lo: d.min, hi: d.max }))
   return (
     <div className="h-60">
       <ResponsiveContainer width="100%" height="100%">
@@ -98,11 +100,11 @@ export function GradeValueChart({ data }: { data: { grade_score: number; n: numb
           <XAxis dataKey="grade" {...axis} />
           <YAxis tickFormatter={(v) => compactJpy(v as number)} width={52} {...axis} />
           <Tooltip
-            formatter={(v, _n, p) => [`${jpy(v as number)} median · ${p.payload.n} sales · ${jpy(p.payload.min)}–${jpy(p.payload.max)}`, 'Grade ' + p.payload.grade]}
+            formatter={(v, _n, p) => [`${jpy(v as number)} median · ${p.payload.n} sales · ${jpy(p.payload.lo)}–${jpy(p.payload.hi)}`, 'Grade ' + p.payload.grade]}
             labelFormatter={() => ''}
             {...tooltip}
           />
-          <Bar dataKey="median" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="median" fill="var(--accent)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -119,7 +121,7 @@ export function GraderValueChart({ data }: { data: { label: string; color: strin
           <XAxis dataKey="label" {...axis} />
           <YAxis tickFormatter={(v) => compactJpy(v as number)} width={52} {...axis} />
           <Tooltip formatter={(v, _n, p) => [`${jpy(v as number)} median · ${p.payload.n} sales`, p.payload.label]} labelFormatter={() => ''} {...tooltip} />
-          <Bar dataKey="median" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="median" radius={[4, 4, 0, 0]} isAnimationActive={false}>
             {data.map((d) => (
               <Cell key={d.label} fill={d.color} />
             ))}
